@@ -5,7 +5,7 @@ class StartPage extends StatelessWidget {
   const StartPage({Key? key}) : super(key: key);
 
   void _navigateToLogin(BuildContext context) {
-    Navigator.pushReplacement(
+    Navigator.push(
       context,
       MaterialPageRoute(builder: (context) => const LoginPage()),
     );

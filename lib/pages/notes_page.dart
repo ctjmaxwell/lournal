@@ -114,7 +114,7 @@ class _NotesPageState extends State<NotesPage> {
       body: SafeArea(
         // Set top to false so we can handle the top safe area with the SliverAppBar
         top: true,
-        bottom: false,
+        bottom: false, // Set to false, we'll handle bottom padding with a Sliver
         child: CustomScrollView(
           slivers: [
           // SliverAppBar with Instagram-style safe area handling
@@ -338,6 +338,12 @@ class _NotesPageState extends State<NotesPage> {
                 ),
               );
             },
+          ),
+          // SliverToBoxAdapter for bottom padding
+          SliverToBoxAdapter(
+            child: SizedBox(
+              height: 80.0, // Adjust this value to your desired padding
+            ),
           ),
         ],
       ),

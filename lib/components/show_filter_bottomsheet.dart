@@ -1,6 +1,6 @@
 import 'package:country_flags/country_flags.dart';
 import 'package:flutter/material.dart';
-import 'package:lournal/helper/language_and_type_helper.dart';
+import 'package:lournal/helper/language_and_type_helper.dart'; // Assuming this file exists and is correct
 
 Future<Map<String, bool>?> showFilterBottomSheet(
   BuildContext context, {
@@ -8,13 +8,13 @@ Future<Map<String, bool>?> showFilterBottomSheet(
 }) {
   return showModalBottomSheet<Map<String, bool>>(
     context: context,
-    isScrollControlled: true,
+    isScrollControlled: true, // Important for full-screen or near full-screen sheets
     shape: const RoundedRectangleBorder(
       borderRadius: BorderRadius.vertical(top: Radius.circular(30)),
     ),
     clipBehavior: Clip.antiAlias,
     builder: (_) => FractionallySizedBox(
-      heightFactor: 0.92,
+      heightFactor: 1.0, // Sheet spans the whole page
       child: _FilterBottomSheetContent(
         initialSelection: initialSelection ?? {},
       ),
@@ -114,11 +114,12 @@ class _FilterBottomSheetContentState extends State<_FilterBottomSheetContent> {
     VoidCallback onTap,
   ) {
     return ListTile(
-      contentPadding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
-      leading: Text(emoji, style: const TextStyle(fontSize: 30)),
-      title: Text(label, style: const TextStyle(fontSize: 18)),
+      contentPadding: const EdgeInsets.symmetric(horizontal: 6, vertical: 0),
+      leading: Text(emoji, style: const TextStyle(fontSize: 25)),
+      title: Text(label, style: const TextStyle(fontSize: 16)),
       trailing: Icon(
         isSelected ? Icons.check_circle : Icons.radio_button_unchecked,
+        size: 22,
         color: Theme.of(context).colorScheme.inversePrimary,
       ),
       onTap: onTap,
@@ -130,19 +131,22 @@ class _FilterBottomSheetContentState extends State<_FilterBottomSheetContent> {
     bool isSelected,
     VoidCallback onTap,
   ) {
+    // Assuming getCountryCodeForLanguage is defined in your helper
+    String countryCode = getCountryCodeForLanguage(language);
     return ListTile(
-      contentPadding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
+      contentPadding: const EdgeInsets.symmetric(horizontal: 6, vertical: 0),
       leading: ClipRRect(
-        borderRadius: BorderRadius.circular(5),
+        borderRadius: BorderRadius.circular(3),
         child: CountryFlag.fromCountryCode(
-          getCountryCodeForLanguage(language),
-          width: 35,
-          height: 25,
+          countryCode,
+          width: 25,
+          height: 18,
         ),
       ),
-      title: Text(language, style: const TextStyle(fontSize: 18)),
+      title: Text(language, style: const TextStyle(fontSize: 16)),
       trailing: Icon(
         isSelected ? Icons.check_circle : Icons.radio_button_unchecked,
+        size: 22,
         color: Theme.of(context).colorScheme.inversePrimary,
       ),
       onTap: onTap,
@@ -153,149 +157,148 @@ class _FilterBottomSheetContentState extends State<_FilterBottomSheetContent> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Theme.of(context).colorScheme.primary,
-      body: Stack(
+      body: SafeArea( // Wrap the Stack with SafeArea
+        top: true,    // Apply safe area to the top
+        bottom: false, // Do not apply safe area to the bottom for modal sheets
+        child: Stack(
           children: [
             Padding(
               padding: const EdgeInsets.fromLTRB(20, 16, 20, 0),
-              child: ConstrainedBox(
-                constraints: BoxConstraints(
-                  maxHeight: MediaQuery.of(context).size.height * 0.92,
-                ),
-                child: SingleChildScrollView(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        children: [
-                          const Spacer(),
-                          Container(
-                            width: 40,
-                            height: 40,
-                            decoration: BoxDecoration(
-                              color: Theme.of(context).colorScheme.secondary,
-                              borderRadius: BorderRadius.circular(20),
-                            ),
-                            child: IconButton(
-                              icon: const Icon(Icons.close),
-                              onPressed: () => Navigator.pop(context),
-                            ),
+              child: SingleChildScrollView(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        const Spacer(),
+                        Container(
+                          width: 40,
+                          height: 40,
+                          decoration: BoxDecoration(
+                            color: Theme.of(context).colorScheme.secondary,
+                            borderRadius: BorderRadius.circular(20),
                           ),
+                          child: IconButton(
+                            icon: const Icon(Icons.close),
+                            onPressed: () => Navigator.pop(context),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 8),
+                    const Text(
+                      'Filter',
+                      style: TextStyle(
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    const Text(
+                      'Type',
+                      style: TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 12),
+                      decoration: BoxDecoration(
+                        color: Theme.of(context).colorScheme.secondary,
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Column(
+                        children: [
+                          _buildTypeRow('📖', 'Diary', _diarySelected,
+                              () => setState(() => _diarySelected = !_diarySelected)),
+                          Divider(height: 1, color: Theme.of(context).colorScheme.surface),
+                          _buildTypeRow('🙏', 'Gratitude', _gratitudeSelected,
+                              () => setState(() => _gratitudeSelected = !_gratitudeSelected)),
+                          Divider(height: 1, color: Theme.of(context).colorScheme.surface),
+                          _buildTypeRow('💭', 'Dreams', _dreamsSelected,
+                              () => setState(() => _dreamsSelected = !_dreamsSelected)),
+                          Divider(height: 1, color: Theme.of(context).colorScheme.surface),
+                          _buildTypeRow('💼', 'Study/Work', _studyWorkSelected,
+                              () => setState(() => _studyWorkSelected = !_studyWorkSelected)),
+                          Divider(height: 1, color: Theme.of(context).colorScheme.surface),
+                          _buildTypeRow('🏆', 'Goals', _goalsSelected,
+                              () => setState(() => _goalsSelected = !_goalsSelected)),
+                          Divider(height: 1, color: Theme.of(context).colorScheme.surface),
+                          _buildTypeRow('✈️', 'Travel', _travelSelected,
+                              () => setState(() => _travelSelected = !_travelSelected)),
+                          Divider(height: 1, color: Theme.of(context).colorScheme.surface),
+                          _buildTypeRow('✍️', 'Creative Writing', _creativeWritingSelected,
+                              () => setState(() => _creativeWritingSelected = !_creativeWritingSelected)),
+                          Divider(height: 1, color: Theme.of(context).colorScheme.surface),
+                          _buildTypeRow('💪', 'Health & Fitness', _healthFitnessSelected,
+                              () => setState(() => _healthFitnessSelected = !_healthFitnessSelected)),
+                          Divider(height: 1, color: Theme.of(context).colorScheme.surface),
+                          _buildTypeRow('🗣️', 'Conversations', _conversationsSelected,
+                              () => setState(() => _conversationsSelected = !_conversationsSelected)),
                         ],
                       ),
-                      const SizedBox(height: 8),
-                      const Text(
-                        'Filter',
-                        style: TextStyle(
-                          fontSize: 24,
-                          fontWeight: FontWeight.bold,
-                        ),
+                    ),
+                    const SizedBox(height: 24),
+                    const Text(
+                      'Language',
+                      style: TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
                       ),
-                      const SizedBox(height: 16),
-                      const Text(
-                        'Type',
-                        style: TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
-                        ),
+                    ),
+                    const SizedBox(height: 16), // Changed from 16 to 8 to reduce space slightly
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 12),
+                      decoration: BoxDecoration(
+                        color: Theme.of(context).colorScheme.secondary,
+                        borderRadius: BorderRadius.circular(8),
                       ),
-                      const SizedBox(height: 8),
-                      Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 12),
-                        decoration: BoxDecoration(
-                          color: Theme.of(context).colorScheme.secondary,
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        child: Column(
-                          children: [
-                            _buildTypeRow('📖', 'Diary', _diarySelected,
-                                () => setState(() => _diarySelected = !_diarySelected)),
-                            Divider(height: 1, color: Theme.of(context).colorScheme.surface),
-                            _buildTypeRow('🙏', 'Gratitude', _gratitudeSelected,
-                                () => setState(() => _gratitudeSelected = !_gratitudeSelected)),
-                            Divider(height: 1, color: Theme.of(context).colorScheme.surface),
-                            _buildTypeRow('💭', 'Dreams', _dreamsSelected,
-                                () => setState(() => _dreamsSelected = !_dreamsSelected)),
-                            Divider(height: 1, color: Theme.of(context).colorScheme.surface),
-                            _buildTypeRow('💼', 'Study/Work', _studyWorkSelected,
-                                () => setState(() => _studyWorkSelected = !_studyWorkSelected)),
-                            Divider(height: 1, color: Theme.of(context).colorScheme.surface),
-                            _buildTypeRow('🏆', 'Goals', _goalsSelected,
-                                () => setState(() => _goalsSelected = !_goalsSelected)),
-                            Divider(height: 1, color: Theme.of(context).colorScheme.surface),
-                            _buildTypeRow('✈️', 'Travel', _travelSelected,
-                                () => setState(() => _travelSelected = !_travelSelected)),
-                            Divider(height: 1, color: Theme.of(context).colorScheme.surface),
-                            _buildTypeRow('✍️', 'Creative Writing', _creativeWritingSelected,
-                                () => setState(() => _creativeWritingSelected = !_creativeWritingSelected)),
-                            Divider(height: 1, color: Theme.of(context).colorScheme.surface),
-                            _buildTypeRow('💪', 'Health & Fitness', _healthFitnessSelected,
-                                () => setState(() => _healthFitnessSelected = !_healthFitnessSelected)),
-                            Divider(height: 1, color: Theme.of(context).colorScheme.surface),
-                            _buildTypeRow('🗣️', 'Conversations', _conversationsSelected,
-                                () => setState(() => _conversationsSelected = !_conversationsSelected)),
-                          ],
-                        ),
+                      child: Column(
+                        children: [
+                          _buildLanguageRow('English', _englishSelected,
+                              () => setState(() => _englishSelected = !_englishSelected)),
+                          Divider(height: 1, color: Theme.of(context).colorScheme.surface),
+                          _buildLanguageRow('Spanish', _spanishSelected,
+                              () => setState(() => _spanishSelected = !_spanishSelected)),
+                          Divider(height: 1, color: Theme.of(context).colorScheme.surface),
+                          _buildLanguageRow('French', _frenchSelected,
+                              () => setState(() => _frenchSelected = !_frenchSelected)),
+                          Divider(height: 1, color: Theme.of(context).colorScheme.surface),
+                          _buildLanguageRow('German', _germanSelected,
+                              () => setState(() => _germanSelected = !_germanSelected)),
+                          Divider(height: 1, color: Theme.of(context).colorScheme.surface),
+                          _buildLanguageRow('Portuguese', _portugueseSelected,
+                              () => setState(() => _portugueseSelected = !_portugueseSelected)),
+                          Divider(height: 1, color: Theme.of(context).colorScheme.surface),
+                          _buildLanguageRow('Italian', _italianSelected,
+                              () => setState(() => _italianSelected = !_italianSelected)),
+                          Divider(height: 1, color: Theme.of(context).colorScheme.surface),
+                          _buildLanguageRow('Russian', _russianSelected,
+                              () => setState(() => _russianSelected = !_russianSelected)),
+                          Divider(height: 1, color: Theme.of(context).colorScheme.surface),
+                          _buildLanguageRow('Chinese', _chineseSelected,
+                              () => setState(() => _chineseSelected = !_chineseSelected)),
+                          Divider(height: 1, color: Theme.of(context).colorScheme.surface),
+                          _buildLanguageRow('Japanese', _japaneseSelected,
+                              () => setState(() => _japaneseSelected = !_japaneseSelected)),
+                          Divider(height: 1, color: Theme.of(context).colorScheme.surface),
+                          _buildLanguageRow('Korean', _koreanSelected,
+                              () => setState(() => _koreanSelected = !_koreanSelected)),
+                        ],
                       ),
-                      const SizedBox(height: 24),
-                      const Text(
-                        'Language',
-                        style: TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      const SizedBox(height: 16),
-                      Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 12),
-                        decoration: BoxDecoration(
-                          color: Theme.of(context).colorScheme.secondary,
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        child: Column(
-                          children: [
-                            _buildLanguageRow('English', _englishSelected,
-                                () => setState(() => _englishSelected = !_englishSelected)),
-                            Divider(height: 1, color: Theme.of(context).colorScheme.surface),
-                            _buildLanguageRow('Spanish', _spanishSelected,
-                                () => setState(() => _spanishSelected = !_spanishSelected)),
-                            Divider(height: 1, color: Theme.of(context).colorScheme.surface),
-                            _buildLanguageRow('French', _frenchSelected,
-                                () => setState(() => _frenchSelected = !_frenchSelected)),
-                            Divider(height: 1, color: Theme.of(context).colorScheme.surface),
-                            _buildLanguageRow('German', _germanSelected,
-                                () => setState(() => _germanSelected = !_germanSelected)),
-                            Divider(height: 1, color: Theme.of(context).colorScheme.surface),
-                            _buildLanguageRow('Portuguese', _portugueseSelected,
-                                () => setState(() => _portugueseSelected = !_portugueseSelected)),
-                            Divider(height: 1, color: Theme.of(context).colorScheme.surface),
-                            _buildLanguageRow('Italian', _italianSelected,
-                                () => setState(() => _italianSelected = !_italianSelected)),
-                            Divider(height: 1, color: Theme.of(context).colorScheme.surface),
-                            _buildLanguageRow('Russian', _russianSelected,
-                                () => setState(() => _russianSelected = !_russianSelected)),
-                            Divider(height: 1, color: Theme.of(context).colorScheme.surface),
-                            _buildLanguageRow('Chinese', _chineseSelected,
-                                () => setState(() => _chineseSelected = !_chineseSelected)),
-                            Divider(height: 1, color: Theme.of(context).colorScheme.surface),
-                            _buildLanguageRow('Japanese', _japaneseSelected,
-                                () => setState(() => _japaneseSelected = !_japaneseSelected)),
-                            Divider(height: 1, color: Theme.of(context).colorScheme.surface),
-                            _buildLanguageRow('Korean', _koreanSelected,
-                                () => setState(() => _koreanSelected = !_koreanSelected)),
-                          ],
-                        ),
-                      ),
-                      const SizedBox(height: 100), // For button space
-                    ],
-                  ),
+                    ),
+                    const SizedBox(height: 100), // Space for button: ensures content scrolls above button
+                  ],
                 ),
               ),
             ),
             Positioned(
               left: 20,
               right: 20,
-              bottom: 40,
+              bottom: 20, // Button position
               child: SizedBox(
+                width: double.infinity,
                 child: ElevatedButton(
                   onPressed: _onSave,
                   style: ElevatedButton.styleFrom(
@@ -310,12 +313,13 @@ class _FilterBottomSheetContentState extends State<_FilterBottomSheetContent> {
                         fontSize: 24,
                         color: Colors.white,
                         fontWeight: FontWeight.w700,
-                        )),
+                      )),
                 ),
               ),
             ),
           ],
         ),
+      ),
     );
   }
 }
