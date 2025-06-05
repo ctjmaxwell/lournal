@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "552928917825",
+    "project_id": "lournal-e7d7c",
+    "storage_bucket": "lournal-e7d7c.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:552928917825:android:609bae384a3ab82f6749c0",
+        "android_client_info": {
+          "package_name": "uk.co.maxaffinity.lournal"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBs2au9QGJFSIcEB4_-pUdeeJf-Nfw23XU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

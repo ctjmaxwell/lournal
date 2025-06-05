@@ -1,0 +1,8 @@
+{
+  "projects": {
+    "default": "lournal-ff919",
+    "prod": "lournal-e7d7c"
+  },
+  "targets": {},
+  "etags": {}
+}
