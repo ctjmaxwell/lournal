@@ -16,4 +16,14 @@ ThemeData darkMode = ThemeData(
     bodyColor: Colors.grey.shade300,
     displayColor: Colors.white,
   ),
+
+  // The complete theme for text selection
+  textSelectionTheme: TextSelectionThemeData(
+    // This styles the highlight background (which you've already done)
+    selectionColor: Color(0xFF778BFF),
+    
+    // --- THIS LINE CONTROLS THE HANDLES ---
+    // This styles the circular handles at the start and end of the selection
+    selectionHandleColor: Color(0xFF778BFF), 
+  ),
 );

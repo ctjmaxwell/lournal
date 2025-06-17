@@ -179,6 +179,7 @@ class _FilterBottomSheetContentState extends State<_FilterBottomSheetContent> {
                             borderRadius: BorderRadius.circular(20),
                           ),
                           child: IconButton(
+                            color: Theme.of(context).colorScheme.inversePrimary,
                             icon: const Icon(Icons.close),
                             onPressed: () => Navigator.pop(context),
                           ),

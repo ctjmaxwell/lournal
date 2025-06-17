@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:country_flags/country_flags.dart';
 import 'package:lournal/pages/create_page.dart';
 import 'package:lournal/helper/language_and_type_helper.dart'; // Adjust the path as needed
+import 'language_bottomsheet.dart'; // Import the language bottom sheet
+import 'type_bottomsheet.dart'; // Import the type bottom sheet
 
 class MyBottomBar extends StatefulWidget {
   final Function(int) onPageSelected;
@@ -37,15 +39,14 @@ class MyBottomBar extends StatefulWidget {
 class _MyBottomBarState extends State<MyBottomBar> {
   late String _selectedLanguage;
   late String _selectedCountryCode;
-  late String _selectedType; // New state variable for type
+  late String _selectedType;
 
   @override
   void initState() {
     super.initState();
     _selectedLanguage = widget.defaultLanguage;
-    // Use the helper method imported from language_and_type_helper.dart
     _selectedCountryCode = getCountryCodeForLanguage(_selectedLanguage);
-    _selectedType = 'Diary'; // Default type selection
+    _selectedType = 'Diary';
   }
 
   @override
@@ -58,7 +59,6 @@ class _MyBottomBarState extends State<MyBottomBar> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          // Top row with the flag and type button.
           Padding(
             padding: const EdgeInsets.only(top: 15.0),
             child: Row(
@@ -69,14 +69,13 @@ class _MyBottomBarState extends State<MyBottomBar> {
               ],
             ),
           ),
-          // Create button.
           Padding(
             padding: EdgeInsets.symmetric(horizontal: 10),
             child: SizedBox(
               width: double.infinity,
               child: ElevatedButton(
                 onPressed: () {
-                  Navigator.pop(context); // Close the bottom sheet first
+                  Navigator.pop(context);
                   Future.delayed(Duration(milliseconds: 100), () {
                     Navigator.push(
                       context,
@@ -109,7 +108,6 @@ class _MyBottomBarState extends State<MyBottomBar> {
               ),
             ),
           ),
-          // Circular close button.
           Padding(
             padding: const EdgeInsets.only(bottom: 10.0),
             child: _buildCircularButton(Icons.close, "", context, isCloseButton: true),
@@ -123,8 +121,14 @@ class _MyBottomBarState extends State<MyBottomBar> {
     return Column(
       children: [
         InkWell(
-          onTap: () {
-            _showLanguageDropdown(context);
+          onTap: () async {
+            final selectedLanguage = await showLanguageDropdown(context, _selectedLanguage);
+            if (selectedLanguage != null) {
+              setState(() {
+                _selectedLanguage = selectedLanguage;
+                _selectedCountryCode = getCountryCodeForLanguage(selectedLanguage);
+              });
+            }
           },
           borderRadius: BorderRadius.circular(30),
           child: Container(
@@ -156,8 +160,13 @@ class _MyBottomBarState extends State<MyBottomBar> {
     return Column(
       children: [
         InkWell(
-          onTap: () {
-            _showTypeDropdown(context);
+          onTap: () async {
+            final selectedType = await showTypeDropdown(context, _selectedType);
+            if (selectedType != null) {
+              setState(() {
+                _selectedType = selectedType;
+              });
+            }
           },
           borderRadius: BorderRadius.circular(30),
           child: Container(
@@ -168,7 +177,6 @@ class _MyBottomBarState extends State<MyBottomBar> {
               color: Theme.of(context).colorScheme.secondary,
             ),
             child: Center(
-              // Use the helper method to get the emoji for the selected type.
               child: Text(
                 getEmojiForType(_selectedType),
                 style: TextStyle(fontSize: 32),
@@ -180,178 +188,6 @@ class _MyBottomBarState extends State<MyBottomBar> {
         Text("Type", style: TextStyle(fontSize: 22, fontWeight: FontWeight.w500)),
       ],
     );
-  }
-
-  Future<void> _showTypeDropdown(BuildContext context) async {
-    final List<Map<String, String>> types = [
-      {'emoji': '📖', 'name': 'Diary'},
-      {'emoji': '🙏', 'name': 'Gratitude'},
-      {'emoji': '💭', 'name': 'Dreams'},
-      {'emoji': '💼', 'name': 'Study/Work'},
-      {'emoji': '🏆', 'name': 'Goals'},
-      {'emoji': '✈️', 'name': 'Travel'},
-      {'emoji': '✍️', 'name': 'Creative Writing'},
-      {'emoji': '💪', 'name': 'Health & Fitness'},
-      {'emoji': '🗣️', 'name': 'Conversations'},
-    ];
-
-    // Reorder the list so that the currently selected type is at the top.
-    List<Map<String, String>> orderedTypes = List.from(types);
-    orderedTypes.removeWhere((type) => type['name'] == _selectedType);
-    orderedTypes.insert(0, types.firstWhere((type) => type['name'] == _selectedType));
-
-    final selectedType = await showModalBottomSheet<String>(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Theme.of(context).colorScheme.primary,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(30)),
-      ),
-      clipBehavior: Clip.antiAlias,
-      builder: (BuildContext context) {
-        return FractionallySizedBox(
-          heightFactor: 0.92,
-          child: Column(
-            children: [
-              Expanded(
-                child: ListView(
-                  children: orderedTypes.map((type) {
-                    return Column(
-                      children: [
-                        Container(
-                          color: type['name'] == _selectedType
-                              ? Theme.of(context).colorScheme.secondary
-                              : Colors.transparent,
-                          child: ListTile(
-                            contentPadding: EdgeInsets.symmetric(horizontal: 20),
-                            minVerticalPadding: 22,
-                            leading: Text(
-                              type['emoji']!,
-                              style: TextStyle(fontSize: 32),
-                            ),
-                            title: Text(
-                              type['name']!,
-                              style: TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.w500,
-                              ),
-                            ),
-                            onTap: () {
-                              Navigator.pop(context, type['name']);
-                            },
-                          ),
-                        ),
-                        Divider(
-                          color: Theme.of(context).colorScheme.secondary,
-                          height: 0,
-                          thickness: 1,
-                        ),
-                      ],
-                    );
-                  }).toList(),
-                ),
-              ),
-            ],
-          ),
-        );
-      },
-    );
-
-    if (selectedType != null) {
-      setState(() {
-        _selectedType = selectedType;
-      });
-    }
-  }
-
-  Future<void> _showLanguageDropdown(BuildContext context) async {
-    final List<String> languages = [
-      'Spanish',
-      'English',
-      'French',
-      'German',
-      'Portuguese',
-      'Italian',
-      'Russian',
-      'Chinese',
-      'Japanese',
-      'Korean'
-    ];
-
-    List<String> orderedLanguages = List.from(languages);
-    if (orderedLanguages.contains(_selectedLanguage)) {
-      orderedLanguages.remove(_selectedLanguage);
-      orderedLanguages.insert(0, _selectedLanguage);
-    }
-
-    final selectedLanguage = await showModalBottomSheet<String>(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Theme.of(context).colorScheme.primary,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(30)),
-      ),
-      clipBehavior: Clip.antiAlias,
-      builder: (BuildContext context) {
-        return FractionallySizedBox(
-          heightFactor: 0.92,
-          child: Column(
-            children: [
-              Expanded(
-                child: ListView(
-                  children: orderedLanguages.map((language) {
-                    return Column(
-                      children: [
-                        Container(
-                          color: language == _selectedLanguage
-                              ? Theme.of(context).colorScheme.secondary
-                              : Colors.transparent,
-                          child: ListTile(
-                            contentPadding: EdgeInsets.symmetric(horizontal: 20),
-                            minVerticalPadding: 22,
-                            leading: ClipRRect(
-                              borderRadius: BorderRadius.circular(5),
-                              child: CountryFlag.fromCountryCode(
-                                // Use the helper method here as well.
-                                getCountryCodeForLanguage(language),
-                                width: 35,
-                                height: 25,
-                              ),
-                            ),
-                            title: Text(
-                              language,
-                              style: TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.w500,
-                              ),
-                            ),
-                            onTap: () {
-                              Navigator.pop(context, language);
-                            },
-                          ),
-                        ),
-                        Divider(
-                          color: Theme.of(context).colorScheme.secondary,
-                          height: 0,
-                          thickness: 1,
-                        ),
-                      ],
-                    );
-                  }).toList(),
-                ),
-              ),
-            ],
-          ),
-        );
-      },
-    );
-
-    if (selectedLanguage != null) {
-      setState(() {
-        _selectedLanguage = selectedLanguage;
-        _selectedCountryCode = getCountryCodeForLanguage(selectedLanguage);
-      });
-    }
   }
 
   Widget _buildCircularButton(IconData icon, String text, BuildContext context, {bool isCloseButton = false}) {

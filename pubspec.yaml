@@ -42,6 +42,8 @@ dependencies:
   intl: ^0.20.2
   country_flags: ^3.2.0
   popover: ^0.3.1
+  provider: ^6.1.5
+  firebase_storage: ^12.4.7
 
 dev_dependencies:
   flutter_test:
@@ -69,6 +71,7 @@ flutter:
   assets:
     - lib/assets/images/lournal_logo.jpg
     - lib/assets/images/real_lournal.png
+    - lib/assets/images/lournal-logo-background.png
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images

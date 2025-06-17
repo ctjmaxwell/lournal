@@ -102,7 +102,6 @@ class EditPage extends StatelessWidget {
                 title,
                 style: const TextStyle(
                   fontSize: 30,
-                  color: Colors.white,
                   fontWeight: FontWeight.w500,
                 ),
               ),
@@ -118,7 +117,7 @@ class EditPage extends StatelessWidget {
                   children: [
                     Text(
                       content,
-                      style: const TextStyle(fontSize: 16, color: Colors.white),
+                      style: const TextStyle(fontSize: 16),
                     ),
                     const SizedBox(height: 20),
                     Divider(
@@ -127,7 +126,7 @@ class EditPage extends StatelessWidget {
                     const SizedBox(height: 15),
                     Text(
                       translation,
-                      style: const TextStyle(fontSize: 16, color: Colors.white),
+                      style: const TextStyle(fontSize: 16),
                     ),
                   ],
                 ),
@@ -151,12 +150,12 @@ class EditPage extends StatelessWidget {
                       children: [
                         Text(
                           getAdjectiveForPerformance(score),
-                          style: const TextStyle(fontSize: 18, color: Colors.white),
+                          style: const TextStyle(fontSize: 18),
                         ),
                         const Spacer(),
                         Text(
                           "$score%",
-                          style: const TextStyle(fontSize: 18, color: Colors.white),
+                          style: const TextStyle(fontSize: 18),
                         ),
                       ],
                     ),
@@ -171,7 +170,7 @@ class EditPage extends StatelessWidget {
                     const SizedBox(height: 24),
                     Text(
                       feedback,
-                      style: const TextStyle(fontSize: 16, color: Colors.white),
+                      style: const TextStyle(fontSize: 16),
                     ),
                   ],
                 ),

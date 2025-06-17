@@ -1,5 +1,21 @@
 // lib/helper/language_and_type_helper.dart
 
+//================== LANGUAGE HELPERS ==================
+
+/// The single source of truth for all supported language names.
+const List<String> supportedLanguages = [
+  'Spanish',
+  'English',
+  'French',
+  'German',
+  'Portuguese',
+  'Italian',
+  'Russian',
+  'Chinese',
+  'Japanese',
+  'Korean',
+];
+
 /// Returns the country code for the given language.
 String getCountryCodeForLanguage(String language) {
   switch (language.toLowerCase()) {
@@ -24,9 +40,26 @@ String getCountryCodeForLanguage(String language) {
     case 'korean':
       return 'KR';
     default:
+      // Default to US flag if language is not found
       return 'US';
   }
 }
+
+
+//================== JOURNAL TYPE HELPERS ==================
+
+/// The single source of truth for all journal type names.
+const List<String> journalTypes = [
+  'Diary',
+  'Gratitude',
+  'Dreams',
+  'Study/Work',
+  'Goals',
+  'Travel',
+  'Creative Writing',
+  'Health & Fitness',
+  'Conversations',
+];
 
 /// Returns the emoji associated with the type.
 String getEmojiForType(String type) {

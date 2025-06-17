@@ -27,25 +27,19 @@ class StartPage extends StatelessWidget {
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       // Added logo in a circle with tertiary theme color
+                      // CHANGE BELOW
                       Container(
                         width: 200,
                         height: 200,
                         decoration: BoxDecoration(
-                          color: Theme.of(context).colorScheme.tertiary,
                           shape: BoxShape.circle,
-                        ),
-                        child: Center(
-                          child: ClipRRect(
-                            borderRadius: BorderRadius.circular(60),
-                            child: Image.asset(
-                              'lib/assets/images/real_lournal.png',
-                              width: 250,
-                              height: 250,
-                              fit: BoxFit.cover,
-                            ),
+                          image: DecorationImage(
+                            image: AssetImage('lib/assets/images/lournal-logo-background.png'),
+                            fit: BoxFit.cover,
                           ),
                         ),
                       ),
+                      // CHANGE ABOVE
                       const SizedBox(height: 24),
                       Text(
                         "Lournal",
@@ -60,7 +54,6 @@ class StartPage extends StatelessWidget {
                         "Where Language Learning Meets Journalling",
                         style: TextStyle(
                           fontSize: 16,
-                          color: Colors.white,
                           fontWeight: FontWeight.bold,
                         ),
                         textAlign: TextAlign.center,
