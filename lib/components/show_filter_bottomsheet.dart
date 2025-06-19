@@ -9,15 +9,13 @@ Future<Map<String, bool>?> showFilterBottomSheet(
   return showModalBottomSheet<Map<String, bool>>(
     context: context,
     isScrollControlled: true, // Important for full-screen or near full-screen sheets
+    useSafeArea: true,
     shape: const RoundedRectangleBorder(
       borderRadius: BorderRadius.vertical(top: Radius.circular(30)),
     ),
     clipBehavior: Clip.antiAlias,
-    builder: (_) => FractionallySizedBox(
-      heightFactor: 1.0, // Sheet spans the whole page
-      child: _FilterBottomSheetContent(
-        initialSelection: initialSelection ?? {},
-      ),
+    builder: (_) => _FilterBottomSheetContent(
+      initialSelection: initialSelection ?? {},
     ),
   );
 }
@@ -34,6 +32,7 @@ class _FilterBottomSheetContent extends StatefulWidget {
 }
 
 class _FilterBottomSheetContentState extends State<_FilterBottomSheetContent> {
+  // Type selections
   late bool _diarySelected;
   late bool _gratitudeSelected;
   late bool _dreamsSelected;
@@ -44,6 +43,7 @@ class _FilterBottomSheetContentState extends State<_FilterBottomSheetContent> {
   late bool _healthFitnessSelected;
   late bool _conversationsSelected;
 
+  // Language selections
   late bool _englishSelected;
   late bool _spanishSelected;
   late bool _frenchSelected;
@@ -54,12 +54,19 @@ class _FilterBottomSheetContentState extends State<_FilterBottomSheetContent> {
   late bool _chineseSelected;
   late bool _japaneseSelected;
   late bool _koreanSelected;
+  late bool _dutchSelected;
+  late bool _arabicSelected;
+  late bool _hindiSelected;
+  late bool _swahiliSelected;
+  late bool _swedishSelected;
+  late bool _turkishSelected;
 
   @override
   void initState() {
     super.initState();
     final selected = widget.initialSelection;
 
+    // Initialize type selections
     _diarySelected = selected.contains('Diary');
     _gratitudeSelected = selected.contains('Gratitude');
     _dreamsSelected = selected.contains('Dreams');
@@ -70,6 +77,7 @@ class _FilterBottomSheetContentState extends State<_FilterBottomSheetContent> {
     _healthFitnessSelected = selected.contains('Health & Fitness');
     _conversationsSelected = selected.contains('Conversations');
 
+    // Initialize language selections
     _englishSelected = selected.contains('English');
     _spanishSelected = selected.contains('Spanish');
     _frenchSelected = selected.contains('French');
@@ -80,10 +88,17 @@ class _FilterBottomSheetContentState extends State<_FilterBottomSheetContent> {
     _chineseSelected = selected.contains('Chinese');
     _japaneseSelected = selected.contains('Japanese');
     _koreanSelected = selected.contains('Korean');
+    _dutchSelected = selected.contains('Dutch');
+    _arabicSelected = selected.contains('Arabic');
+    _hindiSelected = selected.contains('Hindi');
+    _swahiliSelected = selected.contains('Swahili');
+    _swedishSelected = selected.contains('Swedish');
+    _turkishSelected = selected.contains('Turkish');
   }
 
   void _onSave() {
     final result = <String, bool>{
+      // Types
       'Diary': _diarySelected,
       'Gratitude': _gratitudeSelected,
       'Dreams': _dreamsSelected,
@@ -93,6 +108,7 @@ class _FilterBottomSheetContentState extends State<_FilterBottomSheetContent> {
       'Creative Writing': _creativeWritingSelected,
       'Health & Fitness': _healthFitnessSelected,
       'Conversations': _conversationsSelected,
+      // Languages
       'English': _englishSelected,
       'Spanish': _spanishSelected,
       'French': _frenchSelected,
@@ -103,6 +119,12 @@ class _FilterBottomSheetContentState extends State<_FilterBottomSheetContent> {
       'Chinese': _chineseSelected,
       'Japanese': _japaneseSelected,
       'Korean': _koreanSelected,
+      'Dutch': _dutchSelected,
+      'Arabic': _arabicSelected,
+      'Hindi': _hindiSelected,
+      'Swahili': _swahiliSelected,
+      'Swedish': _swedishSelected,
+      'Turkish': _turkishSelected,
     };
     Navigator.pop(context, result);
   }
@@ -131,7 +153,6 @@ class _FilterBottomSheetContentState extends State<_FilterBottomSheetContent> {
     bool isSelected,
     VoidCallback onTap,
   ) {
-    // Assuming getCountryCodeForLanguage is defined in your helper
     String countryCode = getCountryCodeForLanguage(language);
     return ListTile(
       contentPadding: const EdgeInsets.symmetric(horizontal: 6, vertical: 0),
@@ -157,9 +178,9 @@ class _FilterBottomSheetContentState extends State<_FilterBottomSheetContent> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Theme.of(context).colorScheme.primary,
-      body: SafeArea( // Wrap the Stack with SafeArea
-        top: true,    // Apply safe area to the top
-        bottom: false, // Do not apply safe area to the bottom for modal sheets
+      body: SafeArea(
+        top: true,
+        bottom: false,
         child: Stack(
           children: [
             Padding(
@@ -248,7 +269,7 @@ class _FilterBottomSheetContentState extends State<_FilterBottomSheetContent> {
                         fontWeight: FontWeight.bold,
                       ),
                     ),
-                    const SizedBox(height: 16), // Changed from 16 to 8 to reduce space slightly
+                    const SizedBox(height: 16),
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: 12),
                       decoration: BoxDecoration(
@@ -286,6 +307,24 @@ class _FilterBottomSheetContentState extends State<_FilterBottomSheetContent> {
                           Divider(height: 1, color: Theme.of(context).colorScheme.surface),
                           _buildLanguageRow('Korean', _koreanSelected,
                               () => setState(() => _koreanSelected = !_koreanSelected)),
+                          Divider(height: 1, color: Theme.of(context).colorScheme.surface),
+                           _buildLanguageRow('Dutch', _dutchSelected,
+                              () => setState(() => _dutchSelected = !_dutchSelected)),
+                          Divider(height: 1, color: Theme.of(context).colorScheme.surface),
+                           _buildLanguageRow('Arabic', _arabicSelected,
+                              () => setState(() => _arabicSelected = !_arabicSelected)),
+                          Divider(height: 1, color: Theme.of(context).colorScheme.surface),
+                           _buildLanguageRow('Hindi', _hindiSelected,
+                              () => setState(() => _hindiSelected = !_hindiSelected)),
+                          Divider(height: 1, color: Theme.of(context).colorScheme.surface),
+                           _buildLanguageRow('Swahili', _swahiliSelected,
+                              () => setState(() => _swahiliSelected = !_swahiliSelected)),
+                          Divider(height: 1, color: Theme.of(context).colorScheme.surface),
+                           _buildLanguageRow('Swedish', _swedishSelected,
+                              () => setState(() => _swedishSelected = !_swedishSelected)),
+                          Divider(height: 1, color: Theme.of(context).colorScheme.surface),
+                           _buildLanguageRow('Turkish', _turkishSelected,
+                              () => setState(() => _turkishSelected = !_turkishSelected)),
                         ],
                       ),
                     ),

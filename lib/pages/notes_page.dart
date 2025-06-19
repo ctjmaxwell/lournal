@@ -53,6 +53,12 @@ class _NotesPageState extends State<NotesPage> {
     'Chinese',
     'Japanese',
     'Korean',
+    'Dutch',
+    'Arabic',
+    'Hindi',
+    'Swahili',
+    'Swedish',
+    'Turkish',
   ];
   Set<String> _selectedLanguages = {};
 
@@ -379,7 +385,6 @@ class _NotesPageState extends State<NotesPage> {
               style: TextStyle(
                 fontSize: 20,
                 fontWeight: FontWeight.bold,
-                color: Colors.grey.shade300,
               ),
             ),
             const SizedBox(height: 4),
@@ -388,7 +393,6 @@ class _NotesPageState extends State<NotesPage> {
               textAlign: TextAlign.center,
               style: TextStyle(
                 fontSize: 16,
-                color: Colors.grey.shade400,
               ),
             ),
           ],

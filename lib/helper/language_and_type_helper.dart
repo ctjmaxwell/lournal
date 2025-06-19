@@ -14,6 +14,12 @@ const List<String> supportedLanguages = [
   'Chinese',
   'Japanese',
   'Korean',
+  'Dutch',
+  'Arabic',
+  'Hindi',
+  'Swahili',
+  'Swedish',
+  'Turkish',
 ];
 
 /// Returns the country code for the given language.
@@ -39,6 +45,18 @@ String getCountryCodeForLanguage(String language) {
       return 'JP';
     case 'korean':
       return 'KR';
+    case 'dutch':
+      return 'NL';
+    case 'arabic':
+      return 'SA';
+    case 'hindi':
+      return 'IN';
+    case 'swahili':
+      return 'KE';
+    case 'swedish':
+      return 'SE';
+    case 'turkish':
+      return 'TR';
     default:
       // Default to US flag if language is not found
       return 'US';

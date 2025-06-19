@@ -63,19 +63,19 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
         Navigator.pop(context);
         if (e.code == 'invalid-email') {
           setState(() { _emailHasError = true; });
-          showCustomSnackBar(context, "The email address is badly formatted.");
+          showCustomSnackBar(context, "The email address is badly formatted.", backgroundColor: Colors.red);
         } else if (e.code == 'too-many-requests') {
-          showCustomSnackBar(context, 'Too many requests. Please try again later.');
+          showCustomSnackBar(context, 'Too many requests. Please try again later.', backgroundColor: Colors.red);
           // START THE COOLDOWN IN THE SERVICE
           cooldownService.startPasswordResetCooldown();
         } else {
-          showCustomSnackBar(context, e.message ?? "An error occurred.");
+          showCustomSnackBar(context, e.message ?? "An error occurred.", backgroundColor: Colors.red);
         }
       }
     } catch (e) {
       if (mounted) {
         Navigator.pop(context);
-        showCustomSnackBar(context, "An unexpected error occurred.");
+        showCustomSnackBar(context, "An unexpected error occurred.", backgroundColor: Colors.red);
       }
     } finally {
       if(mounted) {

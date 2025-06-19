@@ -9,12 +9,13 @@ ThemeData darkMode = ThemeData(
     secondary: Color(0xFF181818),
     inversePrimary: Color(0xFFCCCCCC),
     tertiary: Color(0xFF778BFF),
+    inverseSurface: Colors.white54,
   ),
   textTheme: GoogleFonts.poppinsTextTheme(
     ThemeData.dark().textTheme,
   ).apply(
-    bodyColor: Colors.grey.shade300,
-    displayColor: Colors.white,
+    bodyColor: Color(0xFFDEDEDE),
+    displayColor: Color(0xFFDEDEDE),
   ),
 
   // The complete theme for text selection

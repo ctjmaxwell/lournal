@@ -44,7 +44,6 @@ class FinishPage extends StatelessWidget {
                         getCongratsForLanguage(language),
                         style: TextStyle(
                           fontSize: 30,
-                          color: Colors.white,
                           fontWeight: FontWeight.bold,
                         ),
                       ),
@@ -54,7 +53,6 @@ class FinishPage extends StatelessWidget {
                         textAlign: TextAlign.center,
                         style: TextStyle(
                           fontSize: 18,
-                          color: Colors.white,
                         ),
                       ),
                       const SizedBox(height: 20),
@@ -78,7 +76,6 @@ class FinishPage extends StatelessWidget {
                                 Text(
                                   "$wordCount",
                                   style: const TextStyle(
-                                    color: Colors.white,
                                     fontWeight: FontWeight.w800,
                                     fontSize: 18,
                                   ),
@@ -105,7 +102,6 @@ class FinishPage extends StatelessWidget {
                                 Text(
                                   "$score%",
                                   style: const TextStyle(
-                                    color: Colors.white,
                                     fontWeight: FontWeight.w800,
                                     fontSize: 18,
                                   ),

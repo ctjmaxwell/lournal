@@ -30,6 +30,8 @@ class _RegisterPageState extends State<RegisterPage> {
 
 
   // State variables for field-specific errors
+  // --- NEW: Added state for username validation ---
+  bool _isUsernameInvalid = false;
   bool _passwordInvalid = false;
   bool _isEmailInvalid = false;
 
@@ -37,6 +39,8 @@ class _RegisterPageState extends State<RegisterPage> {
   void initState() {
     super.initState();
     // Add listeners to clear error states automatically when the user types
+    // --- NEW: Listener for username controller ---
+    usernameController.addListener(_clearUsernameError);
     passwordController.addListener(_clearPasswordError);
     confirmationController.addListener(_clearPasswordError);
     emailController.addListener(_clearEmailError);
@@ -45,6 +49,8 @@ class _RegisterPageState extends State<RegisterPage> {
   @override
   void dispose() {
     // Clean up the controllers and listeners to prevent memory leaks
+    // --- NEW: Remove listener for username controller ---
+    usernameController.removeListener(_clearUsernameError);
     passwordController.removeListener(_clearPasswordError);
     confirmationController.removeListener(_clearPasswordError);
     emailController.removeListener(_clearEmailError);
@@ -60,6 +66,15 @@ class _RegisterPageState extends State<RegisterPage> {
     _confirmationFocusNode.dispose();
 
     super.dispose();
+  }
+
+  // --- NEW: Clears the username error border ---
+  void _clearUsernameError() {
+    if (_isUsernameInvalid) {
+      setState(() {
+        _isUsernameInvalid = false;
+      });
+    }
   }
 
   // Clears the password error border
@@ -89,9 +104,20 @@ class _RegisterPageState extends State<RegisterPage> {
 
     // Reset all error states on a new submission attempt
     setState(() {
+      // --- MODIFIED: Reset username error state ---
+      _isUsernameInvalid = false;
       _passwordInvalid = false;
       _isEmailInvalid = false;
     });
+
+    // --- NEW: 0. Check if username is empty ---
+    if (usernameController.text.trim().isEmpty) {
+      showCustomSnackBar(context, "Username cannot be empty", backgroundColor: Colors.red);
+      setState(() {
+        _isUsernameInvalid = true;
+      });
+      return; // Stop execution
+    }
 
     // show loading circle
     showDialog(
@@ -116,7 +142,7 @@ class _RegisterPageState extends State<RegisterPage> {
     // 1. Check if passwords match (client-side validation)
     if (passwordController.text != confirmationController.text) {
       if (mounted) Navigator.pop(context); // Pop loading circle
-      showCustomSnackBar(context, "Passwords do not match");
+      showCustomSnackBar(context, "Passwords do not match", backgroundColor: Colors.red);
       setState(() {
         _passwordInvalid = true;
       });
@@ -131,9 +157,9 @@ class _RegisterPageState extends State<RegisterPage> {
         password: passwordController.text,
       );
 
-      // Send email verification and update display name
+      // --- MODIFIED: Use the trimmed username ---
       await userCredential.user?.sendEmailVerification();
-      await userCredential.user?.updateDisplayName(usernameController.text);
+      await userCredential.user?.updateDisplayName(usernameController.text.trim());
 
       if (mounted) Navigator.pop(context); // Pop loading circle on success
 
@@ -150,23 +176,29 @@ class _RegisterPageState extends State<RegisterPage> {
       if (mounted) Navigator.pop(context); // Pop loading circle on error
 
       if (mounted) {
-        // --- THIS IS THE ONLY LINE THAT CHANGES ---
-        // Check for any email-related error to show the border
-        if (e.code == 'invalid-email' || e.code == 'email-already-in-use') {
+        String errorMessage = e.message ?? "An unknown error occurred.";
+
+        // Handle different Firebase authentication errors
+        if (e.code == 'invalid-email') {
           setState(() {
             _isEmailInvalid = true; // Trigger red border for email field
           });
-        }
-
-        if (e.code == 'invalid-password' || e.code == 'weak-password') {
+          // Show snackbar with a red background for this specific error
+          showCustomSnackBar(context, errorMessage, backgroundColor: Colors.red);
+        } else if (e.code == 'email-already-in-use') {
           setState(() {
-            _passwordInvalid = true; // Trigger red border for email field
+            _isEmailInvalid = true; // Also an email error
           });
+          showCustomSnackBar(context, errorMessage); // Show default snackbar
+        } else if (e.code == 'weak-password') {
+          setState(() {
+            _passwordInvalid = true; // Trigger red border for password fields
+          });
+          showCustomSnackBar(context, errorMessage); // Show default snackbar
+        } else {
+          // For any other Firebase error, just show the message
+          showCustomSnackBar(context, errorMessage);
         }
-
-        // Display the user-friendly error message from Firebase
-        String errorMessage = e.message ?? "An unknown error occurred.";
-        showCustomSnackBar(context, errorMessage);
       }
     }
   }
@@ -202,11 +234,12 @@ class _RegisterPageState extends State<RegisterPage> {
                 ),
               ),
               const SizedBox(height: 25),
-              // --- MODIFIED: Username TextField ---
+              // --- MODIFIED: Username TextField with error handling ---
               MyTextField(
                 hintText: "Username",
                 obscureText: false,
                 controller: usernameController,
+                hasError: _isUsernameInvalid, // Pass username error state
                 focusNode: _usernameFocusNode,
                 textInputAction: TextInputAction.next,
                 onSubmitted: (_) {
@@ -271,10 +304,7 @@ class _RegisterPageState extends State<RegisterPage> {
                         ),
                         recognizer: TapGestureRecognizer()
                           ..onTap = () {
-                            showModalBottomSheet(
-                              context: context,
-                              builder: (context) => const PrivacyPolicyBottomSheet(),
-                            );
+                            showPrivacyPolicyBottomSheet(context);
                           },
                       ),
                       const TextSpan(text: ' and '),
@@ -286,10 +316,7 @@ class _RegisterPageState extends State<RegisterPage> {
                         ),
                         recognizer: TapGestureRecognizer()
                           ..onTap = () {
-                            showModalBottomSheet(
-                              context: context,
-                              builder: (context) => const TermsAndConditionsBottomSheet(),
-                            );
+                            showTermsAndConditionsBottomSheet(context);
                           },
                       ),
                     ],

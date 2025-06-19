@@ -9,6 +9,7 @@ ThemeData lightMode = ThemeData(
     secondary: Color(0xFFECECEC),
     inversePrimary: Color(0xFF505050),
     tertiary: Color(0xFF778BFF),
+    inverseSurface: Color(0xFFCECECE),
   ),
   textTheme: GoogleFonts.poppinsTextTheme(
     ThemeData.light().textTheme,

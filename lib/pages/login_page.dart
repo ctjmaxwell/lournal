@@ -113,7 +113,7 @@ class _LoginPageState extends State<LoginPage> {
           });
           message = e.message ?? message;
         }
-        showCustomSnackBar(context, message);
+        showCustomSnackBar(context, message, backgroundColor: Colors.red);
       }
     } catch (e) {
       if (mounted) {
@@ -122,7 +122,7 @@ class _LoginPageState extends State<LoginPage> {
           _isEmailInvalid = false;
           _passwordInvalid = false; // Reset both on unexpected errors
         });
-        showCustomSnackBar(context, "An unexpected error occurred. Please try again.");
+        showCustomSnackBar(context, "An unexpected error occurred. Please try again.", backgroundColor: Colors.red);
       }
     }
   }
@@ -370,7 +370,7 @@ class _VerificationDialogState extends State<_VerificationDialog> {
     final bool isOnCooldown = _secondsRemaining > 0;
 
     return AlertDialog(
-      backgroundColor: Theme.of(context).colorScheme.secondary,
+      backgroundColor: Theme.of(context).colorScheme.primary,
       title: const Text('Email Not Verified'),
       content: const SingleChildScrollView(
         child: ListBody(
@@ -383,7 +383,7 @@ class _VerificationDialogState extends State<_VerificationDialog> {
       actions: <Widget>[
         TextButton(
           style: TextButton.styleFrom(
-            foregroundColor: Colors.white,
+            foregroundColor: Theme.of(context).colorScheme.inversePrimary,
           ),
           child: const Text('Cancel'),
           onPressed: () {

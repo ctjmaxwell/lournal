@@ -184,10 +184,10 @@ class _CreatePageState extends State<CreatePage> {
                     autofocus: true,
                     cursorColor: Theme.of(context).colorScheme.tertiary,
                     textInputAction: TextInputAction.newline,
-                    style: const TextStyle(fontSize: 24, color: Colors.white),
-                    decoration: const InputDecoration(
+                    style: const TextStyle(fontSize: 24),
+                    decoration: InputDecoration(
                       hintText: 'Title',
-                      hintStyle: TextStyle(color: Colors.white54),
+                      hintStyle: TextStyle(color: Theme.of(context).colorScheme.inverseSurface),
                       border: InputBorder.none,
                     ),
                     onSubmitted: (_) {
@@ -201,11 +201,11 @@ class _CreatePageState extends State<CreatePage> {
                     focusNode: _contentFocusNode,
                     cursorColor: Theme.of(context).colorScheme.tertiary,
                     textAlignVertical: TextAlignVertical.top,
-                    style: const TextStyle(fontSize: 16, color: Colors.white),
+                    style: const TextStyle(fontSize: 16),
                     maxLines: null,
-                    decoration: const InputDecoration(
+                    decoration: InputDecoration(
                       hintText: 'Write your Lournal...',
-                      hintStyle: TextStyle(color: Colors.white54),
+                      hintStyle: TextStyle(color: Theme.of(context).colorScheme.inverseSurface),
                       border: InputBorder.none,
                       isCollapsed: true,
                     ),
@@ -267,7 +267,6 @@ class _CreatePageState extends State<CreatePage> {
                       child: const Text(
                         'Generating AI feedback for your Lournal...',
                         style: TextStyle(
-                          color: Colors.white,
                           fontSize: 22,
                           fontWeight: FontWeight.w600,
                         ),
