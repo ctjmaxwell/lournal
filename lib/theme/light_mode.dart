@@ -3,7 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 
 ThemeData lightMode = ThemeData(
   brightness: Brightness.light,
-  colorScheme: ColorScheme.light(
+  colorScheme: const ColorScheme.light(
     surface: Color(0xFFB5B5B5),
     primary: Color(0xFFF6F6F6),
     secondary: Color(0xFFECECEC),
@@ -14,12 +14,12 @@ ThemeData lightMode = ThemeData(
   textTheme: GoogleFonts.poppinsTextTheme(
     ThemeData.light().textTheme,
   ).apply(
-    bodyColor: Color(0xFF585858),
-    displayColor: Color(0xFF585858),
+    bodyColor: const Color(0xFF585858),
+    displayColor: const Color(0xFF585858),
   ),
 
   // The complete theme for text selection
-  textSelectionTheme: TextSelectionThemeData(
+  textSelectionTheme: const TextSelectionThemeData(
     // This styles the highlight background (which you've already done)
     selectionColor: Color(0xFF778BFF),
     

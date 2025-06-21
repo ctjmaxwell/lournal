@@ -2,6 +2,34 @@ import 'package:cloud_functions/cloud_functions.dart';
 import 'package:flutter/material.dart';
 import 'package:lournal/pages/finish_page.dart';
 import 'package:lournal/services/firestore.dart';
+// import 'package:lournal/widgets/custom_snackbar.dart';
+
+// Assuming showCustomSnackBar is defined in an imported file.
+void showCustomSnackBar(
+  BuildContext context,
+  String message, {
+  Color? backgroundColor,
+}) {
+  ScaffoldMessenger.of(context).showSnackBar(
+    SnackBar(
+      content: Text(
+        message,
+        style: const TextStyle(
+          color: Colors.white,
+          fontWeight: FontWeight.w500,
+        ),
+      ),
+      backgroundColor: backgroundColor ?? Theme.of(context).colorScheme.tertiary,
+      behavior: SnackBarBehavior.floating,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12.0),
+      ),
+      margin: const EdgeInsets.all(10),
+      duration: const Duration(seconds: 3),
+    ),
+  );
+}
+
 
 class CreatePage extends StatefulWidget {
   final String? docID; // Firestore document ID
@@ -10,6 +38,11 @@ class CreatePage extends StatefulWidget {
   final String title;
   final String content;
 
+  // For testability, we allow injecting these services.
+  // In the main app, they will be null and the widget will use the default instances.
+  final FirestoreService? firestoreService;
+  final FirebaseFunctions? functions;
+
   const CreatePage({
     Key? key,
     this.docID,
@@ -17,6 +50,8 @@ class CreatePage extends StatefulWidget {
     required this.type,
     required this.title,
     required this.content,
+    this.firestoreService,
+    this.functions,
   }) : super(key: key);
 
   @override
@@ -24,7 +59,11 @@ class CreatePage extends StatefulWidget {
 }
 
 class _CreatePageState extends State<CreatePage> {
-  final FirestoreService firestoreService = FirestoreService();
+  // These will hold the service instances to use.
+  // They are initialized in initState.
+  late final FirestoreService _firestoreService;
+  late final FirebaseFunctions _functions;
+
   final TextEditingController _titleController = TextEditingController();
   final TextEditingController _contentController = TextEditingController();
   final FocusNode _contentFocusNode = FocusNode();
@@ -35,6 +74,11 @@ class _CreatePageState extends State<CreatePage> {
   @override
   void initState() {
     super.initState();
+    // Use the injected services if they exist, otherwise use the default instances.
+    // This allows for mocking during tests.
+    _firestoreService = widget.firestoreService ?? FirestoreService();
+    _functions = widget.functions ?? FirebaseFunctions.instance;
+
     // If the widget title is not empty, use it as the initial text
     if (widget.title.isNotEmpty) {
       _titleController.text = widget.title;
@@ -65,8 +109,9 @@ class _CreatePageState extends State<CreatePage> {
       });
 
       try {
+        // Use the _functions instance (which could be a mock)
         final HttpsCallable callable =
-            FirebaseFunctions.instance.httpsCallable('processNoteWithAI');
+            _functions.httpsCallable('processNoteWithAI');
         final result = await callable.call({
           'title': _titleController.text.trim(),
           'content': _contentController.text.trim(),
@@ -77,34 +122,34 @@ class _CreatePageState extends State<CreatePage> {
         final String generatedFeedback = result.data['feedback'];
         final String generatedScoreString = result.data['score'];
 
-        
         // Try parsing the string to an int, default to 0 if it fails
         final int generatedScoreInt = int.tryParse(generatedScoreString) ?? 0;
 
-        // Clamp the score between 0 and 100
-        generatedScoreInt.clamp(0, 100);
+        // CORRECTED: clamp returns a new value, it doesn't modify in place.
+        final int clampedScore = generatedScoreInt.clamp(0, 100);
 
         if (widget.docID != null) {
-          await firestoreService.updateNote(
-          docID: widget.docID!,
-          title: _titleController.text.trim(),
-          content: _contentController.text.trim(),
-          language: widget.language,
-          type: widget.type,
-          translation: generatedTranslation,
-          feedback: generatedFeedback,
-          score: generatedScoreInt,
-        );
+          // Use the _firestoreService instance
+          await _firestoreService.updateNote(
+            docID: widget.docID!,
+            title: _titleController.text.trim(),
+            content: _contentController.text.trim(),
+            language: widget.language,
+            type: widget.type,
+            translation: generatedTranslation,
+            feedback: generatedFeedback,
+            score: clampedScore, // Use the clamped score
+          );
         } else {
-          await firestoreService.addNote(
-          title: _titleController.text.trim(),
-          content: _contentController.text.trim(),
-          language: widget.language,
-          type: widget.type,
-          translation: generatedTranslation,
-          feedback: generatedFeedback,
-          score: generatedScoreInt,
-        );
+          await _firestoreService.addNote(
+            title: _titleController.text.trim(),
+            content: _contentController.text.trim(),
+            language: widget.language,
+            type: widget.type,
+            translation: generatedTranslation,
+            feedback: generatedFeedback,
+            score: clampedScore, // Use the clamped score
+          );
         }
 
         // Dismiss the overlay then navigate back.
@@ -117,7 +162,7 @@ class _CreatePageState extends State<CreatePage> {
             MaterialPageRoute(
               builder: (context) => FinishPage(
                 wordCount: _contentController.text.trim().split(" ").length,
-                score: generatedScoreInt,
+                score: clampedScore, // Use the clamped score
                 language: widget.language,
               ),
             ),
@@ -128,20 +173,20 @@ class _CreatePageState extends State<CreatePage> {
           setState(() {
             _isSaving = false;
           });
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content:
-                  Text('Failed to process note. Please try again.'),
-            ),
+          // UPDATED to use custom snackbar
+          showCustomSnackBar(
+            context,
+            'Failed to process note. Please try again.',
+            backgroundColor: Colors.red,
           );
         }
       }
     } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text(
-              'Please enter both a title and content before saving'),
-        ),
+      // UPDATED to use custom snackbar
+      showCustomSnackBar(
+        context,
+        'Please enter both a title and content before saving',
+        backgroundColor: Colors.red,
       );
     }
   }
@@ -180,14 +225,17 @@ class _CreatePageState extends State<CreatePage> {
               child: Column(
                 children: [
                   TextField(
+                    // Added a key for testing
+                    key: const ValueKey('title_field'),
                     controller: _titleController,
                     autofocus: true,
                     cursorColor: Theme.of(context).colorScheme.tertiary,
-                    textInputAction: TextInputAction.newline,
+                    textInputAction: TextInputAction.next,
                     style: const TextStyle(fontSize: 24),
                     decoration: InputDecoration(
                       hintText: 'Title',
-                      hintStyle: TextStyle(color: Theme.of(context).colorScheme.inverseSurface),
+                      hintStyle: TextStyle(
+                          color: Theme.of(context).colorScheme.inverseSurface),
                       border: InputBorder.none,
                     ),
                     onSubmitted: (_) {
@@ -197,6 +245,8 @@ class _CreatePageState extends State<CreatePage> {
                   ),
                   const SizedBox(height: 10),
                   TextField(
+                    // Added a key for testing
+                    key: const ValueKey('content_field'),
                     controller: _contentController,
                     focusNode: _contentFocusNode,
                     cursorColor: Theme.of(context).colorScheme.tertiary,
@@ -205,7 +255,8 @@ class _CreatePageState extends State<CreatePage> {
                     maxLines: null,
                     decoration: InputDecoration(
                       hintText: 'Write your Lournal...',
-                      hintStyle: TextStyle(color: Theme.of(context).colorScheme.inverseSurface),
+                      hintStyle: TextStyle(
+                          color: Theme.of(context).colorScheme.inverseSurface),
                       border: InputBorder.none,
                       isCollapsed: true,
                     ),
@@ -225,8 +276,8 @@ class _CreatePageState extends State<CreatePage> {
                 onPressed: _isSaving ? null : saveNote,
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Theme.of(context).colorScheme.tertiary,
-                  padding: const EdgeInsets.symmetric(
-                      horizontal: 28, vertical: 14),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 28, vertical: 14),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(30),
                   ),
@@ -262,9 +313,9 @@ class _CreatePageState extends State<CreatePage> {
                       ),
                     ),
                     const SizedBox(height: 24),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 40.0),
-                      child: const Text(
+                    const Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 40.0),
+                      child: Text(
                         'Generating AI feedback for your Lournal...',
                         style: TextStyle(
                           fontSize: 22,
