@@ -3,7 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:lournal/components/my_textfield.dart';
 import 'package:lournal/components/custom_snackbar.dart';
-import 'package:lournal/services/cooldown_service.dart'; // Import the service
+import 'package:lournal/providers/cooldown_service.dart'; // Import the service
 import 'package:provider/provider.dart'; // Import provider
 
 class ForgotPasswordPage extends StatefulWidget {

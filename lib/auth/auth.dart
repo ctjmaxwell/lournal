@@ -14,8 +14,6 @@ class AuthPage extends StatelessWidget {
     return StreamBuilder<User?>( // Explicitly type the StreamBuilder
       stream: FirebaseAuth.instance.authStateChanges(),
       builder: (context, AsyncSnapshot<User?> snapshot) { // Explicitly type the AsyncSnapshot
-        // --- Debugging Print Statement ---
-        print("AuthPage StreamBuilder rebuilding: ConnectionState: ${snapshot.connectionState}, HasData: ${snapshot.hasData}, User UID: ${snapshot.data?.uid}, Error: ${snapshot.error}");
 
         // 1. Handle loading state
         if (snapshot.connectionState == ConnectionState.waiting) {
@@ -33,12 +31,10 @@ class AuthPage extends StatelessWidget {
 
         // 3. User is logged in
         if (snapshot.hasData && snapshot.data != null) {
-          print("AuthPage: User is logged in. Showing NotesPage.");
-          return NotesPage(); // Ensure NotesPage is a complete page (likely with its own Scaffold)
+          return const NotesPage(); // Ensure NotesPage is a complete page (likely with its own Scaffold)
         }
         // 4. User is not logged in
         else {
-          print("AuthPage: User is NOT logged in. Showing StartPage.");
           return const StartPage(); // Ensure StartPage is a complete page (likely with its own Scaffold)
         }
       },

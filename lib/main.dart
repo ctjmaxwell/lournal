@@ -2,21 +2,25 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:lournal/auth/auth.dart';
 import 'package:lournal/firebase_options.dart';
-import 'package:lournal/services/cooldown_service.dart'; // 1. Import the service
+import 'package:lournal/providers/cooldown_service.dart';
+import 'package:lournal/providers/notes_provider.dart'; // 1. Import your new provider
 import 'package:lournal/theme/dark_mode.dart';
 import 'package:lournal/theme/light_mode.dart';
-import 'package:provider/provider.dart'; // 2. Import the provider package
-// import 'package:device_preview/device_preview.dart';
+import 'package:provider/provider.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 
-  // 3. Wrap your app in the provider
+  // 2. Replace ChangeNotifierProvider with MultiProvider
   runApp(
-    ChangeNotifierProvider(
-      create: (context) => CooldownService(),
-      child: const MyApp(),
+    MultiProvider(
+      providers: [
+        // 3. List all of your providers here
+        ChangeNotifierProvider(create: (context) => CooldownService()),
+        ChangeNotifierProvider(create: (context) => NotesProvider()),
+      ],
+      child: const MyApp(), // Your app is the child
     ),
   );
 }
