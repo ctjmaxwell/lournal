@@ -105,6 +105,5 @@ class FirestoreService {
     // This single call to `user.delete()` will trigger the Firebase extension
     // to remove the associated Cloud Firestore data.
     await user.delete();
-    print('Firebase Auth user account deletion initiated successfully.');
   }
 }

@@ -73,7 +73,6 @@ class _LoggedInProfileState extends State<_LoggedInProfile> {
     try {
       await _firestoreService.deleteUserAccount();
 
-      print('Firebase Auth user and associated data deleted successfully!');
       if (mounted) {
         showCustomSnackBar(
             context, 'Account and all associated data deleted successfully.');
@@ -102,7 +101,6 @@ class _LoggedInProfileState extends State<_LoggedInProfile> {
       });
       showCustomSnackBar(context, 'An unexpected error occurred: $e',
           backgroundColor: Colors.red);
-      print('An unexpected error occurred during account deletion: $e');
     }
   }
 
@@ -175,9 +173,9 @@ class _LoggedInProfileState extends State<_LoggedInProfile> {
                         style: TextButton.styleFrom(
                             backgroundColor: Colors.red,
                             foregroundColor: Colors.white),
+                        onPressed: performReAuth,
                         child: const Text('Confirm & Delete',
                             style: TextStyle(fontWeight: FontWeight.bold)),
-                        onPressed: performReAuth,
                       ),
                     ],
                   ),
@@ -214,7 +212,6 @@ class _LoggedInProfileState extends State<_LoggedInProfile> {
       );
 
       await user.reauthenticateWithCredential(credential);
-      print('User re-authenticated successfully. Retrying deletion...');
       await _deleteAccount(); 
     } on FirebaseAuthException catch (e) {
       if (!mounted) return;
@@ -290,11 +287,12 @@ class _LoggedInProfileState extends State<_LoggedInProfile> {
     }
   }
 
-  void _logout(BuildContext context) async {
+  void _logout() async { // No BuildContext parameter needed here, as 'context' is accessible from the State
     await FirebaseAuth.instance.signOut();
+
+    // Check if the State object is still mounted before using its context
     if (mounted) {
-      Navigator.pushAndRemoveUntil(
-        context,
+      Navigator.of(context).pushAndRemoveUntil( // Use Navigator.of(context)
         MaterialPageRoute(builder: (_) => const AuthPage()),
         (route) => false,
       );
@@ -345,7 +343,7 @@ class _LoggedInProfileState extends State<_LoggedInProfile> {
     return Column(
       children: [
         ElevatedButton(
-          onPressed: () => _logout(context),
+          onPressed: () => _logout(),
           style: ElevatedButton.styleFrom(
             backgroundColor: Theme.of(context).colorScheme.tertiary,
             foregroundColor: Colors.white,

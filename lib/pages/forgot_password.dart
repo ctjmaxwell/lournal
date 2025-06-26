@@ -54,9 +54,12 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
       await FirebaseAuth.instance.sendPasswordResetEmail(
         email: emailController.text.trim(),
       );
+      
       if (mounted) Navigator.pop(context); // Pop loading circle
-      showCustomSnackBar(context, 'Password reset link sent! Please check your email.');
       // START THE COOLDOWN IN THE SERVICE
+      if (mounted) {
+        showCustomSnackBar(context, 'Password reset link sent! Please check your email.');
+      }
       cooldownService.startPasswordResetCooldown();
     } on FirebaseAuthException catch (e) {
       if (mounted) {

@@ -46,14 +46,14 @@ class _TermsAndConditionsSheetContentState extends State<_TermsAndConditionsShee
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     // --- Top Bar with Close Button ---
-                    Padding(
-                      padding: const EdgeInsets.only(top: 32.0, bottom: 8.0),
+                    const Padding(
+                      padding: EdgeInsets.only(top: 32.0, bottom: 8.0),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
                           // Title is now aligned with the text content
-                          const Expanded(
+                          Expanded(
                             child: Text(
                               'TERMS AND CONDITIONS', // UPDATED TITLE
                               style: TextStyle(
@@ -461,7 +461,7 @@ class _TermsAndConditionsSheetContentState extends State<_TermsAndConditionsShee
   Widget _buildSubText(String text) {
     return Text(
       text,
-      style: TextStyle(
+      style: const TextStyle(
         fontSize: 14,
         fontWeight: FontWeight.w500,
       ),

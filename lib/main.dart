@@ -1,5 +1,6 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:lournal/auth/auth.dart';
 import 'package:lournal/firebase_options.dart';
 import 'package:lournal/providers/cooldown_service.dart';
@@ -11,6 +12,12 @@ import 'package:provider/provider.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+
+  // Set preferred orientations to portrait for all iOS devices
+  await SystemChrome.setPreferredOrientations([
+    DeviceOrientation.portraitUp,
+    DeviceOrientation.portraitDown,
+  ]);
 
   // 2. Replace ChangeNotifierProvider with MultiProvider
   runApp(

@@ -2,25 +2,25 @@ import 'package:flutter/material.dart';
 import 'package:country_flags/country_flags.dart';
 import 'package:lournal/pages/create_page.dart';
 import 'package:lournal/helper/language_and_type_helper.dart'; // Adjust the path as needed
-import 'language_bottomsheet.dart'; // Import the language bottom sheet
-import 'type_bottomsheet.dart'; // Import the type bottom sheet
+import '../sheets/language_bottomsheet.dart'; // Import the language bottom sheet
+import '../sheets/type_bottomsheet.dart'; // Import the type bottom sheet
 
 class MyBottomBar extends StatefulWidget {
   final Function(int) onPageSelected;
   final String defaultLanguage;
 
   const MyBottomBar({
-    Key? key,
+    super.key, // Declared and passed to super in one step
     required this.onPageSelected,
     required this.defaultLanguage,
-  }) : super(key: key);
+  });
 
   static void showMakerSheet(BuildContext context, {required String defaultLanguage}) {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
       backgroundColor: Theme.of(context).colorScheme.primary,
-      shape: RoundedRectangleBorder(
+      shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(75)),
       ),
       builder: (BuildContext context) {
@@ -51,11 +51,11 @@ class _MyBottomBarState extends State<MyBottomBar> {
 
   @override
   Widget build(BuildContext context) {
-    final double sheetHeight = 350.0;
+    const double sheetHeight = 350.0;
     return Container(
       height: sheetHeight,
       width: double.infinity,
-      padding: EdgeInsets.all(16),
+      padding: const EdgeInsets.all(16),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
@@ -70,13 +70,17 @@ class _MyBottomBarState extends State<MyBottomBar> {
             ),
           ),
           Padding(
-            padding: EdgeInsets.symmetric(horizontal: 10),
+            padding: const EdgeInsets.symmetric(horizontal: 10),
             child: SizedBox(
               width: double.infinity,
               child: ElevatedButton(
                 onPressed: () {
                   Navigator.pop(context);
-                  Future.delayed(Duration(milliseconds: 100), () {
+                  Future.delayed(const Duration(milliseconds: 100), () {
+                    if (!mounted) {
+                      return; // If not mounted, do nothing.
+                    }
+                    
                     Navigator.push(
                       context,
                       MaterialPageRoute(
@@ -92,12 +96,12 @@ class _MyBottomBarState extends State<MyBottomBar> {
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Theme.of(context).colorScheme.tertiary,
-                  padding: EdgeInsets.symmetric(vertical: 20),
+                  padding: const EdgeInsets.symmetric(vertical: 20),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(120),
                   ),
                 ),
-                child: Text(
+                child: const Text(
                   "Create",
                   style: TextStyle(
                     fontSize: 24,
@@ -150,8 +154,8 @@ class _MyBottomBarState extends State<MyBottomBar> {
             ),
           ),
         ),
-        SizedBox(height: 8),
-        Text("Language", style: TextStyle(fontSize: 22, fontWeight: FontWeight.w500)),
+        const SizedBox(height: 8),
+        const Text("Language", style: TextStyle(fontSize: 22, fontWeight: FontWeight.w500)),
       ],
     );
   }
@@ -179,13 +183,13 @@ class _MyBottomBarState extends State<MyBottomBar> {
             child: Center(
               child: Text(
                 getEmojiForType(_selectedType),
-                style: TextStyle(fontSize: 32),
+                style: const TextStyle(fontSize: 32),
               ),
             ),
           ),
         ),
-        SizedBox(height: 8),
-        Text("Type", style: TextStyle(fontSize: 22, fontWeight: FontWeight.w500)),
+        const SizedBox(height: 8),
+        const Text("Type", style: TextStyle(fontSize: 22, fontWeight: FontWeight.w500)),
       ],
     );
   }
@@ -208,9 +212,9 @@ class _MyBottomBarState extends State<MyBottomBar> {
             child: Icon(icon, color: Theme.of(context).colorScheme.inversePrimary, size: 28),
           ),
         ),
-        if (!isCloseButton) SizedBox(height: 8),
+        if (!isCloseButton) const SizedBox(height: 8),
         if (!isCloseButton)
-          Text(text, style: TextStyle(fontSize: 22, fontWeight: FontWeight.w500)),
+          Text(text, style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w500)),
       ],
     );
   }

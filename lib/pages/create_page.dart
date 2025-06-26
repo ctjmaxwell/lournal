@@ -44,7 +44,7 @@ class CreatePage extends StatefulWidget {
   final FirebaseFunctions? functions;
 
   const CreatePage({
-    Key? key,
+    super.key, // This is the change!
     this.docID,
     required this.language,
     required this.type,
@@ -52,7 +52,7 @@ class CreatePage extends StatefulWidget {
     required this.content,
     this.firestoreService,
     this.functions,
-  }) : super(key: key);
+  });
 
   @override
   State<CreatePage> createState() => _CreatePageState();

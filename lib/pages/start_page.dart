@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'login_page.dart'; // Replace with your actual LoginPage import
 
 class StartPage extends StatelessWidget {
-  const StartPage({Key? key}) : super(key: key);
+  const StartPage({super.key});
 
   void _navigateToLogin(BuildContext context) {
     Navigator.push(
@@ -31,7 +31,7 @@ class StartPage extends StatelessWidget {
                       Container(
                         width: 200,
                         height: 200,
-                        decoration: BoxDecoration(
+                        decoration: const BoxDecoration(
                           shape: BoxShape.circle,
                           image: DecorationImage(
                             image: AssetImage('lib/assets/images/lournal-logo-background.png'),

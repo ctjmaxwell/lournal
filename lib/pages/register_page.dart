@@ -4,8 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:lournal/components/custom_snackbar.dart';
 import 'package:lournal/components/my_textfield.dart';
 // --- NEW: Import the bottom sheet files ---
-import 'package:lournal/components/privacy_policy_bottomsheet.dart';
-import 'package:lournal/components/terms_and_conditions_bottomsheet.dart';
+import 'package:lournal/sheets/privacy_policy_bottomsheet.dart';
+import 'package:lournal/sheets/terms_and_conditions_bottomsheet.dart';
 
 
 class RegisterPage extends StatefulWidget {

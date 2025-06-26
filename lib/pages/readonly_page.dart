@@ -84,7 +84,7 @@ class ReadOnlyPage extends StatelessWidget {
               const SizedBox(height: 20),
 
               // Separator text
-              Text(
+              const Text(
                 'Translation:',
                 style: TextStyle(
                   fontSize: 25,
@@ -111,7 +111,7 @@ class ReadOnlyPage extends StatelessWidget {
                 constraints: const BoxConstraints(minHeight: 200),
                 child: SelectableText(
                   translation,
-                  style: TextStyle(
+                  style: const TextStyle(
                     fontSize: 16,
                   ),
                 ),
@@ -120,7 +120,7 @@ class ReadOnlyPage extends StatelessWidget {
               const SizedBox(height: 20),
 
               // Separator text
-              Text(
+              const Text(
                 'AI Feedback:',
                 style: TextStyle(
                   fontSize: 25,
@@ -147,7 +147,7 @@ class ReadOnlyPage extends StatelessWidget {
                 constraints: const BoxConstraints(minHeight: 300),
                 child: SelectableText(
                   feedback,
-                  style: TextStyle(
+                  style: const TextStyle(
                     fontSize: 16,
                   ),
                 ),

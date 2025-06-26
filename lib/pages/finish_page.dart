@@ -9,11 +9,11 @@ class FinishPage extends StatelessWidget {
   final String language;
 
   const FinishPage({
-    Key? key,
+    super.key,
     required this.wordCount,
     required this.score,
     required this.language,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -42,7 +42,7 @@ class FinishPage extends StatelessWidget {
                       const SizedBox(height: 20),
                       Text(
                         getCongratsForLanguage(language),
-                        style: TextStyle(
+                        style: const TextStyle(
                           fontSize: 30,
                           fontWeight: FontWeight.bold,
                         ),

@@ -40,15 +40,15 @@ class NotesTile extends StatelessWidget {
     // Define text styles
     const TextStyle emojiStyle = TextStyle(fontSize: 24);
     // Using color from the theme for better adaptability
-    final TextStyle typeStyle = TextStyle(
+    const TextStyle typeStyle = TextStyle(
       fontSize: 12,
       fontWeight: FontWeight.w900,
     );
-    final TextStyle titleStyle = TextStyle(
+    const TextStyle titleStyle = TextStyle(
       fontSize: 14,
       fontWeight: FontWeight.w600,
     );
-    final TextStyle contentStyle = TextStyle(
+    const TextStyle contentStyle = TextStyle(
       fontSize: 14,
     );
 

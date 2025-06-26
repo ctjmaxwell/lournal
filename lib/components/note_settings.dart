@@ -58,8 +58,8 @@ class NoteSettings extends StatelessWidget {
           child: Container(
             height: 50,
             color: Theme.of(context).colorScheme.secondary,
-            child: Padding(
-              padding: const EdgeInsets.only(left: 16.0, right: 16.0),
+            child: const Padding(
+              padding: EdgeInsets.only(left: 16.0, right: 16.0),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
@@ -69,7 +69,7 @@ class NoteSettings extends StatelessWidget {
                       color: Colors.red,
                     ),
                   ),
-                  const Spacer(),
+                  Spacer(),
                   Icon(
                     Icons.delete_outlined,
                     color: Colors.red,

@@ -4,8 +4,8 @@ import 'package:lournal/helper/date_format_helper.dart';
 import 'package:provider/provider.dart';
 import 'package:lournal/components/my_bottom_bar.dart';
 import 'package:lournal/components/note_tile.dart';
-import 'package:lournal/components/profile_bottomsheet.dart';
-import 'package:lournal/components/show_filter_bottomsheet.dart';
+import 'package:lournal/sheets/profile_bottomsheet.dart';
+import 'package:lournal/sheets/show_filter_bottomsheet.dart';
 import 'package:lournal/providers/notes_provider.dart';
 
 class NotesPage extends StatelessWidget {
@@ -247,7 +247,6 @@ class _NotesList extends StatelessWidget {
 }
   
 Widget _buildEmptyState(BuildContext context) {
-  // ... same as before
   return Center(
     child: Padding(
       padding: const EdgeInsets.only(top: 48.0, right: 64.0, left: 64.0),

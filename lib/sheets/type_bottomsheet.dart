@@ -1,63 +1,56 @@
 import 'package:flutter/material.dart';
-import 'package:country_flags/country_flags.dart';
-// Import your helper file to get the list of languages.
-import 'package:lournal/helper/language_and_type_helper.dart'; // Adjust the path as needed
+import 'package:lournal/helper/language_and_type_helper.dart'; // Adjust path as needed
 
-Future<String?> showLanguageDropdown(BuildContext context, String currentLanguage) async {
+Future<String?> showTypeDropdown(BuildContext context, String currentType) async {
   // Create the ordered list directly from your single source of truth.
-  List<String> orderedLanguages = List.from(supportedLanguages);
-  if (orderedLanguages.contains(currentLanguage)) {
-    orderedLanguages.remove(currentLanguage);
-    orderedLanguages.insert(0, currentLanguage);
-  }
+  List<String> orderedTypes = List.from(journalTypes);
+  orderedTypes.remove(currentType);
+  orderedTypes.insert(0, currentType);
 
   return await showModalBottomSheet<String>(
     context: context,
     isScrollControlled: true,
-    // 1. Set useSafeArea to true for better handling of system intrusions
+    // 1. Set useSafeArea to true for robust handling of system intrusions
     useSafeArea: true,
     backgroundColor: Theme.of(context).colorScheme.primary,
-    shape: RoundedRectangleBorder(
+    shape: const RoundedRectangleBorder(
       borderRadius: BorderRadius.vertical(top: Radius.circular(30)),
     ),
     clipBehavior: Clip.antiAlias,
     builder: (BuildContext context) {
       return FractionallySizedBox(
         heightFactor: 1,
-        // 2. Move SafeArea to be the child of the sizing box and parent of the content column
+        // 2. Wrap the content Column with SafeArea
         child: SafeArea(
           child: Column(
             children: [
               Expanded(
                 child: ListView(
-                  // No changes needed in the list itself
-                  children: orderedLanguages.map((language) {
+                  // Map over the list of type names (Strings).
+                  children: orderedTypes.map((type) {
                     return Column(
                       children: [
                         Container(
-                          color: language == currentLanguage
+                          color: type == currentType
                               ? Theme.of(context).colorScheme.secondary
                               : Colors.transparent,
                           child: ListTile(
-                            contentPadding: EdgeInsets.symmetric(horizontal: 20),
+                            contentPadding: const EdgeInsets.symmetric(horizontal: 20),
                             minVerticalPadding: 22,
-                            leading: ClipRRect(
-                              borderRadius: BorderRadius.circular(5),
-                              child: CountryFlag.fromCountryCode(
-                                getCountryCodeForLanguage(language),
-                                width: 35,
-                                height: 25,
-                              ),
+                            leading: Text(
+                              // Call your helper function to get the emoji!
+                              getEmojiForType(type),
+                              style: const TextStyle(fontSize: 32),
                             ),
                             title: Text(
-                              language,
-                              style: TextStyle(
+                              type, // The type is just the string itself.
+                              style: const TextStyle(
                                 fontSize: 18,
                                 fontWeight: FontWeight.w500,
                               ),
                             ),
                             onTap: () {
-                              Navigator.pop(context, language);
+                              Navigator.pop(context, type);
                             },
                           ),
                         ),
