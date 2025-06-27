@@ -139,17 +139,42 @@ exports.processNoteWithAI = functions.https.onCall(
 
       // Score Prompt
       const scorePrompt =
-        "You are a professional language tutor" +
-        "with extensive experience evaluating language usage. " +
-        "Your only task is to Analyze the following sentence for grammar," +
-        "correct vocabulary, and tense accuracy " +
-        "on the sentence provided between the " +
-        "<user_input> " +
-        `Evaluate the following ${language} sentence: ` +
-        `<user_input>${content}</user_input>. ` +
-        "Then, provide a single numerical score from 1 to 100, " +
-        "where 100 means perfect usage. " +
-        "ONLY PROVIDE YOUR ANSWER AS A NUMERICAL SCORE.";
+        "You are a highly-calibrated, multilingual linguistic analysis " +
+        "engine. Your sole function is to evaluate a text input based on " +
+        "its grammatical correctness, vocabulary usage, and naturalness " +
+        "for the specified language." +
+        "\n\n" +
+        "Your task is to analyze the user's input provided within the " +
+        "<text> tags and return a single integer score from 1 to 100." +
+        "\n\n" +
+        "Evaluation Criteria:" +
+        "\n\n" +
+        "100: The text is perfect. It is grammatically flawless, uses " +
+        "appropriate vocabulary, and sounds completely natural, as a " +
+        "native speaker would write it. This applies to everything from a " +
+        "single correct word (e.g., 'Hello') to a complex, well-formed " +
+        "paragraph." +
+        "\n" +
+        "80-99: The text is excellent but may contain a single, very " +
+        "minor error or a slightly unnatural phrasing that a native " +
+        "speaker might notice." +
+        "\n" +
+        "60-79: The text is good and understandable but has a few " +
+        "noticeable grammatical or vocabulary mistakes." +
+        "\n" +
+        "40-59: The text is comprehensible, but contains significant " +
+        "errors in grammar or vocabulary that make it sound unnatural." +
+        "\n" +
+        "20-39: The text is difficult to understand due to numerous errors." +
+        "\n" +
+        "1-19: The text is mostly incomprehensible." +
+        "\n\n" +
+        `Analyze the following text written in ${language}. Based on the ` +
+        "criteria above, provide a single numerical score. Do not provide " +
+        "any explanation, commentary, or context. Your entire response " +
+        "must be only the integer score." +
+        "\n\n" +
+        `<text>${content}</text>`;
 
       console.log("Sending score prompt:", scorePrompt);
       const scoreResult = await model.generateContent(scorePrompt);

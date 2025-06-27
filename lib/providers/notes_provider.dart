@@ -5,8 +5,21 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:lournal/services/firestore.dart';
 
 class NotesProvider with ChangeNotifier {
-  final FirestoreService _firestoreService = FirestoreService();
-  final FirebaseAuth _auth = FirebaseAuth.instance;
+  final FirestoreService _firestoreService;
+  final FirebaseAuth _auth;
+
+  // Public constructor for your app
+  NotesProvider()
+      : _auth = FirebaseAuth.instance,
+        _firestoreService = FirestoreService() {
+    _authSubscription = _auth.authStateChanges().listen(_onAuthStateChanged);
+  }
+
+  // Special constructor for testing
+  @visibleForTesting
+  NotesProvider.testable(this._auth, this._firestoreService) {
+     _authSubscription = _auth.authStateChanges().listen(_onAuthStateChanged);
+  }
 
   late StreamSubscription _authSubscription;
   StreamSubscription? _notesSubscription;
@@ -28,10 +41,6 @@ class NotesProvider with ChangeNotifier {
   bool get isLoading => _isLoading;
   bool get hasError => _error != null;
   String? get error => _error;
-
-  NotesProvider() {
-    _authSubscription = _auth.authStateChanges().listen(_onAuthStateChanged);
-  }
 
   void _onAuthStateChanged(User? user) {
     _notesSubscription?.cancel();

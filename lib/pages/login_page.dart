@@ -8,7 +8,11 @@ import 'package:lournal/pages/forgot_password.dart';
 import 'package:lournal/pages/register_page.dart';
 
 class LoginPage extends StatefulWidget {
-  const LoginPage({super.key});
+  // Add this field to allow injecting a mock FirebaseAuth instance for testing.
+  final FirebaseAuth? auth;
+
+  // Update the constructor to accept the optional 'auth' parameter.
+  const LoginPage({super.key, this.auth});
 
   @override
   State<LoginPage> createState() => _LoginPageState();
@@ -18,7 +22,6 @@ class _LoginPageState extends State<LoginPage> {
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
 
-  // --- NEW: FocusNodes to manage text field focus ---
   final FocusNode _emailFocusNode = FocusNode();
   final FocusNode _passwordFocusNode = FocusNode();
 
@@ -31,6 +34,7 @@ class _LoginPageState extends State<LoginPage> {
   @override
   void initState() {
     super.initState();
+    // Listener to clear the email error state when the user types.
     emailController.addListener(() {
       if (_isEmailInvalid) {
         setState(() {
@@ -38,7 +42,7 @@ class _LoginPageState extends State<LoginPage> {
         });
       }
     });
-    // --- ADDED: Listener for password controller to clear error on input ---
+    // Listener to clear the password error state when the user types.
     passwordController.addListener(() {
       if (_passwordInvalid) {
         setState(() {
@@ -49,12 +53,17 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   void login() async {
-    // Unfocus nodes to dismiss keyboard before showing dialog
+    // Use the injected auth instance from the widget if it exists;
+    // otherwise, fall back to the real FirebaseAuth.instance.
+    final auth = widget.auth ?? FirebaseAuth.instance;
+
+    // Unfocus nodes to dismiss the keyboard before showing a dialog or navigating.
     _emailFocusNode.unfocus();
     _passwordFocusNode.unfocus();
 
     if (!mounted) return;
 
+    // Show a loading indicator while the login process is in progress.
     showDialog(
       context: context,
       barrierDismissible: false,
@@ -73,7 +82,7 @@ class _LoginPageState extends State<LoginPage> {
     );
 
     try {
-      final userCredential = await FirebaseAuth.instance.signInWithEmailAndPassword(
+      final userCredential = await auth.signInWithEmailAndPassword(
         email: emailController.text.trim(),
         password: passwordController.text,
       );
@@ -83,32 +92,36 @@ class _LoginPageState extends State<LoginPage> {
       final user = userCredential.user;
       if (user != null) {
         if (user.emailVerified) {
+          // If the user is verified, pop all routes until the first one (home).
           if (mounted) Navigator.of(context).popUntil((route) => route.isFirst);
         } else {
-          await _showVerificationDialog();
-          await FirebaseAuth.instance.signOut();
+          // If not verified, show the verification dialog, then sign out.
+          await _showVerificationDialog(auth);
+          await auth.signOut();
         }
       }
     } on FirebaseAuthException catch (e) {
       if (mounted) {
-        Navigator.pop(context);
+        Navigator.pop(context); // Pop loading circle
         String message = 'An error occurred. Please try again.';
 
         if (e.code == 'invalid-email') {
           setState(() {
             _isEmailInvalid = true;
-            _passwordInvalid = false; // Ensure password field is not red for email errors
+            _passwordInvalid = false; // Ensure password field is not red
           });
           message = 'The email address is badly formatted.';
-        } else if (e.code == 'user-not-found' || e.code == 'wrong-password' || e.code == 'invalid-credential') {
+        } else if (e.code == 'user-not-found' ||
+            e.code == 'wrong-password' ||
+            e.code == 'invalid-credential') {
           setState(() {
             _isEmailInvalid = true;
             _passwordInvalid = true;
           });
           message = 'Incorrect email or password. Please try again.';
         } else {
-           setState(() {
-            _isEmailInvalid = false; // Assuming general errors might not be tied to a specific field.
+          setState(() {
+            _isEmailInvalid = false;
             _passwordInvalid = false;
           });
           message = e.message ?? message;
@@ -117,23 +130,27 @@ class _LoginPageState extends State<LoginPage> {
       }
     } catch (e) {
       if (mounted) {
-        Navigator.pop(context);
+        Navigator.pop(context); // Pop loading circle
         setState(() {
           _isEmailInvalid = false;
-          _passwordInvalid = false; // Reset both on unexpected errors
+          _passwordInvalid = false;
         });
-        showCustomSnackBar(context, "An unexpected error occurred. Please try again.", backgroundColor: Colors.red);
+        showCustomSnackBar(
+            context, "An unexpected error occurred. Please try again.",
+            backgroundColor: Colors.red);
       }
     }
   }
 
-  Future<void> _showVerificationDialog() async {
+  // Pass the auth instance to the dialog so it can be used for resending emails.
+  Future<void> _showVerificationDialog(FirebaseAuth auth) async {
     if (!mounted) return;
     return showDialog<void>(
       context: context,
       barrierDismissible: false,
       builder: (BuildContext dialogContext) {
         return _VerificationDialog(
+          auth: auth, // Pass the auth instance to the dialog.
           cooldownEnd: _resendCooldownEnd,
           onResend: (newCooldownTime) {
             if (mounted) {
@@ -147,18 +164,26 @@ class _LoginPageState extends State<LoginPage> {
     );
   }
 
+  // --- FIX: Handle the result from RegisterPage and show a snackbar on success ---
   void _navigateToAndClearFields(Widget page) {
     Navigator.push(
       context,
       MaterialPageRoute(builder: (context) => page),
-    ).then((_) {
+    ).then((registrationResult) {
       if (mounted) {
+        // Always clear fields when returning to the login page.
         emailController.clear();
         passwordController.clear();
         setState(() {
           _isEmailInvalid = false;
-          _passwordInvalid = false; // ADDED: Reset password error state
+          _passwordInvalid = false;
         });
+
+        // If registration was successful (returned true), show the snackbar.
+        if (registrationResult == true) {
+          showCustomSnackBar(
+              context, "Account created! Please verify your email.");
+        }
       }
     });
   }
@@ -167,7 +192,6 @@ class _LoginPageState extends State<LoginPage> {
   void dispose() {
     emailController.dispose();
     passwordController.dispose();
-    // --- NEW: Dispose FocusNodes to prevent memory leaks ---
     _emailFocusNode.dispose();
     _passwordFocusNode.dispose();
     super.dispose();
@@ -178,6 +202,11 @@ class _LoginPageState extends State<LoginPage> {
     return Scaffold(
       resizeToAvoidBottomInset: false,
       backgroundColor: Theme.of(context).colorScheme.primary,
+      appBar: AppBar(
+        backgroundColor: Theme.of(context).colorScheme.primary,
+        foregroundColor: Theme.of(context).colorScheme.inversePrimary,
+        elevation: 0,
+      ),
       body: Center(
         child: Padding(
           padding: const EdgeInsets.all(24.0),
@@ -199,29 +228,26 @@ class _LoginPageState extends State<LoginPage> {
                 ),
               ),
               const SizedBox(height: 25),
-              // --- MODIFIED: Email TextField ---
               MyTextField(
                 hintText: "Email",
                 obscureText: false,
                 controller: emailController,
                 hasError: _isEmailInvalid,
                 focusNode: _emailFocusNode,
-                textInputAction: TextInputAction.next, // Changes enter button to "Next"
+                textInputAction: TextInputAction.next,
                 onSubmitted: (_) {
-                  // When "Next" is pressed, focus the password field
                   FocusScope.of(context).requestFocus(_passwordFocusNode);
                 },
               ),
               const SizedBox(height: 10),
-              // --- MODIFIED: Password TextField ---
               MyTextField(
                 hintText: "Password",
                 obscureText: true,
                 controller: passwordController,
                 hasError: _passwordInvalid,
                 focusNode: _passwordFocusNode,
-                textInputAction: TextInputAction.done, // Changes enter button to "Done"
-                onSubmitted: (_) => login(), // When "Done" is pressed, attempt to log in
+                textInputAction: TextInputAction.done,
+                onSubmitted: (_) => login(),
               ),
               const SizedBox(height: 10),
               Row(
@@ -264,6 +290,7 @@ class _LoginPageState extends State<LoginPage> {
                   const Text("Don't have an account?"),
                   GestureDetector(
                     onTap: () {
+                      // This now correctly handles the navigation to the RegisterPage
                       _navigateToAndClearFields(const RegisterPage());
                     },
                     child: Text(
@@ -284,13 +311,17 @@ class _LoginPageState extends State<LoginPage> {
   }
 }
 
-// --- NEW WIDGET ---
-// A stateful dialog to manage the cooldown timer.
+// A stateful dialog to manage the cooldown timer for resending verification emails.
 class _VerificationDialog extends StatefulWidget {
+  final FirebaseAuth auth; // Instance passed from the LoginPage.
   final DateTime? cooldownEnd;
   final ValueChanged<DateTime> onResend;
 
-  const _VerificationDialog({this.cooldownEnd, required this.onResend});
+  const _VerificationDialog({
+    required this.auth,
+    this.cooldownEnd,
+    required this.onResend,
+  });
 
   @override
   State<_VerificationDialog> createState() => _VerificationDialogState();
@@ -303,10 +334,9 @@ class _VerificationDialogState extends State<_VerificationDialog> {
   @override
   void initState() {
     super.initState();
-    // Check if there's an existing cooldown from the parent widget.
     if (widget.cooldownEnd != null) {
       final difference = widget.cooldownEnd!.difference(DateTime.now());
-      if (difference.isNegative == false) {
+      if (!difference.isNegative) {
         _secondsRemaining = difference.inSeconds;
         startTimer();
       }
@@ -315,12 +345,12 @@ class _VerificationDialogState extends State<_VerificationDialog> {
 
   @override
   void dispose() {
-    _timer?.cancel(); // Important: cancel the timer to avoid memory leaks.
+    _timer?.cancel();
     super.dispose();
   }
 
   void startTimer() {
-    _timer?.cancel(); // Cancel any existing timer.
+    _timer?.cancel();
     _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
       if (_secondsRemaining > 0) {
         if (mounted) {
@@ -335,7 +365,6 @@ class _VerificationDialogState extends State<_VerificationDialog> {
   }
 
   Future<void> _resendEmail() async {
-    // Disable the button immediately and start the cooldown.
     const cooldownDuration = Duration(seconds: 30);
     widget.onResend(DateTime.now().add(cooldownDuration));
     if (mounted) {
@@ -346,7 +375,8 @@ class _VerificationDialogState extends State<_VerificationDialog> {
     startTimer();
 
     try {
-      final user = FirebaseAuth.instance.currentUser;
+      // Use the injected auth instance to get the current user.
+      final user = widget.auth.currentUser;
       if (user != null) {
         await user.sendEmailVerification();
       }
@@ -360,7 +390,7 @@ class _VerificationDialogState extends State<_VerificationDialog> {
         final message = (e.code == 'too-many-requests')
             ? 'Too many requests. Please try again later.'
             : 'An error occurred: ${e.message}';
-        showCustomSnackBar(context, message);
+        showCustomSnackBar(context, message, backgroundColor: Colors.red);
       }
     }
   }
@@ -375,7 +405,8 @@ class _VerificationDialogState extends State<_VerificationDialog> {
       content: const SingleChildScrollView(
         child: ListBody(
           children: <Widget>[
-            Text('Please check your inbox and verify your email address to continue.'),
+            Text(
+                'Please check your inbox and verify your email address to continue.'),
           ],
         ),
       ),
@@ -393,7 +424,7 @@ class _VerificationDialogState extends State<_VerificationDialog> {
         TextButton(
           style: TextButton.styleFrom(
             backgroundColor: isOnCooldown
-                ? Colors.grey.shade700 // Disabled color
+                ? Theme.of(context).colorScheme.surface // Disabled color
                 : Theme.of(context).colorScheme.tertiary,
             foregroundColor: Colors.white,
           ),

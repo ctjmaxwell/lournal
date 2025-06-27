@@ -3,13 +3,13 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:lournal/components/custom_snackbar.dart';
 import 'package:lournal/components/my_textfield.dart';
-// --- NEW: Import the bottom sheet files ---
 import 'package:lournal/sheets/privacy_policy_bottomsheet.dart';
 import 'package:lournal/sheets/terms_and_conditions_bottomsheet.dart';
 
-
 class RegisterPage extends StatefulWidget {
-  const RegisterPage({super.key});
+  final FirebaseAuth? auth;
+
+  const RegisterPage({super.key, this.auth});
 
   @override
   State<RegisterPage> createState() => _RegisterPageState();
@@ -22,15 +22,13 @@ class _RegisterPageState extends State<RegisterPage> {
   final TextEditingController passwordController = TextEditingController();
   final TextEditingController confirmationController = TextEditingController();
 
-  // --- NEW: FocusNodes to manage text field focus ---
+  // FocusNodes to manage text field focus
   final FocusNode _usernameFocusNode = FocusNode();
   final FocusNode _emailFocusNode = FocusNode();
   final FocusNode _passwordFocusNode = FocusNode();
   final FocusNode _confirmationFocusNode = FocusNode();
 
-
   // State variables for field-specific errors
-  // --- NEW: Added state for username validation ---
   bool _isUsernameInvalid = false;
   bool _passwordInvalid = false;
   bool _isEmailInvalid = false;
@@ -39,7 +37,6 @@ class _RegisterPageState extends State<RegisterPage> {
   void initState() {
     super.initState();
     // Add listeners to clear error states automatically when the user types
-    // --- NEW: Listener for username controller ---
     usernameController.addListener(_clearUsernameError);
     passwordController.addListener(_clearPasswordError);
     confirmationController.addListener(_clearPasswordError);
@@ -49,7 +46,6 @@ class _RegisterPageState extends State<RegisterPage> {
   @override
   void dispose() {
     // Clean up the controllers and listeners to prevent memory leaks
-    // --- NEW: Remove listener for username controller ---
     usernameController.removeListener(_clearUsernameError);
     passwordController.removeListener(_clearPasswordError);
     confirmationController.removeListener(_clearPasswordError);
@@ -59,7 +55,7 @@ class _RegisterPageState extends State<RegisterPage> {
     passwordController.dispose();
     confirmationController.dispose();
 
-    // --- NEW: Dispose FocusNodes to prevent memory leaks ---
+    // Dispose FocusNodes to prevent memory leaks
     _usernameFocusNode.dispose();
     _emailFocusNode.dispose();
     _passwordFocusNode.dispose();
@@ -68,7 +64,6 @@ class _RegisterPageState extends State<RegisterPage> {
     super.dispose();
   }
 
-  // --- NEW: Clears the username error border ---
   void _clearUsernameError() {
     if (_isUsernameInvalid) {
       setState(() {
@@ -77,7 +72,6 @@ class _RegisterPageState extends State<RegisterPage> {
     }
   }
 
-  // Clears the password error border
   void _clearPasswordError() {
     if (_passwordInvalid) {
       setState(() {
@@ -86,7 +80,6 @@ class _RegisterPageState extends State<RegisterPage> {
     }
   }
 
-  // Clears the email error border
   void _clearEmailError() {
     if (_isEmailInvalid) {
       setState(() {
@@ -96,23 +89,26 @@ class _RegisterPageState extends State<RegisterPage> {
   }
 
   void registerUser() async {
+    final auth = widget.auth ?? FirebaseAuth.instance;
+
     // Unfocus all nodes to dismiss the keyboard
     _usernameFocusNode.unfocus();
     _emailFocusNode.unfocus();
     _passwordFocusNode.unfocus();
     _confirmationFocusNode.unfocus();
 
+    if (!mounted) return;
+
     // Reset all error states on a new submission attempt
     setState(() {
-      // --- MODIFIED: Reset username error state ---
       _isUsernameInvalid = false;
       _passwordInvalid = false;
       _isEmailInvalid = false;
     });
 
-    // --- NEW: 0. Check if username is empty ---
     if (usernameController.text.trim().isEmpty) {
-      showCustomSnackBar(context, "Username cannot be empty", backgroundColor: Colors.red);
+      showCustomSnackBar(context, "Username cannot be empty",
+          backgroundColor: Colors.red);
       setState(() {
         _isUsernameInvalid = true;
       });
@@ -129,48 +125,46 @@ class _RegisterPageState extends State<RegisterPage> {
             width: 40,
             height: 40,
             child: CircularProgressIndicator(
-              valueColor: AlwaysStoppedAnimation<Color>(
-                Theme.of(context).colorScheme.tertiary,
-              ),
-              backgroundColor: Theme.of(context).colorScheme.secondary,
+            valueColor: AlwaysStoppedAnimation<Color>(
+              Theme.of(context).colorScheme.tertiary,
             ),
+            backgroundColor: Theme.of(context).colorScheme.secondary,
+          ),
           ),
         );
       },
     );
 
-    // 1. Check if passwords match (client-side validation)
     if (passwordController.text != confirmationController.text) {
       if (mounted) Navigator.pop(context); // Pop loading circle
-      showCustomSnackBar(context, "Passwords do not match", backgroundColor: Colors.red);
+      showCustomSnackBar(context, "Passwords do not match",
+          backgroundColor: Colors.red);
       setState(() {
         _passwordInvalid = true;
       });
       return; // Stop execution
     }
 
-    // 2. Try to create user with Firebase
     try {
       UserCredential? userCredential =
-          await FirebaseAuth.instance.createUserWithEmailAndPassword(
-        email: emailController.text,
+          await auth.createUserWithEmailAndPassword(
+        email: emailController.text.trim(),
         password: passwordController.text,
       );
 
-      // --- MODIFIED: Use the trimmed username ---
       await userCredential.user?.sendEmailVerification();
-      await userCredential.user?.updateDisplayName(usernameController.text.trim());
+      await userCredential.user
+          ?.updateDisplayName(usernameController.text.trim());
 
-      if (mounted) Navigator.pop(context); // Pop loading circle on success
+      // --- FIX: Sign out the user to prevent automatic login after registration ---
+      await auth.signOut();
 
+      // Pop the loading circle
+      if (mounted) Navigator.pop(context);
+
+      // --- FIX: Pop the RegisterPage and return 'true' to signal success ---
       if (mounted) {
-        showCustomSnackBar(
-            context, "Account created! Please verify your email.");
-        Future.delayed(const Duration(seconds: 1), () {
-          if (mounted) {
-            Navigator.pop(context); // Return to previous screen
-          }
-        });
+        Navigator.pop(context, true);
       }
     } on FirebaseAuthException catch (e) {
       if (mounted) Navigator.pop(context); // Pop loading circle on error
@@ -178,25 +172,22 @@ class _RegisterPageState extends State<RegisterPage> {
       if (mounted) {
         String errorMessage = e.message ?? "An unknown error occurred.";
 
-        // Handle different Firebase authentication errors
         if (e.code == 'invalid-email') {
           setState(() {
-            _isEmailInvalid = true; // Trigger red border for email field
+            _isEmailInvalid = true;
           });
-          // Show snackbar with a red background for this specific error
           showCustomSnackBar(context, errorMessage, backgroundColor: Colors.red);
         } else if (e.code == 'email-already-in-use') {
           setState(() {
-            _isEmailInvalid = true; // Also an email error
+            _isEmailInvalid = true;
           });
-          showCustomSnackBar(context, errorMessage); // Show default snackbar
+          showCustomSnackBar(context, errorMessage);
         } else if (e.code == 'weak-password') {
           setState(() {
-            _passwordInvalid = true; // Trigger red border for password fields
+            _passwordInvalid = true;
           });
-          showCustomSnackBar(context, errorMessage); // Show default snackbar
+          showCustomSnackBar(context, errorMessage);
         } else {
-          // For any other Firebase error, just show the message
           showCustomSnackBar(context, errorMessage);
         }
       }
@@ -234,12 +225,11 @@ class _RegisterPageState extends State<RegisterPage> {
                 ),
               ),
               const SizedBox(height: 25),
-              // --- MODIFIED: Username TextField with error handling ---
               MyTextField(
                 hintText: "Username",
                 obscureText: false,
                 controller: usernameController,
-                hasError: _isUsernameInvalid, // Pass username error state
+                hasError: _isUsernameInvalid,
                 focusNode: _usernameFocusNode,
                 textInputAction: TextInputAction.next,
                 onSubmitted: (_) {
@@ -247,12 +237,11 @@ class _RegisterPageState extends State<RegisterPage> {
                 },
               ),
               const SizedBox(height: 10),
-              // --- MODIFIED: Email TextField ---
               MyTextField(
                 hintText: "Email",
                 obscureText: false,
                 controller: emailController,
-                hasError: _isEmailInvalid, // Pass email error state
+                hasError: _isEmailInvalid,
                 focusNode: _emailFocusNode,
                 textInputAction: TextInputAction.next,
                 onSubmitted: (_) {
@@ -260,12 +249,11 @@ class _RegisterPageState extends State<RegisterPage> {
                 },
               ),
               const SizedBox(height: 10),
-              // --- MODIFIED: Password TextField ---
               MyTextField(
                 hintText: "Password",
                 obscureText: true,
                 controller: passwordController,
-                hasError: _passwordInvalid, // Pass password error state
+                hasError: _passwordInvalid,
                 focusNode: _passwordFocusNode,
                 textInputAction: TextInputAction.next,
                 onSubmitted: (_) {
@@ -273,18 +261,16 @@ class _RegisterPageState extends State<RegisterPage> {
                 },
               ),
               const SizedBox(height: 10),
-              // --- MODIFIED: Confirm Password TextField ---
               MyTextField(
                 hintText: "Confirm Password",
                 obscureText: true,
                 controller: confirmationController,
-                hasError: _passwordInvalid, // Pass password error state
+                hasError: _passwordInvalid,
                 focusNode: _confirmationFocusNode,
                 textInputAction: TextInputAction.done,
                 onSubmitted: (_) => registerUser(),
               ),
               const SizedBox(height: 10),
-              // --- MODIFIED: Replaced Row with RichText for tappable links ---
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 8.0),
                 child: RichText(
@@ -295,7 +281,9 @@ class _RegisterPageState extends State<RegisterPage> {
                       fontSize: 12,
                     ),
                     children: [
-                      const TextSpan(text: 'By signing up, you have read and agree to our '),
+                      const TextSpan(
+                          text:
+                              'By signing up, you have read and agree to our '),
                       TextSpan(
                         text: 'Privacy Policy',
                         style: TextStyle(

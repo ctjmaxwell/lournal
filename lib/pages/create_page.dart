@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:cloud_functions/cloud_functions.dart';
 import 'package:flutter/material.dart';
 import 'package:lournal/pages/finish_page.dart';
@@ -98,98 +100,126 @@ class _CreatePageState extends State<CreatePage> {
   }
 
   void saveNote() async {
-    // Dismiss the keyboard.
-    FocusScope.of(context).unfocus();
+  // Dismiss the keyboard.
+  FocusScope.of(context).unfocus();
 
-    if (_titleController.text.trim().isNotEmpty &&
-        _contentController.text.trim().isNotEmpty &&
-        widget.language.isNotEmpty) {
-      setState(() {
-        _isSaving = true;
+  if (_titleController.text.trim().isNotEmpty &&
+      _contentController.text.trim().isNotEmpty &&
+      widget.language.isNotEmpty) {
+    setState(() {
+      _isSaving = true;
+    });
+
+    try {
+      // Use the _functions instance (which could be a mock)
+      final HttpsCallable callable =
+          _functions.httpsCallable('processNoteWithAI');
+
+      // --- LOGGING INPUTS (What you are sending) ---
+      // This will print the exact data being sent to your Cloud Function.
+      log('--- SENDING DATA TO CLOUD FUNCTION ---');
+      log('Title: ${_titleController.text.trim()}');
+      log('Content: ${_contentController.text.trim()}');
+      log('Language: ${widget.language}');
+      log('------------------------------------');
+
+      final result = await callable.call({
+        'title': _titleController.text.trim(),
+        'content': _contentController.text.trim(),
+        'language': widget.language,
       });
 
-      try {
-        // Use the _functions instance (which could be a mock)
-        final HttpsCallable callable =
-            _functions.httpsCallable('processNoteWithAI');
-        final result = await callable.call({
-          'title': _titleController.text.trim(),
-          'content': _contentController.text.trim(),
-          'language': widget.language,
-        });
+      // --- LOGGING OUTPUTS (What you are getting back) ---
+      final String generatedTranslation = result.data['translation'];
+      final String generatedFeedback = result.data['feedback'];
+      final String generatedScoreString = result.data['score'];
 
-        final String generatedTranslation = result.data['translation'];
-        final String generatedFeedback = result.data['feedback'];
-        final String generatedScoreString = result.data['score'];
+      log('--- RECEIVED DATA FROM CLOUD FUNCTION ---');
+      log('Raw Translation: $generatedTranslation');
+      log('Raw Feedback: $generatedFeedback');
+      log('Raw Score (as String): "$generatedScoreString"'); // Log the raw string
+      log('-----------------------------------------');
 
-        // Try parsing the string to an int, default to 0 if it fails
-        final int generatedScoreInt = int.tryParse(generatedScoreString) ?? 0;
 
-        // CORRECTED: clamp returns a new value, it doesn't modify in place.
-        final int clampedScore = generatedScoreInt.clamp(0, 100);
+      // --- LOGGING BEFORE AND AFTER CLAMP ---
+      // Try parsing the string to an int, default to 0 if it fails
+      final int generatedScoreInt = int.tryParse(generatedScoreString) ?? 0;
 
-        if (widget.docID != null) {
-          // Use the _firestoreService instance
-          await _firestoreService.updateNote(
-            docID: widget.docID!,
-            title: _titleController.text.trim(),
-            content: _contentController.text.trim(),
-            language: widget.language,
-            type: widget.type,
-            translation: generatedTranslation,
-            feedback: generatedFeedback,
-            score: clampedScore, // Use the clamped score
-          );
-        } else {
-          await _firestoreService.addNote(
-            title: _titleController.text.trim(),
-            content: _contentController.text.trim(),
-            language: widget.language,
-            type: widget.type,
-            translation: generatedTranslation,
-            feedback: generatedFeedback,
-            score: clampedScore, // Use the clamped score
-          );
-        }
+      // This is the value *before* clamping
+      log('SCORE (Before Clamp): $generatedScoreInt');
 
-        // Dismiss the overlay then navigate back.
-        if (mounted) {
-          setState(() {
-            _isSaving = false;
-          });
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(
-              builder: (context) => FinishPage(
-                wordCount: _contentController.text.trim().split(" ").length,
-                score: clampedScore, // Use the clamped score
-                language: widget.language,
-              ),
-            ),
-          );
-        }
-      } catch (e) {
-        if (mounted) {
-          setState(() {
-            _isSaving = false;
-          });
-          // UPDATED to use custom snackbar
-          showCustomSnackBar(
-            context,
-            'Failed to process note. Please try again.',
-            backgroundColor: Colors.red,
-          );
-        }
+      // CORRECTED: clamp returns a new value, it doesn't modify in place.
+      final int clampedScore = generatedScoreInt.clamp(0, 100);
+
+      // This is the value *after* clamping
+      log('SCORE (After Clamp): $clampedScore');
+      log('-----------------------------------');
+
+
+      if (widget.docID != null) {
+        // Use the _firestoreService instance
+        await _firestoreService.updateNote(
+          docID: widget.docID!,
+          title: _titleController.text.trim(),
+          content: _contentController.text.trim(),
+          language: widget.language,
+          type: widget.type,
+          translation: generatedTranslation,
+          feedback: generatedFeedback,
+          score: clampedScore, // Use the clamped score
+        );
+      } else {
+        await _firestoreService.addNote(
+          title: _titleController.text.trim(),
+          content: _contentController.text.trim(),
+          language: widget.language,
+          type: widget.type,
+          translation: generatedTranslation,
+          feedback: generatedFeedback,
+          score: clampedScore, // Use the clamped score
+        );
       }
-    } else {
-      // UPDATED to use custom snackbar
-      showCustomSnackBar(
-        context,
-        'Please enter both a title and content before saving',
-        backgroundColor: Colors.red,
-      );
+
+      // Dismiss the overlay then navigate back.
+      if (mounted) {
+        setState(() {
+          _isSaving = false;
+        });
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (context) => FinishPage(
+              wordCount: _contentController.text.trim().split(" ").length,
+              score: clampedScore, // Use the clamped score
+              language: widget.language,
+            ),
+          ),
+        );
+      }
+    } catch (e, s) { // Also catch the stack trace for more details
+      if (mounted) {
+        setState(() {
+          _isSaving = false;
+        });
+        
+        // --- LOGGING THE ERROR ---
+        log('!!! ERROR processing note !!!', error: e, stackTrace: s);
+
+        showCustomSnackBar(
+          context,
+          'Failed to process note. Please ensure you are online and try again.',
+          backgroundColor: Colors.red,
+        );
+      }
     }
+  } else {
+    showCustomSnackBar(
+      context,
+      'Please enter both a title and content before saving',
+      backgroundColor: Colors.red,
+    );
   }
+}
 
   @override
   Widget build(BuildContext context) {

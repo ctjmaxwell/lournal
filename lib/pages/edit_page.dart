@@ -14,6 +14,8 @@ class EditPage extends StatelessWidget {
   final String type;
   final String language;
   final int score;
+  // The FirestoreService is now nullable to allow for a const constructor.
+  final FirestoreService? firestoreService;
 
   const EditPage({
     super.key,
@@ -25,11 +27,15 @@ class EditPage extends StatelessWidget {
     required this.type,
     required this.language,
     required this.score,
+    // The default value has been removed to fix the compile error.
+    this.firestoreService,
   });
 
   @override
   Widget build(BuildContext context) {
-    final FirestoreService firestoreService = FirestoreService();
+    // Use the provided firestoreService, or create a new instance if it's null.
+    // This allows for dependency injection in tests while working in production.
+    final effectiveFirestoreService = firestoreService ?? FirestoreService();
     final double progress = score / 100.0;
 
     return Scaffold(
@@ -59,7 +65,10 @@ class EditPage extends StatelessWidget {
                     context: context,
                     bodyBuilder: (context) => NoteSettings(
                       onDeleteTap: () {
-                        firestoreService.deleteNote(docID);
+                        // Use the effective service instance.
+                        effectiveFirestoreService.deleteNote(docID);
+                        // Pop twice to close the popover and the edit page.
+                        Navigator.of(context).pop();
                         Navigator.of(context).pop();
                       },
                       onEditTap: () {
