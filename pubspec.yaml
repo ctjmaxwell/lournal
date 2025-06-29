@@ -28,19 +28,27 @@ dependencies:
   fake_async: ^1.3.3
   firebase_auth_platform_interface: ^7.7.0
   plugin_platform_interface: ^2.1.8
+  # The duplicate entries have been removed from here
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
 
   flutter_lints: ^3.0.0
-  # Using specific, stable versions known to work together
   build_runner: 2.5.3
   mockito: 5.4.6
+  # 1. Add the package to your dev_dependencies
+  flutter_launcher_icons: ^0.14.4
 
 flutter:
   uses-material-design: true
   assets:
-    - lib/assets/images/lournal_logo.jpg
-    - lib/assets/images/real_lournal.png
-    - lib/assets/images/lournal-logo-background.png
+    - lib/assets/lournal-logo-background.png
+    - lib/assets/lournal-logo-background-rework.png
+    - lib/assets/lournal-logo-background-big.png
+
+# 2. Add the configuration block here, at the top level
+flutter_launcher_icons:
+  ios: true
+  remove_alpha_ios: true
+  image_path: "lib/assets/lournal-logo-background-rework.png"

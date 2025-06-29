@@ -34,7 +34,7 @@ class StartPage extends StatelessWidget {
                         decoration: const BoxDecoration(
                           shape: BoxShape.circle,
                           image: DecorationImage(
-                            image: AssetImage('lib/assets/images/lournal-logo-background.png'),
+                            image: AssetImage('lib/assets/lournal-logo-background.png'),
                             fit: BoxFit.cover,
                           ),
                         ),
