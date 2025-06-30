@@ -140,9 +140,9 @@ class _FilterBottomSheetContentState extends State<_FilterBottomSheetContent> {
       leading: Text(emoji, style: const TextStyle(fontSize: 25)),
       title: Text(label, style: const TextStyle(fontSize: 16)),
       trailing: Icon(
-        isSelected ? Icons.check_circle : Icons.radio_button_unchecked,
+        isSelected ? Icons.circle : Icons.radio_button_unchecked,
         size: 22,
-        color: Theme.of(context).colorScheme.inversePrimary,
+        color: Theme.of(context).colorScheme.tertiary,
       ),
       onTap: onTap,
     );
@@ -166,9 +166,9 @@ class _FilterBottomSheetContentState extends State<_FilterBottomSheetContent> {
       ),
       title: Text(language, style: const TextStyle(fontSize: 16)),
       trailing: Icon(
-        isSelected ? Icons.check_circle : Icons.radio_button_unchecked,
+        isSelected ? Icons.circle : Icons.radio_button_unchecked,
         size: 22,
-        color: Theme.of(context).colorScheme.inversePrimary,
+        color: Theme.of(context).colorScheme.tertiary,
       ),
       onTap: onTap,
     );

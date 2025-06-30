@@ -31,6 +31,8 @@ dependencies:
   # The duplicate entries have been removed from here
 
 dev_dependencies:
+  integration_test:
+      sdk: flutter
   flutter_test:
     sdk: flutter
 
@@ -39,6 +41,7 @@ dev_dependencies:
   mockito: 5.4.6
   # 1. Add the package to your dev_dependencies
   flutter_launcher_icons: ^0.14.4
+  flutter_dotenv: ^5.2.1
 
 flutter:
   uses-material-design: true
@@ -46,6 +49,7 @@ flutter:
     - lib/assets/lournal-logo-background.png
     - lib/assets/lournal-logo-background-rework.png
     - lib/assets/lournal-logo-background-big.png
+    - .env
 
 # 2. Add the configuration block here, at the top level
 flutter_launcher_icons:

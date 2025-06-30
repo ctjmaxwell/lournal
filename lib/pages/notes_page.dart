@@ -120,6 +120,7 @@ class NotesPage extends StatelessWidget {
                       shape: const CircleBorder(),
                       clipBehavior: Clip.hardEdge,
                       child: InkWell(
+                        key: const Key('profile_button'),
                         customBorder: const CircleBorder(),
                         onTap: () => profileBottomSheet(context),
                         child: const Center(child: Icon(Icons.person, size: 20, color: Colors.white)),
