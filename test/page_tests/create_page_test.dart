@@ -159,7 +159,7 @@ void main() {
       
       // 2. Verify the correct error SnackBar is shown.
       expect(find.byType(SnackBar), findsOneWidget);
-      expect(find.text('Failed to process note. Please try again.'), findsOneWidget);
+      expect(find.text('Failed to process note. Please ensure you are online and try again.'), findsOneWidget);
     });
   });
 
