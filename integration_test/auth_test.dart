@@ -18,7 +18,7 @@ void main() async {
     testWidgets('logs out successfully and returns to the start screen',
         (WidgetTester tester) async {
       // First, log in to get to the notes screen.
-      // await performLogin(tester);
+      await performLogin(tester);
 
       // Now, perform and verify the logout action.
       await performLogout(tester);
