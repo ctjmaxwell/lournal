@@ -284,6 +284,58 @@ class _LoginPageState extends State<LoginPage> {
                 ),
               ),
               const SizedBox(height: 25),
+              // *** NEW: Divider ***
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 25.0),
+                child: Row(
+                  children: [
+                    Expanded(
+                        child: Divider(thickness: 0.5, color: Colors.grey[400])),
+                    const Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 10.0),
+                      child: Text('Or', style: TextStyle(color: Colors.grey)),
+                    ),
+                    Expanded(
+                        child: Divider(thickness: 0.5, color: Colors.grey[400])),
+                  ],
+                ),
+              ),
+              // *** NEW: Custom Google Sign-In Button ***
+              SizedBox(
+                width: double.infinity,
+                height: 55,
+                child: ElevatedButton(
+                  onPressed: () {},
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFFF7F7F7), // Light grey background
+                    foregroundColor: Colors.grey[800], // Dark grey text
+                    elevation: 0, // No shadow
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(25), // Fully rounded
+                      side: BorderSide(color: Colors.grey[300]!), // Subtle border
+                    ),
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      // You must add the Google logo to your assets
+                      Image.asset(
+                        'lib/assets/google.png', // Make sure you have this asset
+                        height: 22.0,
+                        width: 22.0,
+                      ),
+                      const SizedBox(width: 12),
+                      const Text(
+                        'Continue with Google',
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
