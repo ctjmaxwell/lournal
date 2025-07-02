@@ -6,6 +6,10 @@ import 'package:lournal/components/custom_snackbar.dart';
 import 'package:lournal/components/my_textfield.dart';
 import 'package:lournal/pages/forgot_password.dart';
 import 'package:lournal/pages/register_page.dart';
+import 'package:google_sign_in/google_sign_in.dart' as gsi;
+
+
+
 
 class LoginPage extends StatefulWidget {
   // Add this field to allow injecting a mock FirebaseAuth instance for testing.
@@ -50,6 +54,25 @@ class _LoginPageState extends State<LoginPage> {
         });
       }
     });
+  }
+  
+  // google sign in
+  signInWithGoogle() async {
+    
+    // beign interactive sign in process
+    final gsi.GoogleSignInAccount? gUser = await gsi.GoogleSignIn().signIn();
+
+    // obtain auth details from request
+    final gsi.GoogleSignInAuthentication gAuth = await gUser!.authentication;
+
+    // create a new credential
+    final credential = GoogleAuthProvider.credential(
+      accessToken: gAuth.accessToken,
+      idToken: gAuth.idToken,
+    );
+
+    // finally, sign in!
+    return await FirebaseAuth.instance.signInWithCredential(credential);
   }
 
   void login() async {
@@ -284,6 +307,25 @@ class _LoginPageState extends State<LoginPage> {
                 ),
               ),
               const SizedBox(height: 25),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Text("Don't have an account?"),
+                  GestureDetector(
+                    onTap: () {
+                      // This now correctly handles the navigation to the RegisterPage
+                      _navigateToAndClearFields(const RegisterPage());
+                    },
+                    child: Text(
+                      " Register here",
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        color: Theme.of(context).colorScheme.tertiary,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
               // *** NEW: Divider ***
               Padding(
                 padding: const EdgeInsets.symmetric(vertical: 25.0),
@@ -300,6 +342,7 @@ class _LoginPageState extends State<LoginPage> {
                   ],
                 ),
               ),
+              
               // *** NEW: Custom Google Sign-In Button ***
               SizedBox(
                 width: double.infinity,
@@ -307,12 +350,15 @@ class _LoginPageState extends State<LoginPage> {
                 child: ElevatedButton(
                   onPressed: () {},
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFFF7F7F7), // Light grey background
-                    foregroundColor: Colors.grey[800], // Dark grey text
+                    backgroundColor: Theme.of(context).colorScheme.primary, // Light grey background
+                    foregroundColor: Theme.of(context).colorScheme.inversePrimary, // Dark grey text
                     elevation: 0, // No shadow
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(25), // Fully rounded
-                      side: BorderSide(color: Colors.grey[300]!), // Subtle border
+                      borderRadius: BorderRadius.circular(25),
+                      side: BorderSide(
+                        color: Theme.of(context).colorScheme.inverseSurface, // Border color
+                        width: 1.5, // Border width
+                      ),
                     ),
                   ),
                   child: Row(
@@ -336,25 +382,7 @@ class _LoginPageState extends State<LoginPage> {
                   ),
                 ),
               ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const Text("Don't have an account?"),
-                  GestureDetector(
-                    onTap: () {
-                      // This now correctly handles the navigation to the RegisterPage
-                      _navigateToAndClearFields(const RegisterPage());
-                    },
-                    child: Text(
-                      " Register here",
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        color: Theme.of(context).colorScheme.tertiary,
-                      ),
-                    ),
-                  ),
-                ],
-              )
+              
             ],
           ),
         ),
@@ -492,3 +520,4 @@ class _VerificationDialogState extends State<_VerificationDialog> {
     );
   }
 }
+
