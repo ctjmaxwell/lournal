@@ -44,7 +44,7 @@ exports.processNoteWithAI = functions.https.onCall(
 
     try {
       const genAI = new GoogleGenerativeAI(geminiApiKey.value());
-      const model = genAI.getGenerativeModel({model: "gemini-2.5-flash"});
+      const model = genAI.getGenerativeModel({model: "gemini-1.5-flash"});
 
       console.log("AI Model initialized successfully.");
 
