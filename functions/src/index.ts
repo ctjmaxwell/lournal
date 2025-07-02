@@ -44,7 +44,7 @@ exports.processNoteWithAI = functions.https.onCall(
 
     try {
       const genAI = new GoogleGenerativeAI(geminiApiKey.value());
-      const model = genAI.getGenerativeModel({model: "gemini-1.5-flash"});
+      const model = genAI.getGenerativeModel({model: "gemini-2.5-flash"});
 
       console.log("AI Model initialized successfully.");
 
@@ -155,24 +155,36 @@ exports.processNoteWithAI = functions.https.onCall(
         "single correct word (e.g., 'Hello') to a complex, well-formed " +
         "paragraph." +
         "\n" +
-        "80-99: The text is excellent but may contain a single, very " +
+        "90-99: The text is excellent. It may contain a single, very " +
         "minor error or a slightly unnatural phrasing that a native " +
-        "speaker might notice." +
+        "speaker might notice, but it's otherwise perfect. These errors " +
+        "do not impede comprehension or natural flow." +
         "\n" +
-        "60-79: The text is good and understandable but has a few " +
-        "noticeable grammatical or vocabulary mistakes." +
+        "75-89: The text is good and largely understandable. It has one " +
+        "or two minor grammatical or vocabulary errors that are noticeable " +
+        "and make it sound slightly unnatural, but they do not significantly " +
+        "impede comprehension for a native speaker." +
         "\n" +
-        "40-59: The text is comprehensible, but contains significant " +
-        "errors in grammar or vocabulary that make it sound unnatural." +
+        "50-74: The text is comprehensible but clearly non-native. It contains " +
+        "several noticeable and recurring grammatical or vocabulary mistakes. " +
+        "These errors frequently make the text sound unnatural and may " +
+        "require some effort from a native speaker to fully understand." +
         "\n" +
-        "20-39: The text is difficult to understand due to numerous errors." +
+        "25-49: The text is difficult to understand due to numerous " +
+        "and significant errors in grammar, vocabulary, or sentence " +
+        "structure. These errors severely disrupt natural flow and often " +
+        "lead to misinterpretation or require considerable effort to decipher." +
         "\n" +
-        "1-19: The text is mostly incomprehensible." +
+        "1-24: The text is mostly incomprehensible. Errors are pervasive " +
+        "and fundamental, making it nearly impossible for a native speaker " +
+        "to understand the intended meaning. This includes texts with large " +
+        "sections in a different language than specified." +
         "\n\n" +
         `Analyze the following text written in ${language}. Based on the ` +
         "criteria above, provide a single numerical score. Do not provide " +
         "any explanation, commentary, or context. Your entire response " +
-        "must be only the integer score." +
+        "must be only the integer score. **Ensure " + 
+        "the score is a multiple of 5 (e.g., 0, 5, 10, ..., 100).**" + // Added this line
         "\n\n" +
         `<text>${content}</text>`;
 
