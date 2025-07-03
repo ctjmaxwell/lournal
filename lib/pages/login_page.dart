@@ -2,11 +2,11 @@ import 'dart:async'; // Import the async library for the Timer
 
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:lournal/auth/google_auth.dart';
 import 'package:lournal/components/custom_snackbar.dart';
 import 'package:lournal/components/my_textfield.dart';
 import 'package:lournal/pages/forgot_password.dart';
 import 'package:lournal/pages/register_page.dart';
-import 'package:google_sign_in/google_sign_in.dart' as gsi;
 
 
 
@@ -55,25 +55,48 @@ class _LoginPageState extends State<LoginPage> {
       }
     });
   }
-  
-  // google sign in
-  signInWithGoogle() async {
-    
-    // beign interactive sign in process
-    final gsi.GoogleSignInAccount? gUser = await gsi.GoogleSignIn().signIn();
 
-    // obtain auth details from request
-    final gsi.GoogleSignInAuthentication gAuth = await gUser!.authentication;
+  // Get an instance of your AuthService
+  final AuthService _authService = AuthService.instance;
 
-    // create a new credential
-    final credential = GoogleAuthProvider.credential(
-      accessToken: gAuth.accessToken,
-      idToken: gAuth.idToken,
+  // Method to handle the Google Sign-In flow
+  void signInWithGoogle() async {
+    // Unfocus nodes to dismiss keyboard
+    _emailFocusNode.unfocus();
+    _passwordFocusNode.unfocus();
+
+    if (!mounted) return;
+
+    // Show loading circle
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => const Center(child: CircularProgressIndicator()),
     );
 
-    // finally, sign in!
-    return await FirebaseAuth.instance.signInWithCredential(credential);
+    try {
+      // Call the signInWithGoogle method from your AuthService
+      await _authService.signInWithGoogle();
+
+      if (mounted) {
+        Navigator.pop(context); // Pop loading circle
+        // Navigate to home page or wherever you need to go after login
+        Navigator.of(context).popUntil((route) => route.isFirst);
+      }
+    } catch (e) {
+      if (mounted) {
+        Navigator.pop(context); // Pop loading circle
+        String message = 'An error occurred. Please try again.';
+        if (e is FirebaseAuthException && e.code == 'sign_in_canceled') {
+          message = 'Sign-in was canceled.';
+        } else {
+          message = e.toString();
+        }
+        showCustomSnackBar(context, message, backgroundColor: Colors.red);
+      }
+    }
   }
+  
 
   void login() async {
     // Use the injected auth instance from the widget if it exists;
@@ -348,7 +371,7 @@ class _LoginPageState extends State<LoginPage> {
                 width: double.infinity,
                 height: 55,
                 child: ElevatedButton(
-                  onPressed: () {},
+                  onPressed: signInWithGoogle,
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Theme.of(context).colorScheme.primary, // Light grey background
                     foregroundColor: Theme.of(context).colorScheme.inversePrimary, // Dark grey text
