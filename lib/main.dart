@@ -6,6 +6,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:lournal/auth/auth.dart';
+import 'package:lournal/auth/google_auth.dart';
 import 'package:lournal/firebase_options.dart';
 import 'package:lournal/providers/cooldown_service.dart';
 import 'package:lournal/providers/notes_provider.dart'; // 1. Import your new provider
@@ -16,6 +17,7 @@ import 'package:provider/provider.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+  await AuthService.instance.initialize();
 
   // // --- START TEMPORARY EMULATOR CONFIG ---
   // // if (kDebugMode) { // <--- ADD THIS

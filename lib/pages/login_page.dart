@@ -2,10 +2,14 @@ import 'dart:async'; // Import the async library for the Timer
 
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:lournal/auth/google_auth.dart';
 import 'package:lournal/components/custom_snackbar.dart';
 import 'package:lournal/components/my_textfield.dart';
 import 'package:lournal/pages/forgot_password.dart';
 import 'package:lournal/pages/register_page.dart';
+
+
+
 
 class LoginPage extends StatefulWidget {
   // Add this field to allow injecting a mock FirebaseAuth instance for testing.
@@ -51,6 +55,48 @@ class _LoginPageState extends State<LoginPage> {
       }
     });
   }
+
+  // Get an instance of your AuthService
+  final AuthService _authService = AuthService.instance;
+
+  // Method to handle the Google Sign-In flow
+  void signInWithGoogle() async {
+    // Unfocus nodes to dismiss keyboard
+    _emailFocusNode.unfocus();
+    _passwordFocusNode.unfocus();
+
+    if (!mounted) return;
+
+    // Show loading circle
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => const Center(child: CircularProgressIndicator()),
+    );
+
+    try {
+      // Call the signInWithGoogle method from your AuthService
+      await _authService.signInWithGoogle();
+
+      if (mounted) {
+        Navigator.pop(context); // Pop loading circle
+        // Navigate to home page or wherever you need to go after login
+        Navigator.of(context).popUntil((route) => route.isFirst);
+      }
+    } catch (e) {
+      if (mounted) {
+        Navigator.pop(context); // Pop loading circle
+        String message = 'An error occurred. Please try again.';
+        if (e is FirebaseAuthException && e.code == 'sign_in_canceled') {
+          message = 'Sign-in was canceled.';
+        } else {
+          message = e.toString();
+        }
+        showCustomSnackBar(context, message, backgroundColor: Colors.red);
+      }
+    }
+  }
+  
 
   void login() async {
     // Use the injected auth instance from the widget if it exists;
@@ -302,7 +348,64 @@ class _LoginPageState extends State<LoginPage> {
                     ),
                   ),
                 ],
-              )
+              ),
+              // *** NEW: Divider ***
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 25.0),
+                child: Row(
+                  children: [
+                    Expanded(
+                        child: Divider(thickness: 0.5, color: Colors.grey[400])),
+                    const Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 10.0),
+                      child: Text('Or', style: TextStyle(color: Colors.grey)),
+                    ),
+                    Expanded(
+                        child: Divider(thickness: 0.5, color: Colors.grey[400])),
+                  ],
+                ),
+              ),
+              
+              // *** NEW: Custom Google Sign-In Button ***
+              SizedBox(
+                width: double.infinity,
+                height: 55,
+                child: ElevatedButton(
+                  onPressed: signInWithGoogle,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Theme.of(context).colorScheme.primary, // Light grey background
+                    foregroundColor: Theme.of(context).colorScheme.inversePrimary, // Dark grey text
+                    elevation: 0, // No shadow
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(25),
+                      side: BorderSide(
+                        color: Theme.of(context).colorScheme.inverseSurface, // Border color
+                        width: 1.5, // Border width
+                      ),
+                    ),
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      // You must add the Google logo to your assets
+                      Image.asset(
+                        'lib/assets/google.png', // Make sure you have this asset
+                        height: 22.0,
+                        width: 22.0,
+                      ),
+                      const SizedBox(width: 12),
+                      const Text(
+                        'Continue with Google',
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              
             ],
           ),
         ),
@@ -440,3 +543,4 @@ class _VerificationDialogState extends State<_VerificationDialog> {
     );
   }
 }
+
