@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:lournal/components/custom_circular_progress_indicator.dart';
 import 'package:lournal/components/my_textfield.dart';
 import 'package:lournal/components/custom_snackbar.dart';
 import 'package:lournal/providers/cooldown_service.dart'; // Import the service
@@ -43,11 +44,7 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
     showDialog(
       context: context,
       barrierDismissible: false,
-      builder: (dialogContext) => Center(child: CircularProgressIndicator(
-          valueColor: AlwaysStoppedAnimation<Color>(Theme.of(context).colorScheme.tertiary),
-          backgroundColor: Theme.of(context).colorScheme.secondary,
-        ),
-      ),
+      builder: (dialogContext) => const Center(child: CustomCircularProgressIndicator()),
     );
 
     try {

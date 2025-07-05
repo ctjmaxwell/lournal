@@ -1,6 +1,8 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:lournal/auth/auth.dart'; // Assuming this is your auth page
+import 'package:lournal/auth/google_auth.dart';
+import 'package:lournal/components/custom_circular_progress_indicator.dart';
 import 'package:lournal/services/firestore.dart'; // Your FirestoreService
 import 'package:lournal/components/custom_snackbar.dart'; // Your custom snackbar
 import 'package:lournal/components/my_textfield.dart'; // Import your custom text field
@@ -89,7 +91,12 @@ class _LoggedInProfileState extends State<_LoggedInProfile> {
       });
 
       if (e.code == 'requires-recent-login') {
-        _showReAuthDialog();
+        final providerId = widget.user.providerData.first.providerId;
+        if (providerId == 'google.com') {
+          _reauthenticateWithGoogleAndRetryDelete();
+        } else {
+          _showReAuthDialog();
+        }
       } else {
         showCustomSnackBar(context, 'Error deleting account: ${e.message}',
             backgroundColor: Colors.red);
@@ -101,6 +108,27 @@ class _LoggedInProfileState extends State<_LoggedInProfile> {
       });
       showCustomSnackBar(context, 'An unexpected error occurred: $e',
           backgroundColor: Colors.red);
+    }
+  }
+
+  Future<void> _reauthenticateWithGoogleAndRetryDelete() async {
+    setState(() {
+      _isLoading = true;
+    });
+
+    try {
+      // Re-authenticate with Google
+      await AuthService.instance.signInWithGoogle();
+      
+      // If successful, retry the deletion
+      await _deleteAccount();
+
+    } catch (e) {
+      if (!mounted) return;
+      setState(() {
+        _isLoading = false;
+      });
+      showCustomSnackBar(context, 'Re-authentication failed. Please try again.', backgroundColor: Colors.red);
     }
   }
 
@@ -329,7 +357,7 @@ class _LoggedInProfileState extends State<_LoggedInProfile> {
               if (_isLoading)
                 const Padding(
                   padding: EdgeInsets.symmetric(vertical: 32.0),
-                  child: Center(child: CircularProgressIndicator()),
+                  child: Center(child: CustomCircularProgressIndicator()),
                 ),
               // --- REMOVED: Error message text widget ---
             ],
@@ -368,9 +396,7 @@ class _LoggedInProfileState extends State<_LoggedInProfile> {
               ? const SizedBox(
                   width: 20,
                   height: 20,
-                  child: CircularProgressIndicator(
-                      strokeWidth: 2,
-                      valueColor: AlwaysStoppedAnimation<Color>(Colors.white)),
+                  child: CustomCircularProgressIndicator(color: Colors.white),
                 )
               : const Center(child: Text('Delete Account')),
         ),

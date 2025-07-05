@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:cloud_functions/cloud_functions.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:lournal/components/custom_circular_progress_indicator.dart';
 import 'package:lournal/pages/finish_page.dart';
 import 'package:lournal/services/firestore.dart';
 import 'package:lournal/services/storage_service.dart';
@@ -364,14 +365,19 @@ class _CreatePageState extends State<CreatePage> {
             alignment: Alignment.bottomLeft,
             child: Padding(
               padding: EdgeInsets.only(
-                left: 32.0, // Provides horizontal spacing from the edge
+                left: 24, // Provides horizontal spacing from the edge
                 bottom: bottomInset > 32 ? bottomInset + 16 : 32,
               ),
               child: FloatingActionButton(
                 heroTag: 'saveFabLeft', // Unique hero tag to avoid conflicts
                 onPressed: _isSaving ? null : _pickImage,
-                backgroundColor: Theme.of(context).colorScheme.tertiary,
-                child: const Icon(Icons.add_a_photo, color: Colors.white),
+                backgroundColor: Theme.of(context).colorScheme.primary,
+                foregroundColor: Theme.of(context).colorScheme.inversePrimary, // Sets the icon color
+                elevation: 0, // Removes shadow for a flat look
+                shape: CircleBorder(
+                  side: BorderSide(color: Theme.of(context).colorScheme.inversePrimary, width: 1.5), // Grey border
+                ),
+                child: const Icon(Icons.add), // Changed icon to a plus sign
               ),
             ),
           ),
@@ -380,7 +386,7 @@ class _CreatePageState extends State<CreatePage> {
             alignment: Alignment.bottomRight,
             child: Padding(
               padding: EdgeInsets.only(
-                right: 16,
+                right: 24,
                 bottom: bottomInset > 32 ? bottomInset + 16 : 32,
               ),
               child: ElevatedButton(
@@ -408,26 +414,20 @@ class _CreatePageState extends State<CreatePage> {
           if (_isSaving)
             Container(
               color: Theme.of(context).colorScheme.primary,
-              child: Center(
+              child: const Center(
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     SizedBox(
                       width: 40, // Adjust the width as desired
                       height: 40, // Adjust the height as desired
-                      child: CircularProgressIndicator(
-                        valueColor: AlwaysStoppedAnimation<Color>(
-                          Theme.of(context).colorScheme.tertiary,
-                        ),
-                        backgroundColor:
-                            Theme.of(context).colorScheme.secondary,
-                      ),
+                      child: CustomCircularProgressIndicator(),
                     ),
-                    const SizedBox(height: 24),
-                    const Padding(
+                    SizedBox(height: 24),
+                    Padding(
                       padding: EdgeInsets.symmetric(horizontal: 40.0),
                       child: Text(
-                        'Generating AI feedback',
+                        'Generating AI feedback...',
                         style: TextStyle(
                           fontSize: 22,
                           fontWeight: FontWeight.w600,

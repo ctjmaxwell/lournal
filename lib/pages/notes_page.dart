@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:lournal/components/custom_circular_progress_indicator.dart';
 import 'package:lournal/helper/date_format_helper.dart';
 import 'package:provider/provider.dart';
 import 'package:lournal/components/my_bottom_bar.dart';
@@ -175,7 +176,7 @@ class _NotesList extends StatelessWidget {
 
     // Handle loading and error states from the provider
     if (notesProvider.isLoading) {
-      return const SliverFillRemaining(child: Center(child: CircularProgressIndicator()));
+      return const SliverFillRemaining(child: Center(child: CustomCircularProgressIndicator()));
     }
 
     if (notesProvider.hasError) {

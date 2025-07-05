@@ -1,5 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:lournal/components/custom_circular_progress_indicator.dart';
 import 'package:lournal/pages/notes_page.dart';
 import 'package:lournal/pages/start_page.dart';
 
@@ -18,7 +19,7 @@ class AuthPage extends StatelessWidget {
         // 1. Handle loading state
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Scaffold( // A temporary Scaffold for the loading indicator is fine
-            body: Center(child: CircularProgressIndicator()),
+            body: Center(child: CustomCircularProgressIndicator()),
           );
         }
 

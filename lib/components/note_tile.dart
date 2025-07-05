@@ -1,5 +1,6 @@
 import 'package:country_flags/country_flags.dart';
 import 'package:flutter/material.dart';
+import 'package:lournal/components/custom_circular_progress_indicator.dart';
 import 'package:lournal/components/note_settings.dart';
 import 'package:lournal/helper/language_and_type_helper.dart';
 import 'package:lournal/pages/create_page.dart'; // Used by popover's edit
@@ -178,7 +179,6 @@ class NotesTile extends StatelessWidget {
 
             // Conditionally display the gap and the image at the bottom
             if (hasImage) ...[
-              // Add a small gap between the content and the image
               const SizedBox(height: 4),
               ClipRRect(
                 // Round the bottom corners of the image
@@ -194,7 +194,7 @@ class NotesTile extends StatelessWidget {
                       height: 250,
                       color: Theme.of(context).colorScheme.surface,
                       child: Center(
-                        child: CircularProgressIndicator(
+                        child: CustomCircularProgressIndicator(
                           value: loadingProgress.expectedTotalBytes != null
                               ? loadingProgress.cumulativeBytesLoaded /
                                   loadingProgress.expectedTotalBytes!

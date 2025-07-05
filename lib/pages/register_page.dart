@@ -1,6 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:lournal/components/custom_circular_progress_indicator.dart';
 import 'package:lournal/components/custom_snackbar.dart';
 import 'package:lournal/components/my_textfield.dart';
 import 'package:lournal/sheets/privacy_policy_bottomsheet.dart';
@@ -120,16 +121,11 @@ class _RegisterPageState extends State<RegisterPage> {
       context: context,
       barrierDismissible: false,
       builder: (context) {
-        return Center(
+        return const Center(
           child: SizedBox(
             width: 40,
             height: 40,
-            child: CircularProgressIndicator(
-            valueColor: AlwaysStoppedAnimation<Color>(
-              Theme.of(context).colorScheme.tertiary,
-            ),
-            backgroundColor: Theme.of(context).colorScheme.secondary,
-          ),
+            child: CustomCircularProgressIndicator(),
           ),
         );
       },

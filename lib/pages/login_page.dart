@@ -3,6 +3,7 @@ import 'dart:async'; // Import the async library for the Timer
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:lournal/auth/google_auth.dart';
+import 'package:lournal/components/custom_circular_progress_indicator.dart';
 import 'package:lournal/components/custom_snackbar.dart';
 import 'package:lournal/components/my_textfield.dart';
 import 'package:lournal/pages/forgot_password.dart';
@@ -71,7 +72,7 @@ class _LoginPageState extends State<LoginPage> {
     showDialog(
       context: context,
       barrierDismissible: false,
-      builder: (context) => const Center(child: CircularProgressIndicator()),
+      builder: (context) => const Center(child: CustomCircularProgressIndicator()),
     );
 
     try {
@@ -113,16 +114,11 @@ class _LoginPageState extends State<LoginPage> {
     showDialog(
       context: context,
       barrierDismissible: false,
-      builder: (dialogContext) => Center(
+      builder: (dialogContext) => const Center(
         child: SizedBox(
           width: 40,
           height: 40,
-          child: CircularProgressIndicator(
-            valueColor: AlwaysStoppedAnimation<Color>(
-              Theme.of(context).colorScheme.tertiary,
-            ),
-            backgroundColor: Theme.of(context).colorScheme.secondary,
-          ),
+          child: CustomCircularProgressIndicator(),
         ),
       ),
     );
