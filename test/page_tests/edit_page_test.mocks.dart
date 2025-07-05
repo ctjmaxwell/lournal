@@ -71,6 +71,7 @@ class MockFirestoreService extends _i1.Mock implements _i3.FirestoreService {
     required String? translation,
     required String? feedback,
     required int? score,
+    String? imageUrl,
   }) =>
       (super.noSuchMethod(
         Invocation.method(
@@ -84,6 +85,7 @@ class MockFirestoreService extends _i1.Mock implements _i3.FirestoreService {
             #translation: translation,
             #feedback: feedback,
             #score: score,
+            #imageUrl: imageUrl,
           },
         ),
         returnValue: _i5.Future<void>.value(),
@@ -110,6 +112,7 @@ class MockFirestoreService extends _i1.Mock implements _i3.FirestoreService {
     required String? translation,
     required String? feedback,
     required int? score,
+    String? imageUrl,
   }) =>
       (super.noSuchMethod(
         Invocation.method(
@@ -124,6 +127,7 @@ class MockFirestoreService extends _i1.Mock implements _i3.FirestoreService {
             #translation: translation,
             #feedback: feedback,
             #score: score,
+            #imageUrl: imageUrl,
           },
         ),
         returnValue: _i5.Future<void>.value(),

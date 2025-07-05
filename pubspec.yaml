@@ -30,6 +30,7 @@ dependencies:
   plugin_platform_interface: ^2.1.8
   flutter_native_splash: ^2.4.6
   google_sign_in: ^7.1.0
+  image_picker: ^1.1.2
   # The duplicate entries have been removed from here
 
 dev_dependencies:

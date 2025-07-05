@@ -16,41 +16,41 @@ dotenv.config();
 const testCases = [
 
   // --- Basic Translations ---
-  // // Spanish
-  // { language: "Spanish", content: "El rápido zorro marrón salta sobre el perro perezoso."},
-  // { language: "Spanish", content: "A mí me gustan los coches."},
-  // { language: "Spanish", content: "yo gusto el coche"}, // Testing incorrect grammar
-  // { language: "Spanish", content: "La casa es grande y bonita."},
-  // { language: "Spanish", content: "Si hubiera sabido, habría venido."},
+  // Spanish
+  { language: "Spanish", content: "El rápido zorro marrón salta sobre el perro perezoso."},
+  { language: "Spanish", content: "A mí me gustan los coches."},
+  { language: "Spanish", content: "yo gusto el coche"}, // Testing incorrect grammar
+  { language: "Spanish", content: "La casa es grande y bonita."},
+  { language: "Spanish", content: "Si hubiera sabido, habría venido."},
 
-  // // English
-  // { language: "English", content: "I am dog. Here is my nose"},
-  // { language: "English", content: "Their going to the park later, its a beautiful day so they wants to have a picknick. John, and me is bringing the food we got sandwiches apple's and some chip's from the store yesterday. We seen a dog who was chasing it's tail it was very cute. I hopes it dont rain because my freind Sarah she forgets her umbrella alot. We plan to sat on the grass and just enjoy the sun shine, everyone are excited for the good time we'll have.", expected: "If I had known, I would have come." },
+  // English
+  { language: "English", content: "I am dog. Here is my nose"},
+  { language: "English", content: "Their going to the park later, its a beautiful day so they wants to have a picknick. John, and me is bringing the food we got sandwiches apple's and some chip's from the store yesterday. We seen a dog who was chasing it's tail it was very cute. I hopes it dont rain because my freind Sarah she forgets her umbrella alot. We plan to sat on the grass and just enjoy the sun shine, everyone are excited for the good time we'll have.", expected: "If I had known, I would have come." },
 
-  // // // French
-  // { language: "French", content: "Le renard brun et rapide saute par-dessus le chien paresseux."},
-  // { language: "French", content: "Je ne sais quoi."},
-  // { language: "French", content: "Il faut que j'y aille."},
-  // { language: "French", content: "C'est la vie."},
-  // { language: "French", content: "Le garçon, qui est mon ami, a un chat."},
+  // // French
+  { language: "French", content: "Le renard brun et rapide saute par-dessus le chien paresseux."},
+  { language: "French", content: "Je ne sais quoi."},
+  { language: "French", content: "Il faut que j'y aille."},
+  { language: "French", content: "C'est la vie."},
+  { language: "French", content: "Le garçon, qui est mon ami, a un chat."},
 
-  // // German
-  // { language: "German", content: "Der schnelle braune Fuchs springt über den faulen Hund."},
-  // { language: "German", content: "Das ist gut."},
-  // { language: "German", content: "Ich hätte gerne einen Kaffee, bitte."},
-  // { language: "German", content: "Wenn das Wetter schön ist, gehen wir spazieren."},
-  // { language: "German", content: "Er sagte, dass er müde sei."},
+  // German
+  { language: "German", content: "Der schnelle braune Fuchs springt über den faulen Hund."},
+  { language: "German", content: "Das ist gut."},
+  { language: "German", content: "Ich hätte gerne einen Kaffee, bitte."},
+  { language: "German", content: "Wenn das Wetter schön ist, gehen wir spazieren."},
+  { language: "German", content: "Er sagte, dass er müde sei."},
 
-  // // Japanese
-  // { language: "Japanese", content: "速い茶色の狐は怠惰な犬を飛び越えます。"},
-  // { language: "Japanese", content: "これはペンです。"},
-  // { language: "Japanese", content: "寿司が好きです。"},
-  // { language: "Japanese", content: "もし時間があれば、映画を見たいです。"},
+  // Japanese
+  { language: "Japanese", content: "速い茶色の狐は怠惰な犬を飛び越えます。"},
+  { language: "Japanese", content: "これはペンです。"},
+  { language: "Japanese", content: "寿司が好きです。"},
+  { language: "Japanese", content: "もし時間があれば、映画を見たいです。"},
 
-  // // Russian
-  // { language: "Russian", content: "Быстрая коричневая лиса прыгает через ленивую собаку."},
-  // { language: "Russian", content: "Это хорошая книга."},
-  // { language: "Russian", content: "Я хотел бы заказать пицву."}, // Testing misspelling
+  // Russian
+  { language: "Russian", content: "Быстрая коричневая лиса прыгает через ленивую собаку."},
+  { language: "Russian", content: "Это хорошая книга."},
+  { language: "Russian", content: "Я хотел бы заказать пицву."}, // Testing misspelling
 
   // ALL TESTS ABOVE PASSED
 
@@ -92,85 +92,85 @@ const testCases = [
     { language: "English", content: "How are you?", expected: "100"},
 
   //   // Longer test cases
-  //   { language: "Portuguese", content: "Estou excitida de minha móbil aplicativo. Ontem eu released it de App Store. Eu preciso improve it.", expected: "55"},
-  //   { language: "Portuguese", content: "meu nome é Cade. this is an English sentence so what is my score", expected: "30"},
-  //   { language: "Portuguese", content: "Ontem eu aprendeu português e hoje eu appredendo português. Eu não aprendeu português en sais semanas contudo difícil.", expected: "45"},
+    { language: "Portuguese", content: "Estou excitida de minha móbil aplicativo. Ontem eu released it de App Store. Eu preciso improve it.", expected: "55"},
+    { language: "Portuguese", content: "meu nome é Cade. this is an English sentence so what is my score", expected: "30"},
+    { language: "Portuguese", content: "Ontem eu aprendeu português e hoje eu appredendo português. Eu não aprendeu português en sais semanas contudo difícil.", expected: "45"},
     
-  //   {
-  //   language: "Spanish",
-  //   content: "Ayer fui a la tienda y comprado algunas frutas y verduras. El precio era muy caro para los tomates. Luego, yo cociné una cena deliciosa para mi familia. Nosotros comimos mucho.",
-  //   expected: "70"
-  // },
-  // {
-  //   language: "Spanish",
-  //   content: "Mi casa es grande. yo tengo dos perros y tres gatos. me gusta leer libros y escuchar musica. Mi favorito color es azul. Vivo en Madrid desde dos años.",
-  //   expected: "60"
-  // },
-  // {
-  //   language: "Spanish",
-  //   content: "Hola como estas? yo soy bien. Este libro es muy interesente. yo quiero aprender espanol rapido pero es dificil para mi. Ayer yo fui a la bibliotaca para cojer mas libros.",
-  //   expected: "45"
-  // },
-  // {
-  //   language: "Spanish",
-  //   content: "La perro comer la comida. El casa es grande. Ella correr rapido. Yo querer agua. Tú tener un lapiz. Este libro son rojo. Nosotros jugar futbol. Ellos ser feliz.",
-  //   expected: "25"
-  // },
-  // {
-  //   language: "French",
-  //   content: "Je suis allé au marché hier pour acheter des légumes frais. Le temps était très beau et j'ai apprécié la promenade. Après, j'ai cuisiné un repas simple mais délicieux pour le dîner. C'était une bonne journée.",
-  //   expected: "80"
-  // },
-  // {
-  //   language: "French",
-  //   content: "Ma nom est Sophie. J'habiter à Paris depuis cinq ans. J'aime le café et le croissants. Ce soir, je vais regarder un film. J'espère que il sera intéressant.",
-  //   expected: "65"
-  // },
-  // {
-  //   language: "French",
-  //   content: "Le chat mangez les souris. Les fleurs est joli. Je suis faim. Tu vas où? C'est très bon. Nous parlons français. Ils sont contents de la voiture.",
-  //   expected: "40"
-  // },
-  // {
-  //   language: "French",
-  //   content: "Bonjour, je suis heureux. Demain il va pleuvoir. J'aime lire des livres. Mon ami est arrive. Je voudrais un cafe. Le train est parti. Où est la gare?",
-  //   expected: "90"
-  // },
-  // {
-  //   language: "German",
-  //   content: "Ich habe gestern in das Park gegangen und ein Buch gelesen. Das Wetter war sehr nett. Dann ich habe nach Hause gegangen und Abendessen gekocht. Es war ein schön Tag.",
-  //   expected: "65"
-  // },
-  // {
-  //   language: "German",
-  //   content: "Meine name ist Max. Ich komme aus Berlin. Ich bin Student und ich lernen Deutsch seit zwei Jahre. Ich mögen Musik hören und Filme sehen. Ich will gehen zu die Universität.",
-  //   expected: "55"
-  // },
-  // {
-  //   language: "German",
-  //   content: "Das Hund essen das Knochen. Die Haus ist groß. Er laufen schnell. Ich wollen Wasser. Du haben ein Bleistift. Dieses Buch sind rot. Wir spielen Fußball. Sie sein glücklich.",
-  //   expected: "30"
-  // },
-  // {
-  //   language: "German",
-  //   content: "Guten Tag, wie geht es Ihnen? Mir geht es gut, danke der Nachfrage. Ich wohne in einer kleinen Stadt in Bayern. Ich arbeite als Ingenieur und meine Hobbys sind Wandern und Lesen. Es ist ein schöner Tag heute.",
-  //   expected: "95"
-  // },
-  // {
-  //   language: "Italian",
-  //   content: "Io sono andato al supermercato per comprare del pane e del formaggio. Il tempo era molto bello. Dopo, ho mangiato la mia cena con la mia famiglia. E stato una giornata fantastica.",
-  //   expected: "75"
-  // },
-  // {
-  //   language: "Italian",
-  //   content: "Mio nome è Giulia. Io vivo a Roma da tre anni. Mi piace la pizza e la pasta. Stasera, io vado a guardare un film. Io spero che è interessante.",
-  //   expected: "60"
-  // },
-  // {
-  //   language: "Italian",
-  //   content: "La gatto mangiare il topo. Il casa è grande. Lei correre veloce. Io volere acqua. Tu avere una matita. Questo libro sono rosso. Noi giocare calcio. Loro essere felice.",
-  //   expected: "35"
-  // }
+    {
+    language: "Spanish",
+    content: "Ayer fui a la tienda y comprado algunas frutas y verduras. El precio era muy caro para los tomates. Luego, yo cociné una cena deliciosa para mi familia. Nosotros comimos mucho.",
+    expected: "70"
+  },
+  {
+    language: "Spanish",
+    content: "Mi casa es grande. yo tengo dos perros y tres gatos. me gusta leer libros y escuchar musica. Mi favorito color es azul. Vivo en Madrid desde dos años.",
+    expected: "60"
+  },
+  {
+    language: "Spanish",
+    content: "Hola como estas? yo soy bien. Este libro es muy interesente. yo quiero aprender espanol rapido pero es dificil para mi. Ayer yo fui a la bibliotaca para cojer mas libros.",
+    expected: "45"
+  },
+  {
+    language: "Spanish",
+    content: "La perro comer la comida. El casa es grande. Ella correr rapido. Yo querer agua. Tú tener un lapiz. Este libro son rojo. Nosotros jugar futbol. Ellos ser feliz.",
+    expected: "25"
+  },
+  {
+    language: "French",
+    content: "Je suis allé au marché hier pour acheter des légumes frais. Le temps était très beau et j'ai apprécié la promenade. Après, j'ai cuisiné un repas simple mais délicieux pour le dîner. C'était une bonne journée.",
+    expected: "80"
+  },
+  {
+    language: "French",
+    content: "Ma nom est Sophie. J'habiter à Paris depuis cinq ans. J'aime le café et le croissants. Ce soir, je vais regarder un film. J'espère que il sera intéressant.",
+    expected: "65"
+  },
+  {
+    language: "French",
+    content: "Le chat mangez les souris. Les fleurs est joli. Je suis faim. Tu vas où? C'est très bon. Nous parlons français. Ils sont contents de la voiture.",
+    expected: "40"
+  },
+  {
+    language: "French",
+    content: "Bonjour, je suis heureux. Demain il va pleuvoir. J'aime lire des livres. Mon ami est arrive. Je voudrais un cafe. Le train est parti. Où est la gare?",
+    expected: "90"
+  },
+  {
+    language: "German",
+    content: "Ich habe gestern in das Park gegangen und ein Buch gelesen. Das Wetter war sehr nett. Dann ich habe nach Hause gegangen und Abendessen gekocht. Es war ein schön Tag.",
+    expected: "65"
+  },
+  {
+    language: "German",
+    content: "Meine name ist Max. Ich komme aus Berlin. Ich bin Student und ich lernen Deutsch seit zwei Jahre. Ich mögen Musik hören und Filme sehen. Ich will gehen zu die Universität.",
+    expected: "55"
+  },
+  {
+    language: "German",
+    content: "Das Hund essen das Knochen. Die Haus ist groß. Er laufen schnell. Ich wollen Wasser. Du haben ein Bleistift. Dieses Buch sind rot. Wir spielen Fußball. Sie sein glücklich.",
+    expected: "30"
+  },
+  {
+    language: "German",
+    content: "Guten Tag, wie geht es Ihnen? Mir geht es gut, danke der Nachfrage. Ich wohne in einer kleinen Stadt in Bayern. Ich arbeite als Ingenieur und meine Hobbys sind Wandern und Lesen. Es ist ein schöner Tag heute.",
+    expected: "95"
+  },
+  {
+    language: "Italian",
+    content: "Io sono andato al supermercato per comprare del pane e del formaggio. Il tempo era molto bello. Dopo, ho mangiato la mia cena con la mia famiglia. E stato una giornata fantastica.",
+    expected: "75"
+  },
+  {
+    language: "Italian",
+    content: "Mio nome è Giulia. Io vivo a Roma da tre anni. Mi piace la pizza e la pasta. Stasera, io vado a guardare un film. Io spero che è interessante.",
+    expected: "60"
+  },
+  {
+    language: "Italian",
+    content: "La gatto mangiare il topo. Il casa è grande. Lei correre veloce. Io volere acqua. Tu avere una matita. Questo libro sono rosso. Noi giocare calcio. Loro essere felice.",
+    expected: "35"
+  }
     
 
 ];
@@ -183,52 +183,20 @@ const testCases = [
 const getTranslationPrompt = (language: string, content: string): string => {
     // THIS IS THE STRING YOU WILL EDIT AND REFINE
 
-    return "You are a highly-calibrated, multilingual linguistic analysis " +
-    "engine. Your sole function is to evaluate a text input based on " +
-    "its grammatical correctness, vocabulary usage, and naturalness " +
-    "for the specified language." +
-    "\n\n" +
-    "Your task is to analyze the user's input provided within the " +
-    "<text> tags and return a single integer score from 1 to 100." +
-    "\n\n" +
-    "Evaluation Criteria:" +
-    "\n\n" +
-    "100: The text is perfect. It is grammatically flawless, uses " +
-    "appropriate vocabulary, and sounds completely natural, as a " +
-    "native speaker would write it. This applies to everything from a " +
-    "single correct word (e.g., 'Hello') to a complex, well-formed " +
-    "paragraph." +
-    "\n" +
-    "90-99: The text is excellent. It may contain a single, very " +
-    "minor error or a slightly unnatural phrasing that a native " +
-    "speaker might notice, but it's otherwise perfect. These errors " +
-    "do not impede comprehension or natural flow." +
-    "\n" +
-    "75-89: The text is good and largely understandable. It has one " +
-    "or two minor grammatical or vocabulary errors that are noticeable " +
-    "and make it sound slightly unnatural, but they do not significantly " +
-    "impede comprehension for a native speaker." +
-    "\n" +
-    "50-74: The text is comprehensible but clearly non-native. It contains " +
-    "several noticeable and recurring grammatical or vocabulary mistakes. " +
-    "These errors frequently make the text sound unnatural and may " +
-    "require some effort from a native speaker to fully understand." +
-    "\n" +
-    "25-49: The text is difficult to understand due to numerous " +
-    "and significant errors in grammar, vocabulary, or sentence " +
-    "structure. These errors severely disrupt natural flow and often " +
-    "lead to misinterpretation or require considerable effort to decipher." +
-    "\n" +
-    "1-24: The text is mostly incomprehensible. Errors are pervasive " +
-    "and fundamental, making it nearly impossible for a native speaker " +
-    "to understand the intended meaning. This includes texts with large " +
-    "sections in a different language than specified." +
-    "\n\n" +
-    `Analyze the following text written in ${language}. Based on the ` +
-    "criteria above, provide a single numerical score. Do not provide " +
-    "any explanation, commentary, or context. Your entire response " +
-    "must be only the integer score. **Ensure the score is a multiple of 5 (e.g., 0, 5, 10, ..., 100).**" + // Added this line
-    "\n\n" +
+    return "You are a highly-calibrated linguistic analysis engine. Your function is to evaluate text on its grammatical correctness, vocabulary, and naturalness from the perspective of a native speaker. Your evaluation must be strict.\n\n" +
+    "Analyze the text within the <text> tags and return a single integer score from 1 to 100 based on the detailed criteria below. Your response must be only the integer.\n\n" +
+    "**Scoring Criteria:**\n" +
+    "- **100 (Perfect):** Flawless grammar, vocabulary, and natural flow. Applies to everything from a single word to a complex paragraph.\n" +
+    "- **90-99 (Excellent):** Contains at most a single, minor typographical error or a slightly unnatural phrase that does not affect comprehension at all.\n" +
+    "- **80-89 (Great):** Largely correct and natural, but may have one or two small but noticeable errors (e.g., a wrong preposition) that don't hinder understanding.\n" +
+    "- **70-79 (Good):** The text is understandable but has several minor errors in grammar or vocabulary that make it sound clearly non-native.\n" +
+    "- **60-69 (Fair):** The core meaning is understandable, but with frequent errors that require some effort from the reader. Example: 'Me gusta leer libros y escuchar musica. Mi favorito color es azul.'\n" +
+    "- **50-59 (Developing):** Shows a basic grasp of the language, but suffers from significant and recurring errors that make it difficult to understand in parts.\n" +
+    "- **30-49 (Needs Work):** Contains numerous fundamental errors in core grammar (verb conjugation, gender, sentence structure), forcing a native speaker to guess the intended meaning. Example: 'La perro comer la comida.'\n" +
+    "- **1-29 (Beginner):** Shows only a very basic vocabulary with little to no correct sentence structure. Mostly incomprehensible.\n\n" +
+    "**Special Rules:**\n" +
+    "1. **Mixed Languages:** Text that significantly mixes languages should score in the 30-49 range ('Needs Work').\n\n" +
+    `Analyze the following text in ${language}. Provide a single numerical score that is a multiple of 5. Do not provide any other text or explanation.\n\n` +
     `<text>${content}</text>`;
 };
 // You can create more functions here for your other prompts (feedback, score)
@@ -248,7 +216,7 @@ async function evaluatePrompts() {
 
   // Initialize the AI SDK with your key
   const genAI = new GoogleGenerativeAI(apiKey);
-  const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
+  const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
   // Loop through each test case one by one
   for (const testCase of testCases) {

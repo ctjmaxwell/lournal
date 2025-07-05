@@ -139,53 +139,48 @@ exports.processNoteWithAI = functions.https.onCall(
 
       // Score Prompt
       const scorePrompt =
-        "You are a highly-calibrated, multilingual linguistic analysis " +
-        "engine. Your sole function is to evaluate a text input based on " +
-        "its grammatical correctness, vocabulary usage, and naturalness " +
-        "for the specified language." +
-        "\n\n" +
-        "Your task is to analyze the user's input provided within the " +
-        "<text> tags and return a single integer score from 1 to 100." +
-        "\n\n" +
-        "Evaluation Criteria:" +
-        "\n\n" +
-        "100: The text is perfect. It is grammatically flawless, uses " +
-        "appropriate vocabulary, and sounds completely natural, as a " +
-        "native speaker would write it. This applies to everything from a " +
-        "single correct word (e.g., 'Hello') to a complex, well-formed " +
-        "paragraph." +
-        "\n" +
-        "90-99: The text is excellent. It may contain a single, very " +
-        "minor error or a slightly unnatural phrasing that a native " +
-        "speaker might notice, but it's otherwise perfect. These errors " +
-        "do not impede comprehension or natural flow." +
-        "\n" +
-        "75-89: The text is good and largely understandable. It has one " +
-        "or two minor grammatical or vocabulary errors that are noticeable " +
-        "and make it sound slightly unnatural, but they do not significantly " +
-        "impede comprehension for a native speaker." +
-        "\n" +
-        "50-74: The text is comprehensible but clearly non-native. It contains " +
-        "several noticeable and recurring grammatical or vocabulary mistakes. " +
-        "These errors frequently make the text sound unnatural and may " +
-        "require some effort from a native speaker to fully understand." +
-        "\n" +
-        "25-49: The text is difficult to understand due to numerous " +
-        "and significant errors in grammar, vocabulary, or sentence " +
-        "structure. These errors severely disrupt natural flow and often " +
-        "lead to misinterpretation or require considerable effort to decipher." +
-        "\n" +
-        "1-24: The text is mostly incomprehensible. Errors are pervasive " +
-        "and fundamental, making it nearly impossible for a native speaker " +
-        "to understand the intended meaning. This includes texts with large " +
-        "sections in a different language than specified." +
-        "\n\n" +
-        `Analyze the following text written in ${language}. Based on the ` +
-        "criteria above, provide a single numerical score. Do not provide " +
-        "any explanation, commentary, or context. Your entire response " +
-        "must be only the integer score. **Ensure " + 
-        "the score is a multiple of 5 (e.g., 0, 5, 10, ..., 100).**" + // Added this line
-        "\n\n" +
+        "You are a highly-calibrated linguistic analysis " +
+        "engine. Your function is to evaluate text on its " +
+        "grammatical correctness, vocabulary, and naturalness " +
+        "from the perspective of a native speaker. Your" +
+        "evaluation must be strict.\n\n" +
+        "Analyze the text within the <text> tags and return " +
+        "a single integer score from 1 to 100 based on the detailed " +
+        "criteria below. Your response must be only the integer.\n\n" +
+        "**Scoring Criteria:**\n" +
+        "- **100 (Perfect):** Flawless grammar, vocabulary, and " +
+        "natural flow. Applies to everything from a " +
+        "single word to a complex paragraph.\n" +
+        "- **90-99 (Excellent):** Contains at most a " +
+        "single, minor typographical error or a slightly " +
+        "unnatural phrase that does not affect comprehension at all.\n" +
+        "- **80-89 (Great):** Largely correct and natural, but " +
+        "may have one or two small but noticeable errors (e.g., a wrong " +
+        "preposition) that don't hinder understanding.\n" +
+        "- **70-79 (Good):** The text is understandable" +
+        "but has several minor errors in grammar or " +
+        "vocabulary that make it sound clearly non-native.\n" +
+        "- **60-69 (Fair):** The core meaning is understandable, but " +
+        "with frequent errors that require some effort from the reader." +
+        "Example: 'Me gusta leer libros y escuchar " +
+        "musica. Mi favorito color es azul.'\n" +
+        "- **50-59 (Developing):** Shows a basic grasp of the" +
+        "language, but suffers from significant and recurring " +
+        "errors that make it difficult to understand in parts.\n" +
+        "- **30-49 (Needs Work):** Contains numerous fundamental errors " +
+        "in core grammar (verb conjugation, gender, " +
+        "sentence structure), forcing" +
+        "a native speaker to guess the intended meaning. " +
+        "Example: 'La perro comer la comida.'\n" +
+        "- **1-29 (Beginner):** Shows only a very basic " +
+        "vocabulary with little to no correct sentence " +
+        "structure. Mostly incomprehensible.\n\n" +
+        "**Special Rules:**\n" +
+        "1. **Mixed Languages:** Text that significantly mixes" +
+        "languages should score in the 30-49 range ('Needs Work').\n\n" +
+        `Analyze the following text in ${language}. Provide a ` +
+        "single numerical score that is a multiple of 5." +
+        "Do not provide any other text or explanation.\n\n" +
         `<text>${content}</text>`;
 
       console.log("Sending score prompt:", scorePrompt);

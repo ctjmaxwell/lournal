@@ -14,6 +14,7 @@ class EditPage extends StatelessWidget {
   final String type;
   final String language;
   final int score;
+  final String? imageUrl;
   // The FirestoreService is now nullable to allow for a const constructor.
   final FirestoreService? firestoreService;
 
@@ -27,6 +28,7 @@ class EditPage extends StatelessWidget {
     required this.type,
     required this.language,
     required this.score,
+    this.imageUrl,
     // The default value has been removed to fix the compile error.
     this.firestoreService,
   });
@@ -82,6 +84,7 @@ class EditPage extends StatelessWidget {
                               language: language,
                               title: title,
                               content: content,
+                              imageUrl: imageUrl,
                             ),
                           ),
                         );
@@ -107,6 +110,8 @@ class EditPage extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              // The image has been removed from here.
+
               Text(
                 title,
                 style: const TextStyle(
@@ -140,7 +145,26 @@ class EditPage extends StatelessWidget {
                   ],
                 ),
               ),
-              const SizedBox(height: 20),
+
+              // The image is now placed here, between the two main containers.
+              // A vertical padding is used to create space around it.
+              if (imageUrl != null && imageUrl!.isNotEmpty)
+                Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 20.0),
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(12.0),
+                    child: Image.network(
+                      imageUrl!,
+                      width: double.infinity,
+                      height: 250,
+                      fit: BoxFit.cover,
+                    ),
+                  ),
+                )
+              else
+                // If there's no image, we still add space to separate the boxes.
+                const SizedBox(height: 20),
+
               Container(
                 padding: const EdgeInsets.all(18),
                 decoration: BoxDecoration(

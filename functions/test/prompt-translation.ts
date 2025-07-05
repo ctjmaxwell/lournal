@@ -124,7 +124,7 @@ async function evaluatePrompts() {
 
   // Initialize the AI SDK with your key
   const genAI = new GoogleGenerativeAI(apiKey);
-  const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
+  const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
   // Define colors for console output for better readability
   const colors = {

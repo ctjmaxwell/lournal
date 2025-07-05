@@ -1,9 +1,12 @@
 import 'dart:developer';
+import 'dart:io';
 
 import 'package:cloud_functions/cloud_functions.dart';
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:lournal/pages/finish_page.dart';
 import 'package:lournal/services/firestore.dart';
+import 'package:lournal/services/storage_service.dart';
 // import 'package:lournal/widgets/custom_snackbar.dart';
 
 // Assuming showCustomSnackBar is defined in an imported file.
@@ -39,11 +42,13 @@ class CreatePage extends StatefulWidget {
   final String type;
   final String title;
   final String content;
+  final String? imageUrl;
 
   // For testability, we allow injecting these services.
   // In the main app, they will be null and the widget will use the default instances.
   final FirestoreService? firestoreService;
   final FirebaseFunctions? functions;
+  final StorageService? storageService;
 
   const CreatePage({
     super.key, // This is the change!
@@ -52,8 +57,10 @@ class CreatePage extends StatefulWidget {
     required this.type,
     required this.title,
     required this.content,
+    this.imageUrl,
     this.firestoreService,
     this.functions,
+    this.storageService,
   });
 
   @override
@@ -65,6 +72,7 @@ class _CreatePageState extends State<CreatePage> {
   // They are initialized in initState.
   late final FirestoreService _firestoreService;
   late final FirebaseFunctions _functions;
+  late final StorageService _storageService;
 
   final TextEditingController _titleController = TextEditingController();
   final TextEditingController _contentController = TextEditingController();
@@ -72,6 +80,8 @@ class _CreatePageState extends State<CreatePage> {
 
   // State variable to track the saving process
   bool _isSaving = false;
+  File? _selectedImage;
+  String? _networkImageUrl;
 
   @override
   void initState() {
@@ -80,6 +90,7 @@ class _CreatePageState extends State<CreatePage> {
     // This allows for mocking during tests.
     _firestoreService = widget.firestoreService ?? FirestoreService();
     _functions = widget.functions ?? FirebaseFunctions.instance;
+    _storageService = widget.storageService ?? StorageService();
 
     // If the widget title is not empty, use it as the initial text
     if (widget.title.isNotEmpty) {
@@ -89,6 +100,10 @@ class _CreatePageState extends State<CreatePage> {
     if (widget.content.isNotEmpty) {
       _contentController.text = widget.content;
     }
+
+    if (widget.imageUrl != null) {
+      _networkImageUrl = widget.imageUrl;
+    }
   }
 
   @override
@@ -97,6 +112,18 @@ class _CreatePageState extends State<CreatePage> {
     _contentController.dispose();
     _contentFocusNode.dispose();
     super.dispose();
+  }
+
+  Future<void> _pickImage() async {
+    final picker = ImagePicker();
+    final pickedFile = await picker.pickImage(source: ImageSource.gallery);
+
+    if (pickedFile != null) {
+      setState(() {
+        _selectedImage = File(pickedFile.path);
+        _networkImageUrl = null; // Clear network image if a new local one is picked
+      });
+    }
   }
 
   void saveNote() async {
@@ -110,7 +137,16 @@ class _CreatePageState extends State<CreatePage> {
       _isSaving = true;
     });
 
+    String? finalImageUrl = _networkImageUrl;
+
     try {
+      if (_selectedImage != null) {
+        finalImageUrl = await _storageService.uploadNoteImage(_selectedImage!);
+        if (finalImageUrl == null) {
+          throw Exception("Image upload failed.");
+        }
+      }
+
       // Use the _functions instance (which could be a mock)
       final HttpsCallable callable =
           _functions.httpsCallable('processNoteWithAI');
@@ -167,6 +203,7 @@ class _CreatePageState extends State<CreatePage> {
           translation: generatedTranslation,
           feedback: generatedFeedback,
           score: clampedScore, // Use the clamped score
+          imageUrl: finalImageUrl,
         );
       } else {
         await _firestoreService.addNote(
@@ -177,6 +214,7 @@ class _CreatePageState extends State<CreatePage> {
           translation: generatedTranslation,
           feedback: generatedFeedback,
           score: clampedScore, // Use the clamped score
+          imageUrl: finalImageUrl,
         );
       }
 
@@ -254,6 +292,32 @@ class _CreatePageState extends State<CreatePage> {
                   top: 10, bottom: 16.0, right: 16.0, left: 16.0),
               child: Column(
                 children: [
+                  if (_selectedImage != null)
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: 16.0),
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(12.0),
+                        child: Image.file(
+                          _selectedImage!,
+                          width: double.infinity,
+                          height: 250,
+                          fit: BoxFit.cover,
+                        ),
+                      ),
+                    )
+                  else if (_networkImageUrl != null)
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: 16.0),
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(12.0),
+                        child: Image.network(
+                          _networkImageUrl!,
+                          width: double.infinity,
+                          height: 250,
+                          fit: BoxFit.cover,
+                        ),
+                      ),
+                    ),
                   TextField(
                     // Added a key for testing
                     key: const ValueKey('title_field'),
@@ -295,6 +359,23 @@ class _CreatePageState extends State<CreatePage> {
               ),
             ),
           ),
+          // New Floating Action Button on the left
+          Align(
+            alignment: Alignment.bottomLeft,
+            child: Padding(
+              padding: EdgeInsets.only(
+                left: 32.0, // Provides horizontal spacing from the edge
+                bottom: bottomInset > 32 ? bottomInset + 16 : 32,
+              ),
+              child: FloatingActionButton(
+                heroTag: 'saveFabLeft', // Unique hero tag to avoid conflicts
+                onPressed: _isSaving ? null : _pickImage,
+                backgroundColor: Theme.of(context).colorScheme.tertiary,
+                child: const Icon(Icons.add_a_photo, color: Colors.white),
+              ),
+            ),
+          ),
+          // Original Save button on the right
           Align(
             alignment: Alignment.bottomRight,
             child: Padding(
@@ -346,7 +427,7 @@ class _CreatePageState extends State<CreatePage> {
                     const Padding(
                       padding: EdgeInsets.symmetric(horizontal: 40.0),
                       child: Text(
-                        'Generating AI feedback for your Lournal...',
+                        'Generating AI feedback',
                         style: TextStyle(
                           fontSize: 22,
                           fontWeight: FontWeight.w600,

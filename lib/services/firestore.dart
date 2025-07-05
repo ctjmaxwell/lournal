@@ -27,6 +27,7 @@ class FirestoreService {
     required String translation,
     required String feedback,
     required int score,
+    String? imageUrl,
   }) {
     return userNotesCollection.add({
       'title': title,
@@ -36,6 +37,7 @@ class FirestoreService {
       'translation': translation,
       'feedback': feedback,
       'score': score,
+      'imageUrl': imageUrl,
       'timestamp': Timestamp.now(),
     });
   }
@@ -55,8 +57,9 @@ class FirestoreService {
     required String translation,
     required String feedback,
     required int score,
+    String? imageUrl,
   }) {
-    return userNotesCollection.doc(docID).update({
+    final Map<String, dynamic> dataToUpdate = {
       'title': title,
       'content': content,
       'language': language,
@@ -65,7 +68,16 @@ class FirestoreService {
       'feedback': feedback,
       'score': score,
       'timestamp': Timestamp.now(), // Optionally update timestamp on edit
-    });
+    };
+
+    // Only add imageUrl to the map if it's not null.
+    // This prevents overwriting an existing URL with null if no new image is picked.
+    // To REMOVE an image, a different mechanism would be needed (e.g., passing a special value).
+    if (imageUrl != null) {
+      dataToUpdate['imageUrl'] = imageUrl;
+    }
+
+    return userNotesCollection.doc(docID).update(dataToUpdate);
   }
 
   // DELETE: Delete a specific note given its ID
