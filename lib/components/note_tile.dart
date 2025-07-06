@@ -192,7 +192,7 @@ class NotesTile extends StatelessWidget {
                     if (loadingProgress == null) return child;
                     return Container(
                       height: 250,
-                      color: Theme.of(context).colorScheme.surface,
+                      color: Theme.of(context).colorScheme.secondary,
                       child: Center(
                         child: CustomCircularProgressIndicator(
                           value: loadingProgress.expectedTotalBytes != null
@@ -206,7 +206,7 @@ class NotesTile extends StatelessWidget {
                   errorBuilder: (context, error, stackTrace) {
                     return Container(
                       height: 250,
-                      color: Theme.of(context).colorScheme.surface,
+                      color: Theme.of(context).colorScheme.secondary,
                       child: const Center(
                         child: Icon(Icons.broken_image, color: Colors.grey),
                       ),

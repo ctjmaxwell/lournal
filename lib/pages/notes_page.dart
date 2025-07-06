@@ -9,8 +9,36 @@ import 'package:lournal/sheets/profile_bottomsheet.dart';
 import 'package:lournal/sheets/show_filter_bottomsheet.dart';
 import 'package:lournal/providers/notes_provider.dart';
 
-class NotesPage extends StatelessWidget {
+class NotesPage extends StatefulWidget {
   const NotesPage({super.key});
+
+  @override
+  State<NotesPage> createState() => _NotesPageState();
+}
+
+class _NotesPageState extends State<NotesPage> {
+  final ScrollController _scrollController = ScrollController();
+
+  @override
+  void initState() {
+    super.initState();
+    final notesProvider = Provider.of<NotesProvider>(context, listen: false);
+    if (notesProvider.filteredNotes.isEmpty) {
+      notesProvider.fetchInitialNotes();
+    }
+    _scrollController.addListener(() {
+      if (_scrollController.position.pixels >=
+          _scrollController.position.maxScrollExtent - 200) {
+        notesProvider.fetchMoreNotes();
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
 
   // Filter keys remain as constants
   static const _typeKeys = [
@@ -77,6 +105,7 @@ class NotesPage extends StatelessWidget {
         top: true,
         bottom: false,
         child: CustomScrollView(
+          controller: _scrollController,
           slivers: [
             SliverAppBar(
               // ... same as before
@@ -153,6 +182,15 @@ class NotesPage extends StatelessWidget {
             ),
             // *** THE BIG CHANGE: Delegate list building to a dedicated widget ***
             const _NotesList(), 
+            SliverToBoxAdapter(
+              child: Consumer<NotesProvider>(
+                builder: (context, provider, child) {
+                  return provider.isLoadingMore
+                      ? const Center(child: CustomCircularProgressIndicator())
+                      : const SizedBox.shrink();
+                },
+              ),
+            ),
             const SliverToBoxAdapter(
               child: SizedBox(height: 120.0), // Padding for the FAB
             ),

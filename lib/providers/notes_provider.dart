@@ -22,71 +22,94 @@ class NotesProvider with ChangeNotifier {
   }
 
   late StreamSubscription _authSubscription;
-  StreamSubscription? _notesSubscription;
 
   // Private state variables
-  List<DocumentSnapshot> _allNotes = [];
-  List<DocumentSnapshot> _filteredNotes = [];
+  List<DocumentSnapshot> _notes = [];
   String _searchQuery = '';
   Set<String> _selectedTypes = {};
   Set<String> _selectedLanguages = {};
   bool _isLoading = true;
   String? _error;
+  DocumentSnapshot? _lastDocument;
+  bool _isLoadingMore = false;
+  bool _hasMoreNotes = true;
+  final int _notesPerPage = 15;
 
   // Public getters
-  List<DocumentSnapshot> get filteredNotes => _filteredNotes;
+  List<DocumentSnapshot> get filteredNotes => _getFilteredNotes();
   String get searchQuery => _searchQuery;
   Set<String> get selectedTypes => _selectedTypes;
   Set<String> get selectedLanguages => _selectedLanguages;
   bool get isLoading => _isLoading;
   bool get hasError => _error != null;
   String? get error => _error;
+  bool get isLoadingMore => _isLoadingMore;
 
   void _onAuthStateChanged(User? user) {
-    _notesSubscription?.cancel();
     if (user == null) {
-      _allNotes = [];
-      _filteredNotes = [];
-      _isLoading = false; // Set to false, not true
+      _notes = [];
+      _isLoading = false;
       _error = null;
+      _lastDocument = null;
+      _hasMoreNotes = true;
       notifyListeners();
     } else {
-      _isLoading = true;
-      // You may want to notify here to immediately show a loader on re-login
-      // notifyListeners(); 
-      _listenToNotes();
+      fetchInitialNotes();
     }
   }
 
-  void _listenToNotes() {
-    _notesSubscription?.cancel();
-    _notesSubscription = _firestoreService.getNotesStream().listen(
-      (snapshot) {
-        _allNotes = snapshot.docs;
-        _isLoading = false;
-        _error = null;
-        // First, apply the filter to the new data
-        _runFilter();
-        // **FIX:** Then, always notify listeners that the data fetch is complete.
-        // This ensures the UI updates from the loading state.
-        notifyListeners();
-      },
-      onError: (e) {
-        _isLoading = false;
-        _error = "Failed to load notes: $e";
-        _allNotes = [];
-        _filteredNotes = [];
-        notifyListeners();
-      },
-    );
+  Future<void> fetchInitialNotes() async {
+    _isLoading = true;
+    _error = null;
+    notifyListeners();
+
+    try {
+      final snapshot = await _firestoreService.getNotesPaginated(limit: _notesPerPage);
+      _notes = snapshot.docs;
+      if (_notes.isNotEmpty) {
+        _lastDocument = snapshot.docs.last;
+      } else {
+        _lastDocument = null;
+      }
+      _hasMoreNotes = _notes.length == _notesPerPage;
+    } catch (e) {
+      _error = "Failed to load notes: $e";
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
   }
 
-  // **CHANGE:** This method should ONLY filter, not notify.
-  void _runFilter() {
+  Future<void> fetchMoreNotes() async {
+    if (_isLoadingMore || !_hasMoreNotes) return;
+
+    _isLoadingMore = true;
+    notifyListeners();
+
+    try {
+      final snapshot = await _firestoreService.getNotesPaginated(
+        limit: _notesPerPage,
+        lastDocument: _lastDocument,
+      );
+
+      if (snapshot.docs.isNotEmpty) {
+        _notes.addAll(snapshot.docs);
+        _lastDocument = snapshot.docs.last;
+      }
+      _hasMoreNotes = snapshot.docs.length == _notesPerPage;
+    } catch (e) {
+      _error = "Failed to load more notes: $e";
+    } finally {
+      _isLoadingMore = false;
+      notifyListeners();
+    }
+  }
+
+  List<DocumentSnapshot> _getFilteredNotes() {
     if (_searchQuery.isEmpty && _selectedTypes.isEmpty && _selectedLanguages.isEmpty) {
-      _filteredNotes = List<DocumentSnapshot>.from(_allNotes);
+      return List<DocumentSnapshot>.from(_notes);
     } else {
-       _filteredNotes = _allNotes.where((doc) {
+       return _notes.where((doc) {
         final data = doc.data() as Map<String, dynamic>;
         final noteType = data['type'] as String? ?? '';
         final noteLanguage = data['language'] as String? ?? '';
@@ -102,30 +125,26 @@ class NotesProvider with ChangeNotifier {
     }
   }
 
-  // **CHANGE:** Public methods should now call notifyListeners.
   void updateSearchQuery(String query) {
     _searchQuery = query.toLowerCase();
-    _runFilter();
-    notifyListeners(); // Notify after updating the query and re-filtering.
+    notifyListeners();
   }
 
   void updateFilters(Set<String> newSelectedTypes, Set<String> newSelectedLanguages) {
     _selectedTypes = newSelectedTypes;
     _selectedLanguages = newSelectedLanguages;
-    _runFilter();
-    notifyListeners(); // Notify after updating filters and re-filtering.
+    notifyListeners();
   }
   
   Future<void> deleteNote(String docId) async {
-    // Note deletion will be handled automatically by the stream,
-    // which will fire and trigger the update cycle above.
     await _firestoreService.deleteNote(docId);
+    _notes.removeWhere((doc) => doc.id == docId);
+    notifyListeners();
   }
 
   @override
   void dispose() {
     _authSubscription.cancel();
-    _notesSubscription?.cancel();
     super.dispose();
   }
 }

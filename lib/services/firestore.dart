@@ -47,6 +47,22 @@ class FirestoreService {
     return userNotesCollection.orderBy('timestamp', descending: true).snapshots();
   }
 
+  // READ: Get notes paginated
+  Future<QuerySnapshot> getNotesPaginated({
+    required int limit,
+    DocumentSnapshot? lastDocument, // The last document from the previous page
+  }) {
+    Query query = userNotesCollection
+        .orderBy('timestamp', descending: true)
+        .limit(limit);
+
+    if (lastDocument != null) {
+      query = query.startAfterDocument(lastDocument);
+    }
+
+    return query.get();
+  }
+
   // UPDATE: Update an existing note
   Future<void> updateNote({
     required String docID,

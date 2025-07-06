@@ -11,16 +11,16 @@ import 'package:fake_cloud_firestore/fake_cloud_firestore.dart';
 class MockNotesProvider extends ChangeNotifier implements NotesProvider {
   // --- Private state for the mock ---
   List<DocumentSnapshot> _allNotes = [];
-  List<DocumentSnapshot> _filteredNotes = [];
   String _searchQuery = '';
   Set<String> _selectedTypes = {};
   Set<String> _selectedLanguages = {};
   bool _isLoading = false;
   String? _error;
+  bool _isLoadingMore = false;
 
   // --- Overriding the public getters from the NotesProvider interface ---
   @override
-  List<DocumentSnapshot> get filteredNotes => _filteredNotes;
+  List<DocumentSnapshot> get filteredNotes => _getFilteredNotes();
   @override
   bool get isLoading => _isLoading;
   @override
@@ -33,11 +33,12 @@ class MockNotesProvider extends ChangeNotifier implements NotesProvider {
   Set<String> get selectedTypes => _selectedTypes;
   @override
   Set<String> get selectedLanguages => _selectedLanguages;
+  @override
+  bool get isLoadingMore => _isLoadingMore;
 
   // --- Mock Control Methods ---
   void setNotes(List<DocumentSnapshot> notes) {
     _allNotes = notes;
-    _runFilter(); // Filter the notes after setting them
     notifyListeners();
   }
 
@@ -53,9 +54,21 @@ class MockNotesProvider extends ChangeNotifier implements NotesProvider {
 
   // --- Mocked Implementations of public methods from NotesProvider ---
   @override
+  Future<void> fetchInitialNotes() async {
+    // In our mock, we can just set loading to false. The tests will set notes manually.
+    _isLoading = false;
+    notifyListeners();
+  }
+
+  @override
+  Future<void> fetchMoreNotes() async {
+    // This can be empty as we don't test infinite scrolling here yet.
+    return;
+  }
+
+  @override
   void updateSearchQuery(String query) {
     _searchQuery = query.toLowerCase();
-    _runFilter();
     notifyListeners();
   }
 
@@ -63,23 +76,21 @@ class MockNotesProvider extends ChangeNotifier implements NotesProvider {
   void updateFilters(Set<String> newSelectedTypes, Set<String> newSelectedLanguages) {
     _selectedTypes = newSelectedTypes;
     _selectedLanguages = newSelectedLanguages;
-    _runFilter();
-    notifyListeners();
-  }
-  
-  @override
-  Future<void> deleteNote(String docId) async {
-    _allNotes.removeWhere((doc) => doc.id == docId);
-    _runFilter();
     notifyListeners();
   }
 
-  // --- Private filter logic for the mock, does not need @override ---
-  void _runFilter() {
+  @override
+  Future<void> deleteNote(String docId) async {
+    _allNotes.removeWhere((doc) => doc.id == docId);
+    notifyListeners();
+  }
+
+  // --- Private filter logic for the mock ---
+  List<DocumentSnapshot> _getFilteredNotes() {
     if (_searchQuery.isEmpty && _selectedTypes.isEmpty && _selectedLanguages.isEmpty) {
-      _filteredNotes = List<DocumentSnapshot>.from(_allNotes);
+      return List<DocumentSnapshot>.from(_allNotes);
     } else {
-       _filteredNotes = _allNotes.where((doc) {
+      return _allNotes.where((doc) {
         final data = doc.data() as Map<String, dynamic>;
         final noteType = data['type'] as String? ?? '';
         final noteLanguage = data['language'] as String? ?? '';
@@ -89,38 +100,34 @@ class MockNotesProvider extends ChangeNotifier implements NotesProvider {
         final typeMatch = _selectedTypes.isEmpty || _selectedTypes.contains(noteType);
         final langMatch = _selectedLanguages.isEmpty || _selectedLanguages.contains(noteLanguage);
         final queryMatch = _searchQuery.isEmpty || title.contains(_searchQuery) || content.contains(_searchQuery);
-        
+
         return typeMatch && langMatch && queryMatch;
       }).toList();
     }
   }
-  
-  // The real stream logic is not needed for this UI test mock.
+
   @override
   void dispose() {
-    // Overriding dispose from ChangeNotifier
     super.dispose();
   }
 }
 
 // Helper to create a testable app wrapper
-Widget createTestableWidget({required Widget child, required MockNotesProvider provider}) {
-  return MaterialApp(
-    home: ChangeNotifierProvider<NotesProvider>.value(
-      value: provider,
-      child: child,
-    ),
-    theme: ThemeData(
-      colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
+Widget createTestableWidget({required Widget child, required NotesProvider provider}) {
+  return ChangeNotifierProvider<NotesProvider>.value(
+    value: provider,
+    child: MaterialApp(
+      home: child,
+      theme: ThemeData(
+        colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
+        useMaterial3: true,
+      ),
     ),
   );
 }
 
 // Helper to create valid fake document snapshots using the fake_cloud_firestore package.
-Future<DocumentSnapshot> createFakeDoc(String id, Map<String, dynamic> data) async {
-  // Instantiate a fake Firestore instance.
-  final firestore = FakeFirebaseFirestore();
-  // Add required fields if they are missing, to prevent null errors in the widget
+Future<DocumentSnapshot> createFakeDoc(FakeFirebaseFirestore firestore, String id, Map<String, dynamic> data) async {
   final fullData = {
     'title': '',
     'content': '',
@@ -133,18 +140,17 @@ Future<DocumentSnapshot> createFakeDoc(String id, Map<String, dynamic> data) asy
     ...data,
   };
 
-  // Set the data for a document with the given ID.
   await firestore.collection('notes').doc(id).set(fullData);
-  // Return the DocumentSnapshot.
   return await firestore.collection('notes').doc(id).get();
 }
 
-
 void main() {
   late MockNotesProvider mockNotesProvider;
+  late FakeFirebaseFirestore fakeFirestore;
 
   setUp(() {
     mockNotesProvider = MockNotesProvider();
+    fakeFirestore = FakeFirebaseFirestore();
   });
 
   group('NotesPage Widget Tests', () {
@@ -156,7 +162,6 @@ void main() {
         provider: mockNotesProvider,
       ));
 
-      // In the UI, the list is wrapped in a SliverFillRemaining when loading
       expect(find.byType(CircularProgressIndicator), findsOneWidget);
     });
 
@@ -168,7 +173,7 @@ void main() {
         provider: mockNotesProvider,
       ));
       
-      await tester.pumpAndSettle(); // Allow UI to update
+      await tester.pumpAndSettle();
       
       expect(find.text('Failed to load'), findsOneWidget);
     });
@@ -186,9 +191,8 @@ void main() {
     });
     
     testWidgets('Shows empty state for filters when there are no matching notes', (WidgetTester tester) async {
-      // We must await the creation of our fake documents now.
       final notes = [
-        await createFakeDoc('note1', {'title': 'My First Note'}),
+        await createFakeDoc(fakeFirestore, 'note1', {'title': 'My First Note'}),
       ];
       mockNotesProvider.setNotes(notes);
       mockNotesProvider.updateSearchQuery("nonexistent");
@@ -204,8 +208,8 @@ void main() {
 
     testWidgets('Shows a list of notes when data is available', (WidgetTester tester) async {
       final notes = [
-        await createFakeDoc('note1', {'title': 'My First Note'}),
-        await createFakeDoc('note2', {'title': 'My Second Note'}),
+        await createFakeDoc(fakeFirestore, 'note1', {'title': 'My First Note'}),
+        await createFakeDoc(fakeFirestore, 'note2', {'title': 'My Second Note'}),
       ];
       mockNotesProvider.setNotes(notes);
 
@@ -222,8 +226,8 @@ void main() {
 
     testWidgets('Searching in TextField filters the list', (WidgetTester tester) async {
       final notes = [
-        await createFakeDoc('note1', {'title': 'Apple Note'}),
-        await createFakeDoc('note2', {'title': 'Banana Note'}),
+        await createFakeDoc(fakeFirestore, 'note1', {'title': 'Apple Note'}),
+        await createFakeDoc(fakeFirestore, 'note2', {'title': 'Banana Note'}),
       ];
       mockNotesProvider.setNotes(notes);
 
