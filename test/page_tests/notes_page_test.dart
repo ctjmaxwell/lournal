@@ -5,11 +5,11 @@ import 'package:lournal/pages/notes_page.dart';
 import 'package:lournal/providers/notes_provider.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:fake_cloud_firestore/fake_cloud_firestore.dart';
+import 'package:lournal/components/note_tile.dart';
+import 'package:network_image_mock/network_image_mock.dart';
 
 // A mock provider that we can control for our tests.
-// It extends ChangeNotifier and implements the public interface of NotesProvider.
 class MockNotesProvider extends ChangeNotifier implements NotesProvider {
-  // --- Private state for the mock ---
   List<DocumentSnapshot> _allNotes = [];
   String _searchQuery = '';
   Set<String> _selectedTypes = {};
@@ -18,7 +18,6 @@ class MockNotesProvider extends ChangeNotifier implements NotesProvider {
   String? _error;
   bool _isLoadingMore = false;
 
-  // --- Overriding the public getters from the NotesProvider interface ---
   @override
   List<DocumentSnapshot> get filteredNotes => _getFilteredNotes();
   @override
@@ -36,7 +35,6 @@ class MockNotesProvider extends ChangeNotifier implements NotesProvider {
   @override
   bool get isLoadingMore => _isLoadingMore;
 
-  // --- Mock Control Methods ---
   void setNotes(List<DocumentSnapshot> notes) {
     _allNotes = notes;
     notifyListeners();
@@ -47,22 +45,19 @@ class MockNotesProvider extends ChangeNotifier implements NotesProvider {
     notifyListeners();
   }
 
-  void setError(String? error) {
-    _error = error;
+  void setError(String? message) {
+    _error = message;
     notifyListeners();
   }
 
-  // --- Mocked Implementations of public methods from NotesProvider ---
   @override
   Future<void> fetchInitialNotes() async {
-    // In our mock, we can just set loading to false. The tests will set notes manually.
     _isLoading = false;
     notifyListeners();
   }
 
   @override
   Future<void> fetchMoreNotes() async {
-    // This can be empty as we don't test infinite scrolling here yet.
     return;
   }
 
@@ -85,7 +80,12 @@ class MockNotesProvider extends ChangeNotifier implements NotesProvider {
     notifyListeners();
   }
 
-  // --- Private filter logic for the mock ---
+  @override
+  Future<void> refreshNotes() async {
+    // In a real scenario, this would re-fetch. For the mock, we can just notify.
+    notifyListeners();
+  }
+
   List<DocumentSnapshot> _getFilteredNotes() {
     if (_searchQuery.isEmpty && _selectedTypes.isEmpty && _selectedLanguages.isEmpty) {
       return List<DocumentSnapshot>.from(_allNotes);
@@ -105,14 +105,13 @@ class MockNotesProvider extends ChangeNotifier implements NotesProvider {
       }).toList();
     }
   }
-
+  
   @override
   void dispose() {
     super.dispose();
   }
 }
 
-// Helper to create a testable app wrapper
 Widget createTestableWidget({required Widget child, required NotesProvider provider}) {
   return ChangeNotifierProvider<NotesProvider>.value(
     value: provider,
@@ -126,17 +125,17 @@ Widget createTestableWidget({required Widget child, required NotesProvider provi
   );
 }
 
-// Helper to create valid fake document snapshots using the fake_cloud_firestore package.
 Future<DocumentSnapshot> createFakeDoc(FakeFirebaseFirestore firestore, String id, Map<String, dynamic> data) async {
   final fullData = {
-    'title': '',
-    'content': '',
+    'title': 'Default Title',
+    'content': 'Default content.',
     'translation': '',
     'feedback': '',
-    'type': 'text',
-    'language': '',
-    'score': 0,
+    'type': 'Diary',
+    'language': 'English',
+    'score': 100,
     'timestamp': Timestamp.now(),
+    'imageUrl': null, // Default to no image
     ...data,
   };
 
@@ -237,17 +236,72 @@ void main() {
       ));
       await tester.pumpAndSettle();
 
-      // Both notes are visible initially
       expect(find.text('Apple Note'), findsOneWidget);
       expect(find.text('Banana Note'), findsOneWidget);
 
-      // Enter search query
       await tester.enterText(find.byType(TextField), 'Apple');
       await tester.pumpAndSettle();
 
-      // Only the matching note is visible
       expect(find.text('Apple Note'), findsOneWidget);
       expect(find.text('Banana Note'), findsNothing);
+    });
+
+    testWidgets('Note with imageUrl shows an Image widget', (WidgetTester tester) async {
+      // Use mockNetworkImagesFor to handle the Image.network call within the test
+      await mockNetworkImagesFor(() async {
+        final notes = [
+          await createFakeDoc(fakeFirestore, 'noteWithImage', {
+            'title': 'Image Note',
+            'imageUrl': 'https://fakeurl.com/image.jpg',
+          }),
+        ];
+        mockNotesProvider.setNotes(notes);
+
+        await tester.pumpWidget(createTestableWidget(
+          child: const NotesPage(),
+          provider: mockNotesProvider,
+        ));
+        await tester.pumpAndSettle();
+
+        // Find the NoteTile and then check for an Image widget within it.
+        final noteTileFinder = find.byType(NotesTile);
+        expect(noteTileFinder, findsOneWidget);
+
+        final imageFinder = find.descendant(
+          of: noteTileFinder,
+          matching: find.byType(Image),
+        );
+        
+        // We expect to find the Image.network widget.
+        expect(imageFinder, findsOneWidget);
+      });
+    });
+
+    testWidgets('Note without imageUrl does not show an Image widget', (WidgetTester tester) async {
+      final notes = [
+        await createFakeDoc(fakeFirestore, 'noteWithoutImage', {
+          'title': 'No Image Note',
+          'imageUrl': null, // Explicitly set to null
+        }),
+      ];
+      mockNotesProvider.setNotes(notes);
+
+      await tester.pumpWidget(createTestableWidget(
+        child: const NotesPage(),
+        provider: mockNotesProvider,
+      ));
+      await tester.pumpAndSettle();
+
+      final noteTileFinder = find.byType(NotesTile);
+      expect(noteTileFinder, findsOneWidget);
+
+      final imageFinder = find.descendant(
+        of: noteTileFinder,
+        matching: find.byType(Image),
+      );
+      
+      // We expect to find no Image widgets within this tile.
+      expect(imageFinder, findsNothing);
     });
   });
 }

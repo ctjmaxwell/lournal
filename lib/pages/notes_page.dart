@@ -22,15 +22,16 @@ class _NotesPageState extends State<NotesPage> {
   @override
   void initState() {
     super.initState();
-    final notesProvider = Provider.of<NotesProvider>(context, listen: false);
-    if (notesProvider.filteredNotes.isEmpty) {
-      notesProvider.fetchInitialNotes();
-    }
-    _scrollController.addListener(() {
-      if (_scrollController.position.pixels >=
-          _scrollController.position.maxScrollExtent - 200) {
-        notesProvider.fetchMoreNotes();
-      }
+    // The NotesProvider now handles fetching notes when the auth state changes.
+    // We only need to set up the scroll controller here for pagination.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final notesProvider = Provider.of<NotesProvider>(context, listen: false);
+      _scrollController.addListener(() {
+        if (_scrollController.position.pixels >=
+            _scrollController.position.maxScrollExtent - 200) {
+          notesProvider.fetchMoreNotes();
+        }
+      });
     });
   }
 

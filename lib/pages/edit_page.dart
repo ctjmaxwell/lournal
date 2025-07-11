@@ -110,8 +110,20 @@ class EditPage extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // The image has been removed from here.
-
+              // Place the image here, above the title
+              if (imageUrl != null && imageUrl!.isNotEmpty)
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 20.0), // Add padding below the image
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(12.0),
+                    child: Image.network(
+                      imageUrl!,
+                      width: double.infinity,
+                      height: 250,
+                      fit: BoxFit.cover,
+                    ),
+                  ),
+                ),
               Text(
                 title,
                 style: const TextStyle(
@@ -145,25 +157,7 @@ class EditPage extends StatelessWidget {
                   ],
                 ),
               ),
-
-              // The image is now placed here, between the two main containers.
-              // A vertical padding is used to create space around it.
-              if (imageUrl != null && imageUrl!.isNotEmpty)
-                Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 20.0),
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(12.0),
-                    child: Image.network(
-                      imageUrl!,
-                      width: double.infinity,
-                      height: 250,
-                      fit: BoxFit.cover,
-                    ),
-                  ),
-                )
-              else
-                // If there's no image, we still add space to separate the boxes.
-                const SizedBox(height: 20),
+              const SizedBox(height: 20),
 
               Container(
                 padding: const EdgeInsets.all(18),

@@ -105,6 +105,11 @@ class NotesProvider with ChangeNotifier {
     }
   }
 
+  Future<void> refreshNotes() async {
+    // Re-fetches the first page of notes to ensure the list is up-to-date.
+    await fetchInitialNotes();
+  }
+
   List<DocumentSnapshot> _getFilteredNotes() {
     if (_searchQuery.isEmpty && _selectedTypes.isEmpty && _selectedLanguages.isEmpty) {
       return List<DocumentSnapshot>.from(_notes);

@@ -4,6 +4,7 @@
 
 // ignore_for_file: no_leading_underscores_for_library_prefixes
 import 'dart:async' as _i6;
+import 'dart:io' as _i10;
 
 import 'package:cloud_firestore/cloud_firestore.dart' as _i5;
 import 'package:cloud_functions/cloud_functions.dart' as _i4;
@@ -11,6 +12,7 @@ import 'package:cloud_functions_platform_interface/cloud_functions_platform_inte
     as _i3;
 import 'package:firebase_core/firebase_core.dart' as _i2;
 import 'package:lournal/services/firestore.dart' as _i7;
+import 'package:lournal/services/storage_service.dart' as _i9;
 import 'package:mockito/mockito.dart' as _i1;
 import 'package:mockito/src/dummies.dart' as _i8;
 
@@ -84,6 +86,17 @@ class _FakeHttpsCallableResult_4<T1> extends _i1.SmartFake
 class _FakeCollectionReference_5<T extends Object?> extends _i1.SmartFake
     implements _i5.CollectionReference<T> {
   _FakeCollectionReference_5(
+    Object parent,
+    Invocation parentInvocation,
+  ) : super(
+          parent,
+          parentInvocation,
+        );
+}
+
+class _FakeQuerySnapshot_6<T extends Object?> extends _i1.SmartFake
+    implements _i5.QuerySnapshot<T> {
+  _FakeQuerySnapshot_6(
     Object parent,
     Invocation parentInvocation,
   ) : super(
@@ -319,6 +332,34 @@ class MockFirestoreService extends _i1.Mock implements _i7.FirestoreService {
       ) as _i6.Stream<_i5.QuerySnapshot<Object?>>);
 
   @override
+  _i6.Future<_i5.QuerySnapshot<Object?>> getNotesPaginated({
+    required int? limit,
+    _i5.DocumentSnapshot<Object?>? lastDocument,
+  }) =>
+      (super.noSuchMethod(
+        Invocation.method(
+          #getNotesPaginated,
+          [],
+          {
+            #limit: limit,
+            #lastDocument: lastDocument,
+          },
+        ),
+        returnValue: _i6.Future<_i5.QuerySnapshot<Object?>>.value(
+            _FakeQuerySnapshot_6<Object?>(
+          this,
+          Invocation.method(
+            #getNotesPaginated,
+            [],
+            {
+              #limit: limit,
+              #lastDocument: lastDocument,
+            },
+          ),
+        )),
+      ) as _i6.Future<_i5.QuerySnapshot<Object?>>);
+
+  @override
   _i6.Future<void> updateNote({
     required String? docID,
     required String? title,
@@ -369,6 +410,24 @@ class MockFirestoreService extends _i1.Mock implements _i7.FirestoreService {
         returnValue: _i6.Future<void>.value(),
         returnValueForMissingStub: _i6.Future<void>.value(),
       ) as _i6.Future<void>);
+}
+
+/// A class which mocks [StorageService].
+///
+/// See the documentation for Mockito's code generation for more information.
+class MockStorageService extends _i1.Mock implements _i9.StorageService {
+  MockStorageService() {
+    _i1.throwOnMissingStub(this);
+  }
+
+  @override
+  _i6.Future<String?> uploadNoteImage(_i10.File? file) => (super.noSuchMethod(
+        Invocation.method(
+          #uploadNoteImage,
+          [file],
+        ),
+        returnValue: _i6.Future<String?>.value(),
+      ) as _i6.Future<String?>);
 }
 
 /// A class which mocks [HttpsCallableResult].

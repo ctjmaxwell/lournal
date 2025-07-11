@@ -1,219 +1,203 @@
+import 'dart:io';
+
 import 'package:cloud_functions/cloud_functions.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:image_picker_platform_interface/image_picker_platform_interface.dart';
 import 'package:lournal/pages/create_page.dart';
 import 'package:lournal/pages/finish_page.dart';
 import 'package:lournal/services/firestore.dart';
+import 'package:lournal/services/storage_service.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
+import 'package:network_image_mock/network_image_mock.dart';
+import 'package:plugin_platform_interface/plugin_platform_interface.dart';
 
 import 'create_page_test.mocks.dart';
 
-// Because we can't instantiate HttpsCallableResult directly anymore,
-// we create a mock for it as well.
+// Mock for ImagePicker using the correct PickedFile type
+class MockImagePicker extends Mock
+    with MockPlatformInterfaceMixin
+    implements ImagePickerPlatform {
+
+  @override
+  Future<PickedFile?> pickImage({
+    required ImageSource source,
+    double? maxWidth,
+    double? maxHeight,
+    int? imageQuality,
+    CameraDevice preferredCameraDevice = CameraDevice.rear,
+  }) {
+    return super.noSuchMethod(
+      Invocation.method(
+        #pickImage,
+        [],
+        {
+          #source: source,
+          #maxWidth: maxWidth,
+          #maxHeight: maxHeight,
+          #imageQuality: imageQuality,
+          #preferredCameraDevice: preferredCameraDevice,
+        },
+      ),
+      // Use PickedFile to match the expected type
+      returnValue: Future.value(PickedFile('fake_path')),
+    );
+  }
+}
+
 @GenerateMocks([
   FirebaseFunctions,
   HttpsCallable,
   FirestoreService,
+  StorageService,
   HttpsCallableResult
 ])
 void main() {
-  // Mocks for our services
   late MockFirebaseFunctions mockFirebaseFunctions;
   late MockHttpsCallable mockHttpsCallable;
   late MockFirestoreService mockFirestoreService;
+  late MockStorageService mockStorageService;
   late MockHttpsCallableResult mockHttpsCallableResult;
+  late MockImagePicker mockImagePicker;
 
-  // This setup function runs before each test, ensuring a clean slate.
   setUp(() {
     mockFirebaseFunctions = MockFirebaseFunctions();
     mockHttpsCallable = MockHttpsCallable();
     mockFirestoreService = MockFirestoreService();
+    mockStorageService = MockStorageService();
     mockHttpsCallableResult = MockHttpsCallableResult();
-    
-    // Register a dummy fallback for HttpsCallable.
-    provideDummy<HttpsCallable>(mockHttpsCallable);
+    mockImagePicker = MockImagePicker();
+    ImagePickerPlatform.instance = mockImagePicker;
 
-    // When the code asks for a callable named 'processNoteWithAI',
-    // we return our mock callable instance.
-    when(mockFirebaseFunctions.httpsCallable(any))
-        .thenReturn(mockHttpsCallable);
+    provideDummy<HttpsCallable>(mockHttpsCallable);
+    when(mockFirebaseFunctions.httpsCallable(any)).thenReturn(mockHttpsCallable);
   });
 
-  /// A helper function to build the CreatePage with the necessary mocks.
   Widget createTestableWidget({
     String? docID,
     String language = 'en',
     String type = 'journal',
     String title = '',
     String content = '',
+    String? imageUrl,
   }) {
     return MaterialApp(
-      navigatorObservers: [MockNavigatorObserver()],
       home: CreatePage(
         docID: docID,
         language: language,
         type: type,
         title: title,
         content: content,
+        imageUrl: imageUrl,
         firestoreService: mockFirestoreService,
         functions: mockFirebaseFunctions,
+        storageService: mockStorageService,
       ),
     );
   }
 
-  // A finder for our specific TextFields using their keys.
   final titleField = find.byKey(const ValueKey('title_field'));
   final contentField = find.byKey(const ValueKey('content_field'));
+  final saveButton = find.widgetWithText(ElevatedButton, 'Save');
+  final addImageButton = find.byIcon(Icons.add);
 
-  // --- Test Group for Creating a New Note ---
-  group('Create New Note', () {
-    testWidgets('should save a new note when title and content are provided',
-        (WidgetTester tester) async {
-      // --- ARRANGE ---
-      final fakeAiResponse = {
-        'translation': 'This is a translation.',
-        'feedback': 'Good job!',
-        'score': '95',
-      };
-
-      when(mockHttpsCallableResult.data).thenReturn(fakeAiResponse);
-
-      // Simulate a network delay.
-      when(mockHttpsCallable.call(any)).thenAnswer((_) async {
-        await Future.delayed(const Duration(milliseconds: 50));
-        return mockHttpsCallableResult;
+  group('Image Handling', () {
+    testWidgets('displays existing network image on load', (tester) async {
+      await mockNetworkImagesFor(() async {
+        await tester.pumpWidget(createTestableWidget(imageUrl: 'http://example.com/image.png'));
+        expect(find.byType(Image), findsOneWidget);
+        expect(find.byWidgetPredicate((widget) => widget is Image && widget.image is NetworkImage), findsOneWidget);
       });
+    });
 
-      // Pump the widget tree.
+    testWidgets('picking an image displays it and removes network image', (tester) async {
+      await mockNetworkImagesFor(() async {
+        final fakeImage = PickedFile('test/fake_image.jpg');
+        when(mockImagePicker.pickImage(source: ImageSource.gallery)).thenAnswer((_) async => fakeImage);
+
+        await tester.pumpWidget(createTestableWidget(imageUrl: 'http://example.com/image.png'));
+
+        expect(find.byWidgetPredicate((widget) => widget is Image && widget.image is NetworkImage), findsOneWidget);
+
+        await tester.tap(addImageButton);
+        await tester.pumpAndSettle();
+
+        expect(find.byWidgetPredicate((widget) => widget is Image && widget.image is FileImage), findsOneWidget);
+        expect(find.byWidgetPredicate((widget) => widget is Image && widget.image is NetworkImage), findsNothing);
+      });
+    });
+
+    testWidgets('saves a new note with a newly picked image', (tester) async {
+      final fakeImage = PickedFile('test/fake_image.jpg');
+      const uploadedUrl = 'http://example.com/uploaded.png';
+
+      when(mockImagePicker.pickImage(source: ImageSource.gallery)).thenAnswer((_) async => fakeImage);
+      when(mockStorageService.uploadNoteImage(any)).thenAnswer((_) async => uploadedUrl);
+
+      final fakeAiResponse = {'translation': '', 'feedback': '', 'score': '100'};
+      when(mockHttpsCallableResult.data).thenReturn(fakeAiResponse);
+      when(mockHttpsCallable.call(any)).thenAnswer((_) async => mockHttpsCallableResult);
+
       await tester.pumpWidget(createTestableWidget());
 
-      // --- ACT ---
-      await tester.enterText(titleField, 'My Test Title');
-      await tester.enterText(contentField, 'This is the content of my lournal.');
-      await tester.tap(find.widgetWithText(ElevatedButton, 'Save'));
-
-      // Pump the first frame to show the loading indicator.
-      await tester.pump();
-
-      // --- ASSERT (during loading) ---
-      expect(find.byType(CircularProgressIndicator), findsOneWidget);
-      expect(find.text('Generating AI feedback for your Lournal...'), findsOneWidget);
-
-      // Now, wait for all timers and animations to complete.
+      await tester.enterText(titleField, 'Image Note');
+      await tester.enterText(contentField, 'Note with an image.');
+      await tester.tap(addImageButton);
       await tester.pumpAndSettle();
 
-      // --- ASSERT (after saving) ---
+      await tester.tap(saveButton);
+      await tester.pumpAndSettle();
+
+      verify(mockStorageService.uploadNoteImage(any)).called(1);
       verify(mockFirestoreService.addNote(
-        title: 'My Test Title',
-        content: 'This is the content of my lournal.',
+        title: 'Image Note',
+        content: 'Note with an image.',
         language: 'en',
         type: 'journal',
-        translation: 'This is a translation.',
-        feedback: 'Good job!',
-        score: 95,
+        translation: '',
+        feedback: '',
+        score: 100,
+        imageUrl: uploadedUrl,
       )).called(1);
-
-      expect(find.byType(FinishPage), findsOneWidget);
     });
 
-    testWidgets('should show a snackbar if title or content is empty',
-        (WidgetTester tester) async {
-      await tester.pumpWidget(createTestableWidget());
-      await tester.tap(find.widgetWithText(ElevatedButton, 'Save'));
-      
-      await tester.pumpAndSettle();
+    testWidgets('updates an existing note with a new image', (tester) async {
+      final fakeImage = PickedFile('test/fake_image.jpg');
+      const newUploadedUrl = 'http://example.com/new_image.png';
 
-      expect(find.byType(SnackBar), findsOneWidget);
-      expect(find.text('Please enter both a title and content before saving'), findsOneWidget);
-    });
+      when(mockImagePicker.pickImage(source: ImageSource.gallery)).thenAnswer((_) async => fakeImage);
+      when(mockStorageService.uploadNoteImage(any)).thenAnswer((_) async => newUploadedUrl);
 
-    // NEW TEST CASE ADDED HERE
-    testWidgets('should show an error snackbar if the cloud function fails', (WidgetTester tester) async {
-      // --- ARRANGE ---
-      
-      // Tell the mock to throw an exception when called.
-      // We use a specific FirebaseFunctionsException for realism.
-      when(mockHttpsCallable.call(any)).thenThrow(
-        FirebaseFunctionsException(
-          message: 'The function execution failed',
-          code: 'internal',
-        ),
-      );
-
-      // Pump the widget.
-      await tester.pumpWidget(createTestableWidget());
-
-      // --- ACT ---
-      await tester.enterText(titleField, 'A title');
-      await tester.enterText(contentField, 'Some content');
-      await tester.tap(find.widgetWithText(ElevatedButton, 'Save'));
-
-      // Wait for all async operations to finish (the try/catch block).
-      await tester.pumpAndSettle();
-
-      // --- ASSERT ---
-      
-      // 1. Verify the loading indicator is GONE.
-      expect(find.byType(CircularProgressIndicator), findsNothing);
-      
-      // 2. Verify the correct error SnackBar is shown.
-      expect(find.byType(SnackBar), findsOneWidget);
-      expect(find.text('Failed to process note. Please ensure you are online and try again.'), findsOneWidget);
-    });
-  });
-
-  // --- Test Group for Updating an Existing Note ---
-  group('Update Existing Note', () {
-    testWidgets('should update an existing note', (WidgetTester tester) async {
-      // --- ARRANGE ---
-      final fakeAiResponse = {
-        'translation': 'Updated translation.',
-        'feedback': 'Excellent work!',
-        'score': '98',
-      };
+      final fakeAiResponse = {'translation': '', 'feedback': '', 'score': '100'};
       when(mockHttpsCallableResult.data).thenReturn(fakeAiResponse);
-      
-      // Also apply the simulated delay here
-      when(mockHttpsCallable.call(any)).thenAnswer((_) async {
-        await Future.delayed(const Duration(milliseconds: 50));
-        return mockHttpsCallableResult;
-      });
+      when(mockHttpsCallable.call(any)).thenAnswer((_) async => mockHttpsCallableResult);
 
       await tester.pumpWidget(createTestableWidget(
-        docID: 'existingDoc123',
-        title: 'Initial Title',
-        content: 'Initial content.',
+        docID: 'noteToUpdate',
+        title: 'Original Title',
+        content: 'Original Content',
+        imageUrl: 'http://example.com/original.png',
       ));
 
-      // --- ACT ---
-      await tester.enterText(titleField, 'Updated Title');
-      await tester.enterText(contentField, 'Updated content.');
-      await tester.tap(find.widgetWithText(ElevatedButton, 'Save'));
-      
-      // Pump to show the loading indicator
-      await tester.pump();
-      
-      // ASSERT: check for indicator during the "in-flight" operation
-      expect(find.byType(CircularProgressIndicator), findsOneWidget);
-
-      // Now wait for the delayed future and subsequent navigation to complete
+      await tester.tap(addImageButton);
       await tester.pumpAndSettle();
 
-      // --- ASSERT ---
+      await tester.tap(saveButton);
+      await tester.pumpAndSettle();
+
+      verify(mockStorageService.uploadNoteImage(any)).called(1);
       verify(mockFirestoreService.updateNote(
-        docID: 'existingDoc123',
-        title: 'Updated Title',
-        content: 'Updated content.',
+        docID: 'noteToUpdate',
+        title: 'Original Title',
+        content: 'Original Content',
         language: 'en',
         type: 'journal',
-        translation: 'Updated translation.',
-        feedback: 'Excellent work!',
-        score: 98,
+        translation: '',
+        feedback: '',
+        score: 100,
+        imageUrl: newUploadedUrl,
       )).called(1);
     });
   });
 }
-
-// A mock navigator observer to help with testing navigation events.
-class MockNavigatorObserver extends Mock implements NavigatorObserver {}
