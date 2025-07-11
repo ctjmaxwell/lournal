@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:lournal/components/custom_circular_progress_indicator.dart';
 import 'package:lournal/helper/date_format_helper.dart';
+import 'package:lournal/pages/language_speak_page.dart';
 import 'package:provider/provider.dart';
 import 'package:lournal/components/my_bottom_bar.dart';
 import 'package:lournal/components/note_tile.dart';
@@ -51,22 +52,38 @@ class _NotesPageState extends State<NotesPage> {
   ];
 
 
-  void _onFilterTap(BuildContext context) async {
-    // Use `context.read` here because we are not rebuilding based on this, just calling a method.
+  void _onLanguageSelectTap() async {
     final notesProvider = Provider.of<NotesProvider>(context, listen: false);
+    final result = await Navigator.push<Map<String, bool>>(
+      context,
+      MaterialPageRoute(
+        builder: (context) => LanguageSpeakPage(
+          initialSelection: notesProvider.selectedLanguages,
+        ),
+      ),
+    );
 
-    // ... rest of the method is the same
-    final initialSelection = {
-      ...notesProvider.selectedTypes,
-      ...notesProvider.selectedLanguages,
-    };
+    if (result != null) {
+      final newSelectedLanguages = result.entries
+          .where((e) => _languageKeys.contains(e.key) && e.value)
+          .map((e) => e.key)
+          .toSet();
+      notesProvider.updateFilters(notesProvider.selectedTypes, newSelectedLanguages);
+    }
+  }
+
+  void _onFilterTap() async {
+    final notesProvider = Provider.of<NotesProvider>(context, listen: false);
 
     final result = await showFilterBottomSheet(
       context,
-      initialSelection: initialSelection,
+      initialSelection: {
+        ...notesProvider.selectedTypes,
+        ...notesProvider.selectedLanguages,
+      },
     );
 
-    if (result is Map<String, bool>) {
+    if (result != null) {
       final newSelectedTypes = result.entries
           .where((e) => _typeKeys.contains(e.key) && e.value)
           .map((e) => e.key)
@@ -133,13 +150,29 @@ class _NotesPageState extends State<NotesPage> {
                     clipBehavior: Clip.hardEdge,
                     child: InkWell(
                       customBorder: const CircleBorder(),
-                      onTap: () => _onFilterTap(context),
-                      child: const Center(child: Icon(Icons.filter_list, size: 20, color: Colors.white)),
+                      onTap: _onLanguageSelectTap,
+                      child: const Center(child: Icon(Icons.language, size: 20, color: Colors.white)),
                     ),
                   ),
                 ),
               ),
               actions: [
+                Padding(
+                  padding: const EdgeInsets.only(right: 8.0),
+                  child: SizedBox(
+                    width: 40,
+                    height: 40,
+                    child: Material(
+                      color: Theme.of(context).colorScheme.tertiary,
+                      shape: const CircleBorder(),
+                      clipBehavior: Clip.hardEdge,
+                      child: InkWell(
+                        onTap: _onFilterTap,
+                        child: const Center(child: Icon(Icons.filter_list, size: 20, color: Colors.white)),
+                      ),
+                    ),
+                  ),
+                ),
                 Padding(
                   padding: const EdgeInsets.only(right: 16.0),
                   child: SizedBox(

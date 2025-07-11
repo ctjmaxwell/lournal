@@ -3,6 +3,42 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
+// --- NEW: UserPreferences Model ---
+// This model will represent the user's language preferences
+class UserPreferences {
+  final String nativeLanguage; // e.g., 'de', 'en', 'es'
+  final String learningLanguage; // e.g., 'fr', 'ja', 'ko'
+
+  UserPreferences({
+    required this.nativeLanguage,
+    required this.learningLanguage,
+  });
+
+  // Factory constructor to create UserPreferences from a Firestore DocumentSnapshot
+  factory UserPreferences.fromFirestore(DocumentSnapshot doc) {
+    final data = doc.data() as Map<String, dynamic>?; // Use nullable map
+    if (data == null) {
+      // This case should ideally not happen if you're checking doc.exists() first
+      // but provides safety.
+      throw Exception("User preferences data is null for document: ${doc.id}");
+    }
+    return UserPreferences(
+      nativeLanguage: data['nativeLanguage'] ?? 'en', // Default to English if not set
+      learningLanguage: data['learningLanguage'] ?? 'es', // Default to Spanish if not set
+    );
+  }
+
+  // Method to convert UserPreferences object to a Map for Firestore
+  Map<String, dynamic> toFirestore() {
+    return {
+      'nativeLanguage': nativeLanguage,
+      'learningLanguage': learningLanguage,
+    };
+  }
+}
+// --- END NEW: UserPreferences Model ---
+
+
 class FirestoreService {
   // Get current user's UID
   String get userId {
@@ -17,6 +53,70 @@ class FirestoreService {
   CollectionReference get userNotesCollection {
     return FirebaseFirestore.instance.collection('users').doc(userId).collection('notes');
   }
+
+  // --- NEW: User Preferences Logic ---
+
+  // Reference to the current user's document (where preferences will be stored)
+  DocumentReference get currentUserDocumentRef {
+    return FirebaseFirestore.instance.collection('users').doc(userId);
+  }
+
+  // CREATE/UPDATE: Set initial user preferences (or update existing ones)
+  // This is used right after sign-up, and also for updating later.
+  Future<void> setUserPreferences({
+    required String nativeLanguage,
+    required String learningLanguage,
+    String? email, // Optional: for initial user document creation
+    String? displayName, // Optional: for initial user document creation
+  }) async {
+    final dataToSet = UserPreferences(
+      nativeLanguage: nativeLanguage,
+      learningLanguage: learningLanguage,
+    ).toFirestore();
+
+    // Include other user info if this is the very first time creating the user document
+    // (e.g., after initial sign-up)
+    final currentUser = FirebaseAuth.instance.currentUser;
+    if (currentUser != null) {
+      dataToSet['email'] = email ?? currentUser.email;
+      dataToSet['displayName'] = displayName ?? currentUser.displayName;
+      dataToSet['createdAt'] = FieldValue.serverTimestamp(); // Set creation timestamp only once
+    }
+
+
+    return currentUserDocumentRef.set(
+      dataToSet,
+      SetOptions(merge: true), // `merge: true` ensures only specified fields are updated/added
+                               // without overwriting the entire document.
+    );
+  }
+
+  // READ: Get a Future of user preferences
+  Future<UserPreferences?> getUserPreferences() async {
+    try {
+      final docSnapshot = await currentUserDocumentRef.get();
+      if (docSnapshot.exists) {
+        return UserPreferences.fromFirestore(docSnapshot);
+      }
+      return null; // No preferences found for this user
+    } catch (e) {
+      print("Error getting user preferences: $e");
+      return null;
+    }
+  }
+
+  // READ: Get a Stream of user preferences (for real-time updates)
+  Stream<UserPreferences?> streamUserPreferences() {
+    return currentUserDocumentRef.snapshots().map((docSnapshot) {
+      if (docSnapshot.exists) {
+        return UserPreferences.fromFirestore(docSnapshot);
+      }
+      return null;
+    });
+  }
+
+  // --- END NEW: User Preferences Logic ---
+
 
   // CREATE: Add a new note
   Future<void> addNote({
@@ -86,9 +186,6 @@ class FirestoreService {
       'timestamp': Timestamp.now(), // Optionally update timestamp on edit
     };
 
-    // Only add imageUrl to the map if it's not null.
-    // This prevents overwriting an existing URL with null if no new image is picked.
-    // To REMOVE an image, a different mechanism would be needed (e.g., passing a special value).
     if (imageUrl != null) {
       dataToUpdate['imageUrl'] = imageUrl;
     }
@@ -101,21 +198,6 @@ class FirestoreService {
     return userNotesCollection.doc(docID).delete();
   }
 
-  /// Deletes the currently authenticated Firebase user account.
-  ///
-  /// IMPORTANT: The Firebase "Delete User Data" extension should be
-  /// installed and configured in your Firebase project (with
-  /// "Cloud Firestore delete mode" set to **Recursive** and
-  /// "Cloud Firestore paths" including `users/{UID}`).
-  /// This extension will automatically handle the deletion of associated
-  /// Cloud Firestore data (like the user document in `users/{UID}`
-  /// and its `notes` subcollection).
-  ///
-  /// This method should typically be called *after* ensuring the user
-  /// has recently authenticated. If not, `FirebaseAuthException` with
-  /// 'requires-recent-login' will be thrown, and you'll need to
-  /// re-authenticate the user in your UI before trying again.
-  ///
   /// Throws a [FirebaseAuthException] if:
   /// - No user is currently signed in.
   /// - The user has not recently signed in (requires re-authentication).
