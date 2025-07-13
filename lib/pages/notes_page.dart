@@ -105,44 +105,30 @@ class _NotesPageState extends State<NotesPage> {
       body: SafeArea(
         top: true,
         bottom: false,
-        child: CustomScrollView(
-          controller: _scrollController,
-          slivers: [
-            SliverAppBar(
-              // ... same as before
-              backgroundColor: Theme.of(context).colorScheme.primary,
-              elevation: 0,
-              floating: true,
-              pinned: false,
-              snap: false,
-              expandedHeight: 60,
-              toolbarHeight: 56,
-              collapsedHeight: 56,
-              forceElevated: true,
-              flexibleSpace: Container(
-                padding: EdgeInsets.only(top: MediaQuery.of(context).viewPadding.top),
-              ),
-              leadingWidth: 56,
-              leading: Padding(
-                padding: const EdgeInsets.only(left: 16),
-                child: SizedBox(
-                  width: 40,
-                  height: 40,
-                  child: Material(
-                    color: Theme.of(context).colorScheme.tertiary,
-                    shape: const CircleBorder(),
-                    clipBehavior: Clip.hardEdge,
-                    child: InkWell(
-                      customBorder: const CircleBorder(),
-                      onTap: () => _onFilterTap(context),
-                      child: const Center(child: Icon(Icons.filter_list, size: 20, color: Colors.white)),
-                    ),
-                  ),
+        child: RefreshIndicator(
+          color: Theme.of(context).colorScheme.tertiary,
+          backgroundColor: Theme.of(context).colorScheme.secondary,
+          onRefresh: () => context.read<NotesProvider>().refreshNotes(),
+          child: CustomScrollView(
+            controller: _scrollController,
+            slivers: [
+              SliverAppBar(
+                // ... same as before
+                backgroundColor: Theme.of(context).colorScheme.primary,
+                elevation: 0,
+                floating: true,
+                pinned: false,
+                snap: false,
+                expandedHeight: 60,
+                toolbarHeight: 56,
+                collapsedHeight: 56,
+                forceElevated: true,
+                flexibleSpace: Container(
+                  padding: EdgeInsets.only(top: MediaQuery.of(context).viewPadding.top),
                 ),
-              ),
-              actions: [
-                Padding(
-                  padding: const EdgeInsets.only(right: 16.0),
+                leadingWidth: 56,
+                leading: Padding(
+                  padding: const EdgeInsets.only(left: 16),
                   child: SizedBox(
                     width: 40,
                     height: 40,
@@ -151,51 +137,70 @@ class _NotesPageState extends State<NotesPage> {
                       shape: const CircleBorder(),
                       clipBehavior: Clip.hardEdge,
                       child: InkWell(
-                        key: const Key('profile_button'),
                         customBorder: const CircleBorder(),
-                        onTap: () => profileBottomSheet(context),
-                        child: const Center(child: Icon(Icons.person, size: 20, color: Colors.white)),
+                        onTap: () => _onFilterTap(context),
+                        child: const Center(child: Icon(Icons.filter_list, size: 20, color: Colors.white)),
                       ),
                     ),
                   ),
                 ),
-              ],
-            ),
-            SliverToBoxAdapter(
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                child: TextField(
-                  cursorColor: Theme.of(context).colorScheme.tertiary,
-                  controller: searchController,
-                  // Use context.read to call the method without subscribing
-                  onChanged: (value) => context.read<NotesProvider>().updateSearchQuery(value),
-                  decoration: InputDecoration(
-                    hintText: 'Search your Lournals…',
-                    hintStyle: TextStyle(color: Colors.grey.shade600),
-                    prefixIcon: Icon(Icons.search, color: Colors.grey.shade600),
-                    filled: true,
-                    fillColor: Theme.of(context).colorScheme.secondary,
-                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
-                    contentPadding: const EdgeInsets.symmetric(vertical: 0, horizontal: 16),
+                actions: [
+                  Padding(
+                    padding: const EdgeInsets.only(right: 16.0),
+                    child: SizedBox(
+                      width: 40,
+                      height: 40,
+                      child: Material(
+                        color: Theme.of(context).colorScheme.tertiary,
+                        shape: const CircleBorder(),
+                        clipBehavior: Clip.hardEdge,
+                        child: InkWell(
+                          key: const Key('profile_button'),
+                          customBorder: const CircleBorder(),
+                          onTap: () => profileBottomSheet(context),
+                          child: const Center(child: Icon(Icons.person, size: 20, color: Colors.white)),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              SliverToBoxAdapter(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  child: TextField(
+                    cursorColor: Theme.of(context).colorScheme.tertiary,
+                    controller: searchController,
+                    // Use context.read to call the method without subscribing
+                    onChanged: (value) => context.read<NotesProvider>().updateSearchQuery(value),
+                    decoration: InputDecoration(
+                      hintText: 'Search your Lournals…',
+                      hintStyle: TextStyle(color: Colors.grey.shade600),
+                      prefixIcon: Icon(Icons.search, color: Colors.grey.shade600),
+                      filled: true,
+                      fillColor: Theme.of(context).colorScheme.secondary,
+                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
+                      contentPadding: const EdgeInsets.symmetric(vertical: 0, horizontal: 16),
+                    ),
                   ),
                 ),
               ),
-            ),
-            // *** THE BIG CHANGE: Delegate list building to a dedicated widget ***
-            const _NotesList(), 
-            SliverToBoxAdapter(
-              child: Consumer<NotesProvider>(
-                builder: (context, provider, child) {
-                  return provider.isLoadingMore
-                      ? const Center(child: CustomCircularProgressIndicator())
-                      : const SizedBox.shrink();
-                },
+              // *** THE BIG CHANGE: Delegate list building to a dedicated widget ***
+              const _NotesList(), 
+              SliverToBoxAdapter(
+                child: Consumer<NotesProvider>(
+                  builder: (context, provider, child) {
+                    return provider.isLoadingMore
+                        ? const Center(child: CustomCircularProgressIndicator())
+                        : const SizedBox.shrink();
+                  },
+                ),
               ),
-            ),
-            const SliverToBoxAdapter(
-              child: SizedBox(height: 120.0), // Padding for the FAB
-            ),
-          ],
+              const SliverToBoxAdapter(
+                child: SizedBox(height: 120.0), // Padding for the FAB
+              ),
+            ],
+          ),
         ),
       ),
     );

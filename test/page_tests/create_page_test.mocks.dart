@@ -412,24 +412,6 @@ class MockFirestoreService extends _i1.Mock implements _i7.FirestoreService {
       ) as _i6.Future<void>);
 }
 
-/// A class which mocks [StorageService].
-///
-/// See the documentation for Mockito's code generation for more information.
-class MockStorageService extends _i1.Mock implements _i9.StorageService {
-  MockStorageService() {
-    _i1.throwOnMissingStub(this);
-  }
-
-  @override
-  _i6.Future<String?> uploadNoteImage(_i10.File? file) => (super.noSuchMethod(
-        Invocation.method(
-          #uploadNoteImage,
-          [file],
-        ),
-        returnValue: _i6.Future<String?>.value(),
-      ) as _i6.Future<String?>);
-}
-
 /// A class which mocks [HttpsCallableResult].
 ///
 /// See the documentation for Mockito's code generation for more information.
@@ -447,4 +429,22 @@ class MockHttpsCallableResult<T> extends _i1.Mock
           Invocation.getter(#data),
         ),
       ) as T);
+}
+
+/// A class which mocks [StorageService].
+///
+/// See the documentation for Mockito's code generation for more information.
+class MockStorageService extends _i1.Mock implements _i9.StorageService {
+  MockStorageService() {
+    _i1.throwOnMissingStub(this);
+  }
+
+  @override
+  _i6.Future<String?> uploadNoteImage(_i10.File? file) => (super.noSuchMethod(
+        Invocation.method(
+          #uploadNoteImage,
+          [file],
+        ),
+        returnValue: _i6.Future<String?>.value(),
+      ) as _i6.Future<String?>);
 }

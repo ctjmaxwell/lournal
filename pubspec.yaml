@@ -32,6 +32,7 @@ dependencies:
   google_sign_in: ^7.1.0
   image_picker: ^1.1.2
   network_image_mock: ^2.1.1
+  image_picker_platform_interface: ^2.10.1
   # The duplicate entries have been removed from here
 
 dev_dependencies:
