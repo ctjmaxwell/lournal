@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:lournal/components/note_settings.dart';
 import 'package:lournal/helper/perfomance_adjective.dart';
@@ -116,11 +117,25 @@ class EditPage extends StatelessWidget {
                   padding: const EdgeInsets.only(bottom: 20.0), // Add padding below the image
                   child: ClipRRect(
                     borderRadius: BorderRadius.circular(12.0),
-                    child: Image.network(
-                      imageUrl!,
+                    child: CachedNetworkImage(
+                      imageUrl: imageUrl!,
                       width: double.infinity,
                       height: 250,
                       fit: BoxFit.cover,
+                      placeholder: (context, url) => Container(
+                        height: 250,
+                        color: Theme.of(context).colorScheme.secondary,
+                        child: const Center(
+                          child: CircularProgressIndicator(),
+                        ),
+                      ),
+                      errorWidget: (context, url, error) => Container(
+                        height: 250,
+                        color: Theme.of(context).colorScheme.secondary,
+                        child: const Center(
+                          child: Icon(Icons.broken_image, color: Colors.grey),
+                        ),
+                      ),
                     ),
                   ),
                 ),
