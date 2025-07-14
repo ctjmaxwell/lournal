@@ -122,11 +122,12 @@ class EditPage extends StatelessWidget {
                       width: double.infinity,
                       height: 250,
                       fit: BoxFit.cover,
+                      memCacheHeight: 250,
                       placeholder: (context, url) => Container(
                         height: 250,
                         color: Theme.of(context).colorScheme.secondary,
                         child: const Center(
-                          child: CircularProgressIndicator(),
+                          child: SizedBox.shrink(),
                         ),
                       ),
                       errorWidget: (context, url, error) => Container(

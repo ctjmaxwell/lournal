@@ -1,7 +1,6 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:country_flags/country_flags.dart';
 import 'package:flutter/material.dart';
-import 'package:lournal/components/custom_circular_progress_indicator.dart';
 import 'package:lournal/components/note_settings.dart';
 import 'package:lournal/helper/language_and_type_helper.dart';
 import 'package:lournal/pages/create_page.dart'; // Used by popover's edit
@@ -189,11 +188,12 @@ class NotesTile extends StatelessWidget {
                   width: double.infinity,
                   height: 250, // Image height is now 250
                   fit: BoxFit.cover,
+                  memCacheHeight: 250,
                   placeholder: (context, url) => Container(
                     height: 250,
                     color: Theme.of(context).colorScheme.secondary,
                     child: const Center(
-                      child: CustomCircularProgressIndicator(),
+                      child: SizedBox.shrink(),
                     ),
                   ),
                   errorWidget: (context, url, error) => Container(

@@ -1,3 +1,5 @@
+import 'package:shimmer/shimmer.dart';
+import 'package:lournal/components/note_tile_shimmer.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:lournal/components/custom_circular_progress_indicator.dart';
@@ -220,7 +222,29 @@ class _NotesList extends StatelessWidget {
 
     // Handle loading and error states from the provider
     if (notesProvider.isLoading) {
-      return const SliverFillRemaining(child: Center(child: CustomCircularProgressIndicator()));
+      return SliverToBoxAdapter(
+        child: Shimmer.fromColors(
+          baseColor: Theme.of(context).colorScheme.secondary,
+          highlightColor: Theme.of(context).colorScheme.primary,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Padding(
+                padding: const EdgeInsets.only(left: 16, right: 16, top: 32, bottom: 5),
+                child: Container(
+                  width: 200,
+                  height: 26,
+                  decoration: BoxDecoration(
+                    color: Colors.grey,
+                    borderRadius: BorderRadius.circular(10.0),
+                  ),
+                ),
+              ),
+              ...List.generate(5, (index) => const NoteTileShimmer()),
+            ],
+          ),
+        ),
+      );
     }
 
     if (notesProvider.hasError) {
