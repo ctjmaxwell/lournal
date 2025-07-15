@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:lournal/components/custom_circular_progress_indicator.dart';
 import 'package:lournal/components/custom_snackbar.dart';
 import 'package:lournal/components/my_textfield.dart';
+import 'package:lournal/services/firestore.dart';
 import 'package:lournal/sheets/privacy_policy_bottomsheet.dart';
 import 'package:lournal/sheets/terms_and_conditions_bottomsheet.dart';
 

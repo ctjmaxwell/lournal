@@ -1,15 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:lournal/components/custom_circular_progress_indicator.dart';
+import 'package:lournal/components/custom_snackbar.dart';
 import 'package:lournal/helper/language_and_type_helper.dart';
 import 'package:lournal/helper/language_option.dart';
+import 'package:lournal/services/firestore.dart';
 
-// Renamed to match the file name and converted to a StatefulWidget
 class LanguageLearnPage extends StatefulWidget {
-  // Accepts the set of currently selected languages
-  final Set<String> initialSelection;
+  final String nativeLanguage;
 
   const LanguageLearnPage({
     super.key,
-    this.initialSelection = const {},
+    required this.nativeLanguage,
   });
 
   @override
@@ -17,13 +18,14 @@ class LanguageLearnPage extends StatefulWidget {
 }
 
 class _LanguageLearnPageState extends State<LanguageLearnPage> {
+  final FirestoreService _firestoreService = FirestoreService();
   String? _selectedLanguage;
+  bool _isSaving = false;
 
   @override
   void initState() {
     super.initState();
-    _selectedLanguage =
-        widget.initialSelection.isNotEmpty ? widget.initialSelection.first : null;
+    _selectedLanguage = null;
   }
 
   void _toggleLanguageSelection(String language) {
@@ -36,11 +38,55 @@ class _LanguageLearnPageState extends State<LanguageLearnPage> {
     });
   }
 
-  void _onDone() {
-    final result = {
-      for (var lang in supportedLanguages) lang: lang == _selectedLanguage
-    };
-    Navigator.pop(context, result);
+  Future<void> _onDone() async {
+    if (_isSaving) return;
+
+    if (_selectedLanguage == null) {
+      showCustomSnackBar(
+        context,
+        'Please select a language to learn.',
+        backgroundColor: Colors.red,
+      );
+      return;
+    }
+
+    if (widget.nativeLanguage == _selectedLanguage) {
+      showCustomSnackBar(
+        context,
+        'Learning language must be different from the language you speak.',
+        backgroundColor: Colors.red,
+      );
+      return;
+    }
+
+    setState(() {
+      _isSaving = true;
+    });
+
+    try {
+      await _firestoreService.setUserPreferences(
+        nativeLanguage: widget.nativeLanguage,
+        learningLanguage: _selectedLanguage!,
+      );
+
+      if (mounted) {
+        Navigator.of(context).popUntil((route) => route.isFirst);
+      }
+    } catch (e) {
+      if (mounted) {
+        showCustomSnackBar(
+          context,
+          'Failed to save preferences. Please try again.',
+          backgroundColor: Colors.red,
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isSaving = false;
+        });
+      }
+    }
   }
 
   @override
@@ -68,7 +114,7 @@ class _LanguageLearnPageState extends State<LanguageLearnPage> {
                   const Padding(
                     padding: EdgeInsets.symmetric(vertical: 40.0),
                     child: Text(
-                      "What is the main language \nyou want to learn?",
+                      "What is the main language\nyou want to learn?",
                       textAlign: TextAlign.center,
                       style: TextStyle(
                         fontSize: 28,
@@ -106,14 +152,17 @@ class _LanguageLearnPageState extends State<LanguageLearnPage> {
                         ),
                       ),
                       onPressed: _onDone,
-                      child: const Text(
-                        "Done",
-                        style: TextStyle(
-                          fontSize: 24,
-                          color: Colors.white,
-                          fontWeight: FontWeight.w700,
-                        ),
-                      ),
+                      child: _isSaving
+                          ? const CustomCircularProgressIndicator(
+                              color: Colors.white)
+                          : const Text(
+                              "Done",
+                              style: TextStyle(
+                                fontSize: 24,
+                                color: Colors.white,
+                                fontWeight: FontWeight.w700,
+                              ),
+                            ),
                     ),
                   ),
                 ],

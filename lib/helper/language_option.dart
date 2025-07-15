@@ -18,6 +18,7 @@ class LanguageOption extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final tertiaryColor = Theme.of(context).colorScheme.tertiary;
+    final primaryColor = Theme.of(context).colorScheme.primary;
 
     return GestureDetector(
       onTap: onTap,
@@ -25,18 +26,12 @@ class LanguageOption extends StatelessWidget {
         decoration: BoxDecoration(
           color: Theme.of(context).colorScheme.secondary,
           borderRadius: BorderRadius.circular(15),
-          border: isSelected
-              ? Border(
-                  top: BorderSide(width: 2, color: tertiaryColor),
-                  left: BorderSide(width: 2, color: tertiaryColor),
-                  right: BorderSide(width: 2, color: tertiaryColor),
-                  bottom: BorderSide(width: 4, color: tertiaryColor),
-                )
-              : null,
+          border: Border.all(
+            width: 2,
+            color: isSelected ? tertiaryColor : primaryColor,
+          ),
         ),
-        padding: isSelected
-            ? const EdgeInsets.fromLTRB(18, 13, 18, 11)
-            : const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
+        padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 13),
         child: Row(
           children: [
             CountryFlag.fromCountryCode(

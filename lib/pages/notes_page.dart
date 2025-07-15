@@ -139,6 +139,7 @@ class _NotesPageState extends State<NotesPage> {
                 padding: EdgeInsets.only(top: MediaQuery.of(context).viewPadding.top),
               ),
               leadingWidth: 56,
+              
               leading: Padding(
                 padding: const EdgeInsets.only(left: 16),
                 child: SizedBox(

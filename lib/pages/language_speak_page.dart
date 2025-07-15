@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:lournal/components/custom_snackbar.dart';
 import 'package:lournal/helper/language_and_type_helper.dart';
 import 'package:lournal/helper/language_option.dart';
+import 'package:lournal/pages/language_learn_page.dart';
 
-// Renamed to match the file name and converted to a StatefulWidget
 class LanguageSpeakPage extends StatefulWidget {
-  // Accepts the set of currently selected languages
   final Set<String> initialSelection;
 
   const LanguageSpeakPage({
@@ -37,10 +37,22 @@ class _LanguageSpeakPageState extends State<LanguageSpeakPage> {
   }
 
   void _onDone() {
-    final result = {
-      for (var lang in supportedLanguages) lang: lang == _selectedLanguage
-    };
-    Navigator.pop(context, result);
+    if (_selectedLanguage != null) {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => LanguageLearnPage(
+            nativeLanguage: _selectedLanguage!,
+          ),
+        ),
+      );
+    } else {
+      showCustomSnackBar(
+        context,
+        'Please select the language you speak.',
+        backgroundColor: Colors.red,
+      );
+    }
   }
 
   @override
@@ -68,7 +80,7 @@ class _LanguageSpeakPageState extends State<LanguageSpeakPage> {
                   const Padding(
                     padding: EdgeInsets.symmetric(vertical: 40.0),
                     child: Text(
-                      "What is the main language \nyou speak?",
+                      "What is the main language\nyou speak?",
                       textAlign: TextAlign.center,
                       style: TextStyle(
                         fontSize: 28,
