@@ -153,6 +153,15 @@ class _RegisterPageState extends State<RegisterPage> {
       await userCredential.user
           ?.updateDisplayName(usernameController.text.trim());
 
+      // --- Create user document in Firestore with onboarding incomplete ---
+      final firestoreService = FirestoreService();
+      await firestoreService.setUserPreferences(
+        nativeLanguage: '', // Set empty strings for now
+        learningLanguage: '',
+        email: userCredential.user?.email,
+        displayName: usernameController.text.trim(),
+      );
+
       // --- FIX: Sign out the user to prevent automatic login after registration ---
       await auth.signOut();
 
