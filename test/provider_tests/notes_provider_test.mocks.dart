@@ -224,6 +224,8 @@ class MockFirestoreService extends _i1.Mock implements _i5.FirestoreService {
   _i7.Future<_i2.QuerySnapshot<Object?>> getNotesPaginated({
     required int? limit,
     _i2.DocumentSnapshot<Object?>? lastDocument,
+    Set<String>? types = const {},
+    Set<String>? languages = const {},
   }) =>
       (super.noSuchMethod(
         Invocation.method(
@@ -232,6 +234,8 @@ class MockFirestoreService extends _i1.Mock implements _i5.FirestoreService {
           {
             #limit: limit,
             #lastDocument: lastDocument,
+            #types: types,
+            #languages: languages,
           },
         ),
         returnValue: _i7.Future<_i2.QuerySnapshot<Object?>>.value(
@@ -243,6 +247,8 @@ class MockFirestoreService extends _i1.Mock implements _i5.FirestoreService {
             {
               #limit: limit,
               #lastDocument: lastDocument,
+              #types: types,
+              #languages: languages,
             },
           ),
         )),

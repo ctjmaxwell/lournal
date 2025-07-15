@@ -51,10 +51,22 @@ class FirestoreService {
   Future<QuerySnapshot> getNotesPaginated({
     required int limit,
     DocumentSnapshot? lastDocument, // The last document from the previous page
+    Set<String> types = const {},
+    Set<String> languages = const {},
   }) {
-    Query query = userNotesCollection
-        .orderBy('timestamp', descending: true)
-        .limit(limit);
+    Query query = userNotesCollection;
+
+    // Firestore limitation: Cannot use 'whereIn' on multiple fields.
+    // Prioritize filtering by type if available, otherwise by language.
+    // The other filter, if present, will be applied on the client side.
+    // This requires a composite index on (type, timestamp) and (language, timestamp).
+    if (types.isNotEmpty) {
+      query = query.where('type', whereIn: types.toList());
+    } else if (languages.isNotEmpty) {
+      query = query.where('language', whereIn: languages.toList());
+    }
+
+    query = query.orderBy('timestamp', descending: true).limit(limit);
 
     if (lastDocument != null) {
       query = query.startAfterDocument(lastDocument);

@@ -5,7 +5,6 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
-import 'package:fake_async/fake_async.dart';
 
 // Import the provider and service you want to test.
 // Make sure to adjust the import path to match your project structure.
@@ -25,6 +24,9 @@ import 'notes_provider_test.mocks.dart';
   QueryDocumentSnapshot,
 ])
 void main() {
+  // FIX: Initialize the binding for testWidgets
+  TestWidgetsFlutterBinding.ensureInitialized();
+  
   // Declare variables to be used in tests
   late NotesProvider notesProvider;
   late MockFirestoreService mockFirestoreService;
@@ -44,7 +46,7 @@ void main() {
     when(mockFirebaseAuth.authStateChanges()).thenAnswer((_) => authStateController.stream);
     
     // Mock the delete method since it's called in one of the tests
-    when(mockFirestoreService.deleteNote(any)).thenAnswer((_) async => {});
+    when(mockFirestoreService.deleteNote(any)).thenAnswer((_) => Future.value());
 
     // Create the provider instance using the special testable constructor
     notesProvider = NotesProvider.testable(mockFirebaseAuth, mockFirestoreService);
@@ -82,35 +84,37 @@ void main() {
       expect(notesProvider.isLoading, isTrue);
     });
 
-    test('State when user is logged out (null user)', () {
-      fakeAsync((async) {
-        // Simulate a null user event from Firebase Auth
-        authStateController.add(null);
-        async.flushMicrotasks(); // Process the stream event
+    // FIX: Use testWidgets and tester.pump() to handle async stream events
+    testWidgets('State when user is logged out (null user)', (tester) async {
+      // Simulate a null user event from Firebase Auth
+      authStateController.add(null);
+      // Wait for the stream listener to process the event
+      await tester.pump();
 
-        // Assert the state is correctly set for a logged-out user
-        expect(notesProvider.isLoading, isFalse);
-        expect(notesProvider.filteredNotes, isEmpty);
-        expect(notesProvider.hasError, isFalse);
-      });
+      // Assert the state is correctly set for a logged-out user
+      expect(notesProvider.isLoading, isFalse);
+      expect(notesProvider.filteredNotes, isEmpty);
+      expect(notesProvider.hasError, isFalse);
     });
 
-    test('State when user logs in and successfully fetches notes', () {
-      fakeAsync((async) {
-        // Arrange: Prepare the mock response for the initial paginated fetch
-        final mockSnapshot = createMockQuerySnapshot([]);
-        when(mockFirestoreService.getNotesPaginated(limit: anyNamed('limit'), lastDocument: null))
-            .thenAnswer((_) async => mockSnapshot);
+    testWidgets('State when user logs in and successfully fetches notes', (tester) async {
+      // Arrange: Prepare the mock response for the initial paginated fetch
+      final mockSnapshot = createMockQuerySnapshot([]);
+      when(mockFirestoreService.getNotesPaginated(
+        limit: anyNamed('limit'),
+        lastDocument: anyNamed('lastDocument'),
+        types: anyNamed('types'),
+        languages: anyNamed('languages'),
+      )).thenAnswer((_) => Future.value(mockSnapshot));
 
-        // Act: Simulate user login
-        authStateController.add(mockUser);
-        // FIX: Use elapse to ensure all async operations (futures, timers) complete.
-        async.elapse(Duration.zero);
+      // Act: Simulate user login
+      authStateController.add(mockUser);
+      // FIX: Pump the widget tree to process the Future from the service
+      await tester.pump();
 
-        // Assert: The provider should no longer be loading and have no errors.
-        expect(notesProvider.isLoading, isFalse);
-        expect(notesProvider.hasError, isFalse);
-      });
+      // Assert: The provider should no longer be loading and have no errors.
+      expect(notesProvider.isLoading, isFalse);
+      expect(notesProvider.hasError, isFalse);
     });
   });
 
@@ -125,68 +129,73 @@ void main() {
       data: {'title': 'State Management', 'content': 'Provider rocks', 'type': 'Concept', 'language': 'Dart'},
     );
 
-    test('Loads and displays notes successfully after login', () {
-      fakeAsync((async) {
-        // Arrange: Mock the service to return our mock documents
-        final mockSnapshot = createMockQuerySnapshot([mockDoc1, mockDoc2]);
-        when(mockFirestoreService.getNotesPaginated(limit: anyNamed('limit'), lastDocument: null))
-            .thenAnswer((_) async => mockSnapshot);
+    testWidgets('Loads and displays notes successfully after login', (tester) async {
+      // Arrange: Mock the service to return our mock documents
+      final mockSnapshot = createMockQuerySnapshot([mockDoc1, mockDoc2]);
+      when(mockFirestoreService.getNotesPaginated(
+        limit: anyNamed('limit'),
+        lastDocument: anyNamed('lastDocument'),
+        types: anyNamed('types'),
+        languages: anyNamed('languages'),
+      )).thenAnswer((_) => Future.value(mockSnapshot));
 
-        // Act: Simulate user login to trigger the note fetch
-        authStateController.add(mockUser);
-        // FIX: Use elapse to ensure all async operations complete.
-        async.elapse(Duration.zero);
+      // Act: Simulate user login to trigger the note fetch
+      authStateController.add(mockUser);
+      await tester.pump();
 
-        // Assert: Check if the state reflects the loaded notes
-        expect(notesProvider.isLoading, isFalse);
-        expect(notesProvider.hasError, isFalse);
-        expect(notesProvider.filteredNotes.length, 2);
-        expect(notesProvider.filteredNotes.map((d) => d.id), containsAll(['1', '2']));
-      });
+      // Assert: Check if the state reflects the loaded notes
+      expect(notesProvider.isLoading, isFalse);
+      expect(notesProvider.hasError, isFalse);
+      expect(notesProvider.filteredNotes.length, 2);
+      expect(notesProvider.filteredNotes.map((d) => d.id), containsAll(['1', '2']));
     });
 
-    test('Handles error when fetching notes', () {
-      fakeAsync((async) {
-        // Arrange: Mock the service to throw an exception
-        final error = FirebaseException(plugin: 'firestore', message: 'Permission denied');
-        when(mockFirestoreService.getNotesPaginated(limit: anyNamed('limit'), lastDocument: null)).thenThrow(error);
+    testWidgets('Handles error when fetching notes', (tester) async {
+      // Arrange: Mock the service to throw an exception
+      final error = FirebaseException(plugin: 'firestore', message: 'Permission denied');
+      when(mockFirestoreService.getNotesPaginated(
+        limit: anyNamed('limit'),
+        lastDocument: anyNamed('lastDocument'),
+        types: anyNamed('types'),
+        languages: anyNamed('languages'),
+      )).thenAnswer((_) => Future.error(error));
 
-        // Act: Simulate login to trigger the fetch
-        authStateController.add(mockUser);
-        // FIX: Use elapse to ensure all async operations complete.
-        async.elapse(Duration.zero);
+      // Act: Simulate login to trigger the fetch
+      authStateController.add(mockUser);
+      await tester.pump();
 
-        // Assert: Check if the error state is correctly set
-        expect(notesProvider.isLoading, isFalse);
-        expect(notesProvider.hasError, isTrue);
-        expect(notesProvider.error, contains("Failed to load notes"));
-        expect(notesProvider.filteredNotes, isEmpty);
-      });
+      // Assert: Check if the error state is correctly set
+      expect(notesProvider.isLoading, isFalse);
+      expect(notesProvider.hasError, isTrue);
+      expect(notesProvider.error, contains("Failed to load notes"));
+      expect(notesProvider.filteredNotes, isEmpty);
     });
 
-    test('Deletes a note and optimistically removes it from the list', () {
-      fakeAsync((async) {
-        // Arrange: Load an initial note into the provider by mocking the fetch
-        final mockSnapshot = createMockQuerySnapshot([mockDoc1]);
-        when(mockFirestoreService.getNotesPaginated(limit: anyNamed('limit'), lastDocument: null))
-            .thenAnswer((_) async => mockSnapshot);
-        
-        authStateController.add(mockUser);
-        // FIX: Use elapse to ensure all async operations complete.
-        async.elapse(Duration.zero);
+    testWidgets('Deletes a note and optimistically removes it from the list', (tester) async {
+      // Arrange: Load an initial note into the provider by mocking the fetch
+      final mockSnapshot = createMockQuerySnapshot([mockDoc1]);
+      when(mockFirestoreService.getNotesPaginated(
+        limit: anyNamed('limit'),
+        lastDocument: anyNamed('lastDocument'),
+        types: anyNamed('types'),
+        languages: anyNamed('languages'),
+      )).thenAnswer((_) => Future.value(mockSnapshot));
+      
+      authStateController.add(mockUser);
+      await tester.pump();
 
-        // Sanity check that the note is loaded before deletion
-        expect(notesProvider.filteredNotes.length, 1, reason: "Note should be loaded first");
+      // Sanity check that the note is loaded before deletion
+      expect(notesProvider.filteredNotes.length, 1, reason: "Note should be loaded first");
 
-        // Act: Delete the note
-        notesProvider.deleteNote('1');
-        
-        // Assert: The note is removed from the UI immediately (optimistic update)
-        expect(notesProvider.filteredNotes, isEmpty);
-        
-        // Verify that the service's delete method was called in the background
-        verify(mockFirestoreService.deleteNote('1')).called(1);
-      });
+      // Act: Delete the note
+      await notesProvider.deleteNote('1');
+      await tester.pump();
+      
+      // Assert: The note is removed from the UI immediately (optimistic update)
+      expect(notesProvider.filteredNotes, isEmpty);
+      
+      // Verify that the service's delete method was called in the background
+      verify(mockFirestoreService.deleteNote('1')).called(1);
     });
   });
 
@@ -201,47 +210,78 @@ void main() {
     final mockDoc3 = createMockDocument(
         id: '3',
         data: {'title': 'Python Intro', 'content': 'Simple syntax', 'type': 'Tutorial', 'language': 'Python'});
+    
+    final allDocs = [mockDoc1, mockDoc2, mockDoc3];
 
     // Helper to load initial data for all filtering tests in this group
-    void setupNotesForFiltering(FakeAsync async) {
-        final mockSnapshot = createMockQuerySnapshot([mockDoc1, mockDoc2, mockDoc3]);
-        when(mockFirestoreService.getNotesPaginated(limit: anyNamed('limit'), lastDocument: null))
-            .thenAnswer((_) async => mockSnapshot);
+    Future<void> setupNotesForFiltering(WidgetTester tester) async {
+        when(mockFirestoreService.getNotesPaginated(
+          limit: anyNamed('limit'),
+          lastDocument: anyNamed('lastDocument'),
+          types: anyNamed('types'),
+          languages: anyNamed('languages'),
+        )).thenAnswer((_) => Future.value(createMockQuerySnapshot(allDocs)));
         
         authStateController.add(mockUser);
-        // FIX: Use elapse to ensure all async operations complete.
-        async.elapse(Duration.zero);
+        await tester.pump();
     }
 
-    test('Filters by search query (case-insensitive)', () {
-      fakeAsync((async) {
-        setupNotesForFiltering(async);
-        notesProvider.updateSearchQuery('intro');
-        expect(notesProvider.filteredNotes.length, 2);
-        expect(notesProvider.filteredNotes.map((d) => d.id), containsAll(['1', '3']));
-      });
+    testWidgets('Filters by search query (case-insensitive)', (tester) async {
+      await setupNotesForFiltering(tester);
+      notesProvider.updateSearchQuery('intro');
+      await tester.pump();
+
+      expect(notesProvider.filteredNotes.length, 2);
+      expect(notesProvider.filteredNotes.map((d) => d.id), containsAll(['1', '3']));
     });
 
-    test('Filters by note type and language', () {
-      fakeAsync((async) {
-        setupNotesForFiltering(async);
-        notesProvider.updateFilters({'Tutorial'}, {'Dart'});
-        expect(notesProvider.filteredNotes.length, 1);
-        expect(notesProvider.filteredNotes.first.id, '1');
-      });
+    testWidgets('Filters by note type and language', (tester) async {
+      await setupNotesForFiltering(tester);
+      
+      // Arrange: Set up a more specific mock for this particular filter combination
+      when(mockFirestoreService.getNotesPaginated(
+        limit: anyNamed('limit'),
+        lastDocument: anyNamed('lastDocument'),
+        types: {'Tutorial'},
+        languages: {'Dart'},
+      )).thenAnswer((_) => Future.value(createMockQuerySnapshot([mockDoc1])));
+
+      // Act: Update filters, which triggers an async fetch
+      notesProvider.updateFilters({'Tutorial'}, {'Dart'});
+      await tester.pump();
+
+      // Assert: Check the results after the fetch
+      expect(notesProvider.filteredNotes.length, 1);
+      expect(notesProvider.filteredNotes.first.id, '1');
     });
 
-    test('Returns all notes when filters are cleared', () {
-       fakeAsync((async) {
-        setupNotesForFiltering(async);
-        // Apply filters first
-        notesProvider.updateFilters({'Concept'}, {'Dart'});
-        expect(notesProvider.filteredNotes.length, 1, reason: "Should have 1 note before clearing");
+    testWidgets('Returns all notes when filters are cleared', (tester) async {
+      await setupNotesForFiltering(tester);
+      
+      // Arrange: Mock the responses for both the filtered and cleared states
+      when(mockFirestoreService.getNotesPaginated(
+        limit: anyNamed('limit'),
+        lastDocument: anyNamed('lastDocument'),
+        types: {'Concept'},
+        languages: {'Dart'},
+      )).thenAnswer((_) => Future.value(createMockQuerySnapshot([mockDoc2])));
 
-        // Clear filters and check if all notes are returned
-        notesProvider.updateFilters({}, {});
-        expect(notesProvider.filteredNotes.length, 3);
-       });
+      when(mockFirestoreService.getNotesPaginated(
+        limit: anyNamed('limit'),
+        lastDocument: anyNamed('lastDocument'),
+        types: {},
+        languages: {},
+      )).thenAnswer((_) => Future.value(createMockQuerySnapshot(allDocs)));
+
+      // Act 1: Apply filters first
+      notesProvider.updateFilters({'Concept'}, {'Dart'});
+      await tester.pump();
+      expect(notesProvider.filteredNotes.length, 1, reason: "Should have 1 note before clearing");
+
+      // Act 2: Clear filters and check if all notes are returned
+      notesProvider.updateFilters({}, {});
+      await tester.pump();
+      expect(notesProvider.filteredNotes.length, 3);
     });
   });
 }
