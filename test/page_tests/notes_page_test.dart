@@ -7,6 +7,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:fake_cloud_firestore/fake_cloud_firestore.dart';
 import 'package:lournal/components/note_tile.dart';
 import 'package:network_image_mock/network_image_mock.dart';
+import 'package:shimmer/shimmer.dart'; // Import Shimmer
 
 // A mock provider that we can control for our tests.
 class MockNotesProvider extends ChangeNotifier implements NotesProvider {
@@ -52,12 +53,14 @@ class MockNotesProvider extends ChangeNotifier implements NotesProvider {
 
   @override
   Future<void> fetchInitialNotes() async {
+    // For the mock, we can assume this is handled by direct state setting.
     _isLoading = false;
     notifyListeners();
   }
 
   @override
   Future<void> fetchMoreNotes() async {
+    // Mock implementation doesn't need to do anything here.
     return;
   }
 
@@ -108,10 +111,12 @@ class MockNotesProvider extends ChangeNotifier implements NotesProvider {
   
   @override
   void dispose() {
+    // Overriding to prevent exceptions in tests, but no resources to clear.
     super.dispose();
   }
 }
 
+// Test setup helper to create a testable widget tree
 Widget createTestableWidget({required Widget child, required NotesProvider provider}) {
   return ChangeNotifierProvider<NotesProvider>.value(
     value: provider,
@@ -125,6 +130,7 @@ Widget createTestableWidget({required Widget child, required NotesProvider provi
   );
 }
 
+// Test setup helper to create fake documents in the fake Firestore instance
 Future<DocumentSnapshot> createFakeDoc(FakeFirebaseFirestore firestore, String id, Map<String, dynamic> data) async {
   final fullData = {
     'title': 'Default Title',
@@ -153,7 +159,8 @@ void main() {
   });
 
   group('NotesPage Widget Tests', () {
-    testWidgets('Shows loading indicator when isLoading is true', (WidgetTester tester) async {
+    // CORRECTED TEST
+    testWidgets('Shows Shimmer loading effect when isLoading is true', (WidgetTester tester) async {
       mockNotesProvider.setLoading(true);
 
       await tester.pumpWidget(createTestableWidget(
@@ -161,7 +168,8 @@ void main() {
         provider: mockNotesProvider,
       ));
 
-      expect(find.byType(CircularProgressIndicator), findsOneWidget);
+      // The UI shows a Shimmer widget, not a CircularProgressIndicator.
+      expect(find.byType(Shimmer), findsOneWidget);
     });
 
     testWidgets('Shows error message when hasError is true', (WidgetTester tester) async {
@@ -172,6 +180,7 @@ void main() {
         provider: mockNotesProvider,
       ));
       
+      // pumpAndSettle allows the UI to rebuild with the new state
       await tester.pumpAndSettle();
       
       expect(find.text('Failed to load'), findsOneWidget);
@@ -194,6 +203,8 @@ void main() {
         await createFakeDoc(fakeFirestore, 'note1', {'title': 'My First Note'}),
       ];
       mockNotesProvider.setNotes(notes);
+      // This will trigger the provider to notify listeners, but the UI won't update
+      // until we pump the widget again.
       mockNotesProvider.updateSearchQuery("nonexistent");
 
       await tester.pumpWidget(createTestableWidget(
@@ -218,6 +229,7 @@ void main() {
       ));
       await tester.pumpAndSettle();
 
+      // The _NotesList widget builds a SliverList.
       expect(find.byType(SliverList), findsOneWidget);
       expect(find.text('My First Note'), findsOneWidget);
       expect(find.text('My Second Note'), findsOneWidget);
@@ -236,12 +248,16 @@ void main() {
       ));
       await tester.pumpAndSettle();
 
+      // Initially, both notes should be visible
       expect(find.text('Apple Note'), findsOneWidget);
       expect(find.text('Banana Note'), findsOneWidget);
 
+      // Enter text into the search field
       await tester.enterText(find.byType(TextField), 'Apple');
+      // pumpAndSettle to allow the UI to react to the state change
       await tester.pumpAndSettle();
 
+      // Now, only the matching note should be visible
       expect(find.text('Apple Note'), findsOneWidget);
       expect(find.text('Banana Note'), findsNothing);
     });

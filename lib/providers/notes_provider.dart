@@ -142,9 +142,23 @@ class NotesProvider with ChangeNotifier {
   }
   
   Future<void> deleteNote(String docId) async {
-    await _firestoreService.deleteNote(docId);
-    _notes.removeWhere((doc) => doc.id == docId);
-    notifyListeners();
+    // Optimistically remove the note from the UI
+    final int index = _notes.indexWhere((doc) => doc.id == docId);
+    if (index != -1) {
+      final DocumentSnapshot deletedNote = _notes.removeAt(index);
+      notifyListeners();
+
+      try {
+        await _firestoreService.deleteNote(docId);
+      } catch (e) {
+        // If deletion fails, re-insert the note and notify listeners
+        _notes.insert(index, deletedNote);
+        _error = "Failed to delete note: $e";
+        notifyListeners();
+        // Optionally, you might want to show a snackbar or other error message to the user
+        // showCustomSnackBar(context, 'Failed to delete note', backgroundColor: Colors.red);
+      }
+    }
   }
 
   @override

@@ -5,7 +5,6 @@ import 'package:lournal/components/note_settings.dart';
 import 'package:lournal/helper/language_and_type_helper.dart';
 import 'package:lournal/pages/create_page.dart'; // Used by popover's edit
 import 'package:lournal/pages/edit_page.dart'; // Used by onTap
-import 'package:lournal/services/firestore.dart';
 import 'package:popover/popover.dart';
 
 class NotesTile extends StatelessWidget {
@@ -38,7 +37,6 @@ class NotesTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final FirestoreService firestoreService = FirestoreService();
     final bool hasImage = imageUrl != null && imageUrl!.isNotEmpty;
 
     // Define text styles
@@ -86,9 +84,7 @@ class NotesTile extends StatelessWidget {
             showPopover(
               context: context,
               bodyBuilder: (popoverContext) => NoteSettings(
-                onDeleteTap: () {
-                  firestoreService.deleteNote(docId);
-                },
+                onDeleteTap: onDeletePressed,
                 onEditTap: () {
                   Navigator.push(
                     context,

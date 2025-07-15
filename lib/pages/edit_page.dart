@@ -3,8 +3,10 @@ import 'package:flutter/material.dart';
 import 'package:lournal/components/note_settings.dart';
 import 'package:lournal/helper/perfomance_adjective.dart';
 import 'package:lournal/pages/create_page.dart';
+import 'package:lournal/providers/notes_provider.dart';
 import 'package:lournal/services/firestore.dart';
 import 'package:popover/popover.dart';
+import 'package:provider/provider.dart';
 
 class EditPage extends StatelessWidget {
   final String docID;
@@ -37,8 +39,8 @@ class EditPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     // Use the provided firestoreService, or create a new instance if it's null.
-    // This allows for dependency injection in tests while working in production.
-    final effectiveFirestoreService = firestoreService ?? FirestoreService();
+    // // This allows for dependency injection in tests while working in production.
+    // final effectiveFirestoreService = firestoreService ?? FirestoreService();
     final double progress = score / 100.0;
 
     return Scaffold(
@@ -68,10 +70,10 @@ class EditPage extends StatelessWidget {
                     context: context,
                     bodyBuilder: (context) => NoteSettings(
                       onDeleteTap: () {
-                        // Use the effective service instance.
-                        effectiveFirestoreService.deleteNote(docID);
-                        // Pop twice to close the popover and the edit page.
-                        Navigator.of(context).pop();
+                        // The NoteSettings widget pops the popover automatically.
+                        // Then, we delete the note via the provider (which updates the UI).
+                        context.read<NotesProvider>().deleteNote(docID);
+                        // Finally, we pop the EditPage to go back to the NotesPage.
                         Navigator.of(context).pop();
                       },
                       onEditTap: () {
