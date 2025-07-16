@@ -1,6 +1,7 @@
 import 'dart:async'; // Import the async library for the Timer
 
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:lournal/auth/google_auth.dart';
 import 'package:lournal/components/custom_circular_progress_indicator.dart';
@@ -8,6 +9,8 @@ import 'package:lournal/components/custom_snackbar.dart';
 import 'package:lournal/components/my_textfield.dart';
 import 'package:lournal/pages/forgot_password.dart';
 import 'package:lournal/pages/register_page.dart';
+import 'package:lournal/sheets/privacy_policy_bottomsheet.dart';
+import 'package:lournal/sheets/terms_and_conditions_bottomsheet.dart';
 
 
 
@@ -251,7 +254,7 @@ class _LoginPageState extends State<LoginPage> {
       ),
       body: Center(
         child: Padding(
-          padding: const EdgeInsets.all(24.0),
+          padding: const EdgeInsets.only(bottom: 24, top: 12, right: 24, left: 24),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -396,6 +399,48 @@ class _LoginPageState extends State<LoginPage> {
                           fontSize: 16,
                           fontWeight: FontWeight.w600,
                         ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+
+              const SizedBox(height: 15),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                child: RichText(
+                  textAlign: TextAlign.center,
+                  text: TextSpan(
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.inversePrimary,
+                      fontSize: 12,
+                    ),
+                    children: [
+                      const TextSpan(
+                          text:
+                              'By continuing, you agree to our '),
+                      TextSpan(
+                        text: 'Privacy Policy',
+                        style: TextStyle(
+                          color: Theme.of(context).colorScheme.tertiary,
+                          decoration: TextDecoration.underline,
+                        ),
+                        recognizer: TapGestureRecognizer()
+                          ..onTap = () {
+                            showPrivacyPolicyBottomSheet(context);
+                          },
+                      ),
+                      const TextSpan(text: ' and '),
+                      TextSpan(
+                        text: 'Terms and Conditions',
+                        style: TextStyle(
+                          color: Theme.of(context).colorScheme.tertiary,
+                          decoration: TextDecoration.underline,
+                        ),
+                        recognizer: TapGestureRecognizer()
+                          ..onTap = () {
+                            showTermsAndConditionsBottomSheet(context);
+                          },
                       ),
                     ],
                   ),
