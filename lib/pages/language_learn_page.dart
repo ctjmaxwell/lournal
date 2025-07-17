@@ -4,6 +4,7 @@ import 'package:lournal/components/custom_snackbar.dart';
 import 'package:lournal/helper/language_and_type_helper.dart';
 import 'package:lournal/helper/language_option.dart';
 import 'package:lournal/services/firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class LanguageLearnPage extends StatefulWidget {
   final String nativeLanguage;
@@ -64,9 +65,17 @@ class _LanguageLearnPageState extends State<LanguageLearnPage> {
     });
 
     try {
+      final user = FirebaseAuth.instance.currentUser;
+      if (user == null) {
+        // This should not happen if the user is on this page, but it's a safe check
+        throw Exception("No authenticated user found.");
+      }
+
       await _firestoreService.setUserPreferences(
+        uid: user.uid,
         nativeLanguage: widget.nativeLanguage,
         learningLanguage: _selectedLanguage!,
+        onboardingComplete: true,
       );
 
       if (mounted) {

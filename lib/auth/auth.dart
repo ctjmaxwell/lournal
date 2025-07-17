@@ -1,42 +1,84 @@
+// auth.dart
+
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:lournal/components/custom_circular_progress_indicator.dart';
+import 'package:lournal/pages/language_speak_page.dart';
 import 'package:lournal/pages/notes_page.dart';
 import 'package:lournal/pages/start_page.dart';
+import 'package:lournal/services/firestore.dart';
 
 class AuthPage extends StatelessWidget {
   const AuthPage({super.key});
 
   @override
   Widget build(BuildContext context) {
-    // Consider removing this Scaffold if StartPage and NotesPage provide their own.
-    // If you keep it, ensure it's not conflicting with Scaffolds in child pages.
-    // For now, let's assume StartPage and NotesPage are full Scaffold widgets.
-    return StreamBuilder<User?>( // Explicitly type the StreamBuilder
+    return StreamBuilder<User?>(
       stream: FirebaseAuth.instance.authStateChanges(),
-      builder: (context, AsyncSnapshot<User?> snapshot) { // Explicitly type the AsyncSnapshot
-
-        // 1. Handle loading state
+      builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
-          return const Scaffold( // A temporary Scaffold for the loading indicator is fine
+          return const Scaffold(
             body: Center(child: CustomCircularProgressIndicator()),
           );
         }
 
-        // 2. Handle error state (optional but good practice)
         if (snapshot.hasError) {
-          return Scaffold( // A temporary Scaffold for the error message
+          return Scaffold(
             body: Center(child: Text('Error: ${snapshot.error}')),
           );
         }
 
-        // 3. User is logged in
-        if (snapshot.hasData && snapshot.data != null) {
-          return const NotesPage(); // Ensure NotesPage is a complete page (likely with its own Scaffold)
+        if (snapshot.hasData) {
+          return const OnboardingGate();
+        } else {
+          return const StartPage();
         }
-        // 4. User is not logged in
+      },
+    );
+  }
+}
+
+
+// --- WIDGET MODIFIED TO USE STREAMBUILDER ---
+
+class OnboardingGate extends StatelessWidget {
+  const OnboardingGate({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final FirestoreService firestoreService = FirestoreService();
+
+    // ✅ CHANGED: Use a StreamBuilder to listen for real-time updates
+    return StreamBuilder<UserPreferences?>(
+      // ✅ CHANGED: Use the stream method from your FirestoreService
+      stream: firestoreService.streamUserPreferences(),
+      builder: (context, snapshot) {
+        // Show loading indicator while waiting for the first stream event
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return Scaffold(
+            backgroundColor: Theme.of(context).colorScheme.primary,
+          );
+        }
+
+        if (snapshot.hasError) {
+          return Scaffold(
+            body: Center(child: Text('Error fetching user data: ${snapshot.error}')),
+          );
+        }
+
+        final userPreferences = snapshot.data;
+
+        // ROUTING LOGIC (This remains the same)
+        // If the stream provides data where onboarding is not complete, show the onboarding page.
+        if (userPreferences?.onboardingComplete != true) {
+          // You are correctly showing the LanguageSpeakPage you provided.
+          // Note: The LanguageSpeakPage now doesn't need to worry about navigation,
+          // it just pushes the next screen in the flow.
+          return const LanguageSpeakPage();
+        }
+        // Otherwise, the stream has confirmed onboarding is complete, so show the main app.
         else {
-          return const StartPage(); // Ensure StartPage is a complete page (likely with its own Scaffold)
+          return const NotesPage();
         }
       },
     );

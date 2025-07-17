@@ -156,6 +156,7 @@ class _RegisterPageState extends State<RegisterPage> {
       // --- Create user document in Firestore with onboarding incomplete ---
       final firestoreService = FirestoreService();
       await firestoreService.setUserPreferences(
+        uid: userCredential.user!.uid,
         nativeLanguage: '', // Set empty strings for now
         learningLanguage: '',
         email: userCredential.user?.email,
