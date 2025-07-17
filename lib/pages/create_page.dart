@@ -5,6 +5,7 @@ import 'package:cloud_functions/cloud_functions.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:lournal/components/custom_circular_progress_indicator.dart';
+import 'package:lournal/helper/language_and_type_helper.dart';
 import 'package:lournal/pages/finish_page.dart';
 import 'package:lournal/services/firestore.dart';
 import 'package:lournal/services/storage_service.dart';
@@ -43,6 +44,7 @@ class CreatePage extends StatefulWidget {
   final String type;
   final String title;
   final String content;
+  final String? mood;
   final String? imageUrl;
 
   // For testability, we allow injecting these services.
@@ -58,6 +60,7 @@ class CreatePage extends StatefulWidget {
     required this.type,
     required this.title,
     required this.content,
+    this.mood,
     this.imageUrl,
     this.firestoreService,
     this.functions,
@@ -83,6 +86,7 @@ class _CreatePageState extends State<CreatePage> {
   bool _isSaving = false;
   File? _selectedImage;
   String? _networkImageUrl;
+  String _selectedMood = 'Happy';
 
   @override
   void initState() {
@@ -105,6 +109,7 @@ class _CreatePageState extends State<CreatePage> {
     if (widget.imageUrl != null) {
       _networkImageUrl = widget.imageUrl;
     }
+    _selectedMood = widget.mood ?? 'Happy';
   }
 
   @override
@@ -204,6 +209,7 @@ class _CreatePageState extends State<CreatePage> {
           translation: generatedTranslation,
           feedback: generatedFeedback,
           score: clampedScore, // Use the clamped score
+          mood: _selectedMood,
           imageUrl: finalImageUrl,
         );
       } else {
@@ -215,6 +221,7 @@ class _CreatePageState extends State<CreatePage> {
           translation: generatedTranslation,
           feedback: generatedFeedback,
           score: clampedScore, // Use the clamped score
+          mood: _selectedMood,
           imageUrl: finalImageUrl,
         );
       }
@@ -259,6 +266,43 @@ class _CreatePageState extends State<CreatePage> {
     );
   }
 }
+
+  Widget _buildMoodSelector() {
+    return SizedBox(
+      height: 60,
+      child: ListView.builder(
+        scrollDirection: Axis.horizontal,
+        itemCount: moods.length,
+        itemBuilder: (context, index) {
+          final mood = moods[index];
+          final isSelected = _selectedMood == mood;
+          return Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 4.0),
+            child: GestureDetector(
+              onTap: () {
+                setState(() {
+                  _selectedMood = mood;
+                });
+              },
+              child: Chip(
+                avatar: Text(
+                  getEmojiForMood(mood),
+                  style: const TextStyle(fontSize: 20),
+                ),
+                label: Text(mood),
+                backgroundColor: isSelected
+                    ? Theme.of(context).colorScheme.tertiary
+                    : Theme.of(context).colorScheme.secondary,
+                labelStyle: TextStyle(
+                  color: isSelected ? Colors.white : Theme.of(context).colorScheme.inversePrimary,
+                ),
+              ),
+            ),
+          );
+        },
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -319,6 +363,8 @@ class _CreatePageState extends State<CreatePage> {
                         ),
                       ),
                     ),
+                  _buildMoodSelector(),
+                  const SizedBox(height: 10),
                   TextField(
                     // Added a key for testing
                     key: const ValueKey('title_field'),

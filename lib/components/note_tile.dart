@@ -17,6 +17,7 @@ class NotesTile extends StatelessWidget {
   final String type;
   final String language;
   final int score;
+  final String mood;
   final String? imageUrl;
   final void Function()? onDeletePressed;
   final void Function()? onEditPressed;
@@ -31,6 +32,7 @@ class NotesTile extends StatelessWidget {
     required this.type,
     required this.score,
     required this.language,
+    required this.mood,
     this.imageUrl,
     this.onDeletePressed,
     this.onEditPressed,
@@ -71,6 +73,7 @@ class NotesTile extends StatelessWidget {
                 type: type,
                 language: language,
                 score: score,
+                mood: mood,
                 imageUrl: imageUrl,
               ),
             ),
@@ -99,6 +102,7 @@ class NotesTile extends StatelessWidget {
                         language: language,
                         title: title,
                         content: content,
+                        mood: mood,
                         imageUrl: imageUrl,
                       ),
                     ),
@@ -156,6 +160,8 @@ class NotesTile extends StatelessWidget {
                           ],
                         ),
                       ),
+                      Text(getEmojiForMood(mood), style: emojiStyle),
+                      const SizedBox(width: 10),
                       ClipRRect(
                         borderRadius: BorderRadius.circular(3),
                         child: CountryFlag.fromCountryCode(

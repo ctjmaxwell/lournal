@@ -127,6 +127,7 @@ class FirestoreService {
     required String translation,
     required String feedback,
     required int score,
+    required String mood,
     String? imageUrl,
   }) {
     return userNotesCollection.add({
@@ -137,6 +138,7 @@ class FirestoreService {
       'translation': translation,
       'feedback': feedback,
       'score': score,
+      'mood': mood,
       'imageUrl': imageUrl,
       'timestamp': Timestamp.now(),
     });
@@ -173,6 +175,7 @@ class FirestoreService {
     required String translation,
     required String feedback,
     required int score,
+    required String mood,
     String? imageUrl,
   }) {
     final Map<String, dynamic> dataToUpdate = {
@@ -183,6 +186,7 @@ class FirestoreService {
       'translation': translation,
       'feedback': feedback,
       'score': score,
+      'mood': mood,
       'timestamp': Timestamp.now(), // Optionally update timestamp on edit
     };
 

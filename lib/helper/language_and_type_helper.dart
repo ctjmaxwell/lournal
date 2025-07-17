@@ -104,3 +104,42 @@ String getEmojiForType(String type) {
       return '📖';
   }
 }
+
+//================== MOOD HELPERS ==================
+
+const List<String> moods = [
+  'Happy',
+  'Sad',
+  'Angry',
+  'Anxious',
+  'Calm',
+  'Excited',
+  'Tired',
+  'Grateful',
+  'Inspired',
+];
+
+String getEmojiForMood(String mood) {
+  switch (mood) {
+    case 'Happy':
+      return '😄';
+    case 'Sad':
+      return '😢';
+    case 'Angry':
+      return '😠';
+    case 'Anxious':
+      return '😟';
+    case 'Calm':
+      return '😌';
+    case 'Excited':
+      return '🤩';
+    case 'Tired':
+      return '😴';
+    case 'Grateful':
+      return '🙏';
+    case 'Inspired':
+      return '💡';
+    default:
+      return '😐';
+  }
+}

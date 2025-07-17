@@ -307,6 +307,7 @@ class _NotesList extends StatelessWidget {
                 type: data['type'] ?? 'text',
                 language: data['language'] ?? '',
                 score: data['score'] ?? 0,
+                mood: data['mood'] ?? 'Happy',
                 imageUrl: data['imageUrl'],
                 onDeletePressed: () => context.read<NotesProvider>().deleteNote(doc.id),
                 onEditPressed: () { /* Your edit logic here */ },

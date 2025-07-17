@@ -14,6 +14,7 @@ class EditPage extends StatelessWidget {
   final String type;
   final String language;
   final int score;
+  final String mood;
   final String? imageUrl;
   // The FirestoreService is now nullable to allow for a const constructor.
   final FirestoreService? firestoreService;
@@ -28,6 +29,7 @@ class EditPage extends StatelessWidget {
     required this.type,
     required this.language,
     required this.score,
+    required this.mood,
     this.imageUrl,
     // The default value has been removed to fix the compile error.
     this.firestoreService,
@@ -84,6 +86,7 @@ class EditPage extends StatelessWidget {
                               language: language,
                               title: title,
                               content: content,
+                              mood: mood,
                               imageUrl: imageUrl,
                             ),
                           ),
