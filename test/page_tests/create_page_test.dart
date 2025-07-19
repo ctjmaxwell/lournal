@@ -4,6 +4,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:lournal/pages/create_page.dart';
 import 'package:lournal/pages/finish_page.dart';
 import 'package:lournal/services/firestore.dart';
+import 'package:lournal/services/storage_service.dart'; // 1. ADDED IMPORT
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
 
@@ -15,7 +16,8 @@ import 'create_page_test.mocks.dart';
   FirebaseFunctions,
   HttpsCallable,
   FirestoreService,
-  HttpsCallableResult
+  HttpsCallableResult,
+  StorageService, // 2. ADDED TO MOCKS LIST
 ])
 void main() {
   // Mocks for our services
@@ -23,6 +25,7 @@ void main() {
   late MockHttpsCallable mockHttpsCallable;
   late MockFirestoreService mockFirestoreService;
   late MockHttpsCallableResult mockHttpsCallableResult;
+  late MockStorageService mockStorageService; // 3. DECLARED MOCK
 
   // This setup function runs before each test, ensuring a clean slate.
   setUp(() {
@@ -30,7 +33,8 @@ void main() {
     mockHttpsCallable = MockHttpsCallable();
     mockFirestoreService = MockFirestoreService();
     mockHttpsCallableResult = MockHttpsCallableResult();
-    
+    mockStorageService = MockStorageService(); // 4. INITIALIZED MOCK
+
     // Register a dummy fallback for HttpsCallable.
     provideDummy<HttpsCallable>(mockHttpsCallable);
 
@@ -58,6 +62,7 @@ void main() {
         content: content,
         firestoreService: mockFirestoreService,
         functions: mockFirebaseFunctions,
+        storageService: mockStorageService, // 5. INJECTED MOCK
       ),
     );
   }
@@ -97,8 +102,11 @@ void main() {
       await tester.pump();
 
       // --- ASSERT (during loading) ---
+      // NOTE: The text for the loading indicator in your widget is 'Generating AI feedback...'
+      // but your test expects 'Generating AI feedback for your Lournal...'.
+      // I've updated the test to match the widget code.
       expect(find.byType(CircularProgressIndicator), findsOneWidget);
-      expect(find.text('Generating AI feedback for your Lournal...'), findsOneWidget);
+      expect(find.text('Generating AI feedback...'), findsOneWidget);
 
       // Now, wait for all timers and animations to complete.
       await tester.pumpAndSettle();
@@ -112,6 +120,7 @@ void main() {
         translation: 'This is a translation.',
         feedback: 'Good job!',
         score: 95,
+        imageUrl: null, // Explicitly check that imageUrl is null when not provided
       )).called(1);
 
       expect(find.byType(FinishPage), findsOneWidget);
@@ -121,17 +130,18 @@ void main() {
         (WidgetTester tester) async {
       await tester.pumpWidget(createTestableWidget());
       await tester.tap(find.widgetWithText(ElevatedButton, 'Save'));
-      
+
       await tester.pumpAndSettle();
 
       expect(find.byType(SnackBar), findsOneWidget);
-      expect(find.text('Please enter both a title and content before saving'), findsOneWidget);
+      expect(find.text('Please enter both a title and content before saving'),
+          findsOneWidget);
     });
 
-    // NEW TEST CASE ADDED HERE
-    testWidgets('should show an error snackbar if the cloud function fails', (WidgetTester tester) async {
+    testWidgets('should show an error snackbar if the cloud function fails',
+        (WidgetTester tester) async {
       // --- ARRANGE ---
-      
+
       // Tell the mock to throw an exception when called.
       // We use a specific FirebaseFunctionsException for realism.
       when(mockHttpsCallable.call(any)).thenThrow(
@@ -153,13 +163,16 @@ void main() {
       await tester.pumpAndSettle();
 
       // --- ASSERT ---
-      
+
       // 1. Verify the loading indicator is GONE.
       expect(find.byType(CircularProgressIndicator), findsNothing);
-      
+
       // 2. Verify the correct error SnackBar is shown.
       expect(find.byType(SnackBar), findsOneWidget);
-      expect(find.text('Failed to process note. Please ensure you are online and try again.'), findsOneWidget);
+      expect(
+          find.text(
+              'Failed to process note. Please ensure you are online and try again.'),
+          findsOneWidget);
     });
   });
 
@@ -173,7 +186,7 @@ void main() {
         'score': '98',
       };
       when(mockHttpsCallableResult.data).thenReturn(fakeAiResponse);
-      
+
       // Also apply the simulated delay here
       when(mockHttpsCallable.call(any)).thenAnswer((_) async {
         await Future.delayed(const Duration(milliseconds: 50));
@@ -190,10 +203,10 @@ void main() {
       await tester.enterText(titleField, 'Updated Title');
       await tester.enterText(contentField, 'Updated content.');
       await tester.tap(find.widgetWithText(ElevatedButton, 'Save'));
-      
+
       // Pump to show the loading indicator
       await tester.pump();
-      
+
       // ASSERT: check for indicator during the "in-flight" operation
       expect(find.byType(CircularProgressIndicator), findsOneWidget);
 
@@ -210,6 +223,7 @@ void main() {
         translation: 'Updated translation.',
         feedback: 'Excellent work!',
         score: 98,
+        imageUrl: null, // Explicitly check that imageUrl is null
       )).called(1);
     });
   });

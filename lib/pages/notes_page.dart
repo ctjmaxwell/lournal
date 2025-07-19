@@ -1,8 +1,9 @@
+import 'package:shimmer/shimmer.dart';
+import 'package:lournal/components/note_tile_shimmer.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:lournal/components/custom_circular_progress_indicator.dart';
 import 'package:lournal/helper/date_format_helper.dart';
-import 'package:lournal/pages/language_speak_page.dart';
 import 'package:provider/provider.dart';
 import 'package:lournal/components/my_bottom_bar.dart';
 import 'package:lournal/components/note_tile.dart';
@@ -23,15 +24,16 @@ class _NotesPageState extends State<NotesPage> {
   @override
   void initState() {
     super.initState();
-    final notesProvider = Provider.of<NotesProvider>(context, listen: false);
-    if (notesProvider.filteredNotes.isEmpty) {
-      notesProvider.fetchInitialNotes();
-    }
-    _scrollController.addListener(() {
-      if (_scrollController.position.pixels >=
-          _scrollController.position.maxScrollExtent - 200) {
-        notesProvider.fetchMoreNotes();
-      }
+    // The NotesProvider now handles fetching notes when the auth state changes.
+    // We only need to set up the scroll controller here for pagination.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final notesProvider = Provider.of<NotesProvider>(context, listen: false);
+      _scrollController.addListener(() {
+        if (_scrollController.position.pixels >=
+            _scrollController.position.maxScrollExtent - 200) {
+          notesProvider.fetchMoreNotes();
+        }
+      });
     });
   }
 
@@ -52,38 +54,22 @@ class _NotesPageState extends State<NotesPage> {
   ];
 
 
-  void _onLanguageSelectTap() async {
+  void _onFilterTap(BuildContext context) async {
+    // Use `context.read` here because we are not rebuilding based on this, just calling a method.
     final notesProvider = Provider.of<NotesProvider>(context, listen: false);
-    final result = await Navigator.push<Map<String, bool>>(
-      context,
-      MaterialPageRoute(
-        builder: (context) => LanguageSpeakPage(
-          initialSelection: notesProvider.selectedLanguages,
-        ),
-      ),
-    );
 
-    if (result != null) {
-      final newSelectedLanguages = result.entries
-          .where((e) => _languageKeys.contains(e.key) && e.value)
-          .map((e) => e.key)
-          .toSet();
-      notesProvider.updateFilters(notesProvider.selectedTypes, newSelectedLanguages);
-    }
-  }
-
-  void _onFilterTap() async {
-    final notesProvider = Provider.of<NotesProvider>(context, listen: false);
+    // ... rest of the method is the same
+    final initialSelection = {
+      ...notesProvider.selectedTypes,
+      ...notesProvider.selectedLanguages,
+    };
 
     final result = await showFilterBottomSheet(
       context,
-      initialSelection: {
-        ...notesProvider.selectedTypes,
-        ...notesProvider.selectedLanguages,
-      },
+      initialSelection: initialSelection,
     );
 
-    if (result != null) {
+    if (result is Map<String, bool>) {
       final newSelectedTypes = result.entries
           .where((e) => _typeKeys.contains(e.key) && e.value)
           .map((e) => e.key)
@@ -121,44 +107,30 @@ class _NotesPageState extends State<NotesPage> {
       body: SafeArea(
         top: true,
         bottom: false,
-        child: CustomScrollView(
-          controller: _scrollController,
-          slivers: [
-            SliverAppBar(
-              // ... same as before
-              backgroundColor: Theme.of(context).colorScheme.primary,
-              elevation: 0,
-              floating: true,
-              pinned: false,
-              snap: false,
-              expandedHeight: 60,
-              toolbarHeight: 56,
-              collapsedHeight: 56,
-              forceElevated: true,
-              flexibleSpace: Container(
-                padding: EdgeInsets.only(top: MediaQuery.of(context).viewPadding.top),
-              ),
-              leadingWidth: 56,
-              leading: Padding(
-                padding: const EdgeInsets.only(left: 16),
-                child: SizedBox(
-                  width: 40,
-                  height: 40,
-                  child: Material(
-                    color: Theme.of(context).colorScheme.tertiary,
-                    shape: const CircleBorder(),
-                    clipBehavior: Clip.hardEdge,
-                    child: InkWell(
-                      customBorder: const CircleBorder(),
-                      onTap: _onLanguageSelectTap,
-                      child: const Center(child: Icon(Icons.language, size: 20, color: Colors.white)),
-                    ),
-                  ),
+        child: RefreshIndicator(
+          color: Theme.of(context).colorScheme.tertiary,
+          backgroundColor: Theme.of(context).colorScheme.secondary,
+          onRefresh: () => context.read<NotesProvider>().refreshNotes(),
+          child: CustomScrollView(
+            controller: _scrollController,
+            slivers: [
+              SliverAppBar(
+                // ... same as before
+                backgroundColor: Theme.of(context).colorScheme.primary,
+                elevation: 0,
+                floating: true,
+                pinned: false,
+                snap: false,
+                expandedHeight: 60,
+                toolbarHeight: 56,
+                collapsedHeight: 56,
+                forceElevated: true,
+                flexibleSpace: Container(
+                  padding: EdgeInsets.only(top: MediaQuery.of(context).viewPadding.top),
                 ),
-              ),
-              actions: [
-                Padding(
-                  padding: const EdgeInsets.only(right: 8.0),
+                leadingWidth: 56,
+                leading: Padding(
+                  padding: const EdgeInsets.only(left: 16),
                   child: SizedBox(
                     width: 40,
                     height: 40,
@@ -167,67 +139,70 @@ class _NotesPageState extends State<NotesPage> {
                       shape: const CircleBorder(),
                       clipBehavior: Clip.hardEdge,
                       child: InkWell(
-                        onTap: _onFilterTap,
+                        customBorder: const CircleBorder(),
+                        onTap: () => _onFilterTap(context),
                         child: const Center(child: Icon(Icons.filter_list, size: 20, color: Colors.white)),
                       ),
                     ),
                   ),
                 ),
-                Padding(
-                  padding: const EdgeInsets.only(right: 16.0),
-                  child: SizedBox(
-                    width: 40,
-                    height: 40,
-                    child: Material(
-                      color: Theme.of(context).colorScheme.tertiary,
-                      shape: const CircleBorder(),
-                      clipBehavior: Clip.hardEdge,
-                      child: InkWell(
-                        key: const Key('profile_button'),
-                        customBorder: const CircleBorder(),
-                        onTap: () => profileBottomSheet(context),
-                        child: const Center(child: Icon(Icons.person, size: 20, color: Colors.white)),
+                actions: [
+                  Padding(
+                    padding: const EdgeInsets.only(right: 16.0),
+                    child: SizedBox(
+                      width: 40,
+                      height: 40,
+                      child: Material(
+                        color: Theme.of(context).colorScheme.tertiary,
+                        shape: const CircleBorder(),
+                        clipBehavior: Clip.hardEdge,
+                        child: InkWell(
+                          key: const Key('profile_button'),
+                          customBorder: const CircleBorder(),
+                          onTap: () => profileBottomSheet(context),
+                          child: const Center(child: Icon(Icons.person, size: 20, color: Colors.white)),
+                        ),
                       ),
                     ),
                   ),
-                ),
-              ],
-            ),
-            SliverToBoxAdapter(
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                child: TextField(
-                  cursorColor: Theme.of(context).colorScheme.tertiary,
-                  controller: searchController,
-                  // Use context.read to call the method without subscribing
-                  onChanged: (value) => context.read<NotesProvider>().updateSearchQuery(value),
-                  decoration: InputDecoration(
-                    hintText: 'Search your Lournals…',
-                    hintStyle: TextStyle(color: Colors.grey.shade600),
-                    prefixIcon: Icon(Icons.search, color: Colors.grey.shade600),
-                    filled: true,
-                    fillColor: Theme.of(context).colorScheme.secondary,
-                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
-                    contentPadding: const EdgeInsets.symmetric(vertical: 0, horizontal: 16),
+                ],
+              ),
+              SliverToBoxAdapter(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  child: TextField(
+                    cursorColor: Theme.of(context).colorScheme.tertiary,
+                    controller: searchController,
+                    // Use context.read to call the method without subscribing
+                    onChanged: (value) => context.read<NotesProvider>().updateSearchQuery(value),
+                    decoration: InputDecoration(
+                      hintText: 'Search your Lournals…',
+                      hintStyle: TextStyle(color: Colors.grey.shade600),
+                      prefixIcon: Icon(Icons.search, color: Colors.grey.shade600),
+                      filled: true,
+                      fillColor: Theme.of(context).colorScheme.secondary,
+                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
+                      contentPadding: const EdgeInsets.symmetric(vertical: 0, horizontal: 16),
+                    ),
                   ),
                 ),
               ),
-            ),
-            // *** THE BIG CHANGE: Delegate list building to a dedicated widget ***
-            const _NotesList(), 
-            SliverToBoxAdapter(
-              child: Consumer<NotesProvider>(
-                builder: (context, provider, child) {
-                  return provider.isLoadingMore
-                      ? const Center(child: CustomCircularProgressIndicator())
-                      : const SizedBox.shrink();
-                },
+              // *** THE BIG CHANGE: Delegate list building to a dedicated widget ***
+              const _NotesList(), 
+              SliverToBoxAdapter(
+                child: Consumer<NotesProvider>(
+                  builder: (context, provider, child) {
+                    return provider.isLoadingMore
+                        ? const Center(child: CustomCircularProgressIndicator())
+                        : const SizedBox.shrink();
+                  },
+                ),
               ),
-            ),
-            const SliverToBoxAdapter(
-              child: SizedBox(height: 120.0), // Padding for the FAB
-            ),
-          ],
+              const SliverToBoxAdapter(
+                child: SizedBox(height: 120.0), // Padding for the FAB
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -247,7 +222,29 @@ class _NotesList extends StatelessWidget {
 
     // Handle loading and error states from the provider
     if (notesProvider.isLoading) {
-      return const SliverFillRemaining(child: Center(child: CustomCircularProgressIndicator()));
+      return SliverToBoxAdapter(
+        child: Shimmer.fromColors(
+          baseColor: Theme.of(context).colorScheme.secondary,
+          highlightColor: Theme.of(context).colorScheme.primary,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Padding(
+                padding: const EdgeInsets.only(left: 16, right: 16, top: 32, bottom: 5),
+                child: Container(
+                  width: 200,
+                  height: 26,
+                  decoration: BoxDecoration(
+                    color: Colors.grey,
+                    borderRadius: BorderRadius.circular(10.0),
+                  ),
+                ),
+              ),
+              ...List.generate(5, (index) => const NoteTileShimmer()),
+            ],
+          ),
+        ),
+      );
     }
 
     if (notesProvider.hasError) {

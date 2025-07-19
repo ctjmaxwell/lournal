@@ -429,7 +429,7 @@ class _CreatePageState extends State<CreatePage> {
                       child: Text(
                         'Generating AI feedback...',
                         style: TextStyle(
-                          fontSize: 22,
+                          fontSize: 18,
                           fontWeight: FontWeight.w600,
                         ),
                         textAlign: TextAlign.center,

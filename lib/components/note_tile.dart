@@ -1,11 +1,10 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:country_flags/country_flags.dart';
 import 'package:flutter/material.dart';
-import 'package:lournal/components/custom_circular_progress_indicator.dart';
 import 'package:lournal/components/note_settings.dart';
 import 'package:lournal/helper/language_and_type_helper.dart';
 import 'package:lournal/pages/create_page.dart'; // Used by popover's edit
 import 'package:lournal/pages/edit_page.dart'; // Used by onTap
-import 'package:lournal/services/firestore.dart';
 import 'package:popover/popover.dart';
 
 class NotesTile extends StatelessWidget {
@@ -38,7 +37,6 @@ class NotesTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final FirestoreService firestoreService = FirestoreService();
     final bool hasImage = imageUrl != null && imageUrl!.isNotEmpty;
 
     // Define text styles
@@ -56,7 +54,7 @@ class NotesTile extends StatelessWidget {
     );
 
     return Container(
-      margin: const EdgeInsets.only(top: 0, left: 15, right: 15, bottom: 15),
+      margin: const EdgeInsets.only(top: 0, left: 15, right: 15, bottom: 4),
       child: GestureDetector(
         onTap: () {
           Navigator.push(
@@ -86,9 +84,7 @@ class NotesTile extends StatelessWidget {
             showPopover(
               context: context,
               bodyBuilder: (popoverContext) => NoteSettings(
-                onDeleteTap: () {
-                  firestoreService.deleteNote(docId);
-                },
+                onDeleteTap: onDeletePressed,
                 onEditTap: () {
                   Navigator.push(
                     context,
@@ -183,35 +179,26 @@ class NotesTile extends StatelessWidget {
               ClipRRect(
                 // Round the bottom corners of the image
                 borderRadius: const BorderRadius.vertical(bottom: Radius.circular(12.0)),
-                child: Image.network(
-                  imageUrl!,
+                child: CachedNetworkImage(
+                  imageUrl: imageUrl!,
                   width: double.infinity,
                   height: 250, // Image height is now 250
                   fit: BoxFit.cover,
-                  loadingBuilder: (context, child, loadingProgress) {
-                    if (loadingProgress == null) return child;
-                    return Container(
-                      height: 250,
-                      color: Theme.of(context).colorScheme.secondary,
-                      child: Center(
-                        child: CustomCircularProgressIndicator(
-                          value: loadingProgress.expectedTotalBytes != null
-                              ? loadingProgress.cumulativeBytesLoaded /
-                                  loadingProgress.expectedTotalBytes!
-                              : null,
-                        ),
-                      ),
-                    );
-                  },
-                  errorBuilder: (context, error, stackTrace) {
-                    return Container(
-                      height: 250,
-                      color: Theme.of(context).colorScheme.secondary,
-                      child: const Center(
-                        child: Icon(Icons.broken_image, color: Colors.grey),
-                      ),
-                    );
-                  },
+                  memCacheHeight: 250,
+                  placeholder: (context, url) => Container(
+                    height: 250,
+                    color: Theme.of(context).colorScheme.secondary,
+                    child: const Center(
+                      child: SizedBox.shrink(),
+                    ),
+                  ),
+                  errorWidget: (context, url, error) => Container(
+                    height: 250,
+                    color: Theme.of(context).colorScheme.secondary,
+                    child: const Center(
+                      child: Icon(Icons.broken_image, color: Colors.grey),
+                    ),
+                  ),
                 ),
               ),
             ]

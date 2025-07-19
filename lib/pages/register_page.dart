@@ -277,7 +277,7 @@ class _RegisterPageState extends State<RegisterPage> {
                 textInputAction: TextInputAction.done,
                 onSubmitted: (_) => registerUser(),
               ),
-              const SizedBox(height: 10),
+              const SizedBox(height: 15),
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 8.0),
                 child: RichText(
@@ -290,7 +290,7 @@ class _RegisterPageState extends State<RegisterPage> {
                     children: [
                       const TextSpan(
                           text:
-                              'By signing up, you have read and agree to our '),
+                              'By signing up, you agree to our '),
                       TextSpan(
                         text: 'Privacy Policy',
                         style: TextStyle(

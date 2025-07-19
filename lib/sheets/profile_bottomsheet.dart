@@ -357,7 +357,6 @@ class _LoggedInProfileState extends State<_LoggedInProfile> {
               if (_isLoading)
                 const Padding(
                   padding: EdgeInsets.symmetric(vertical: 32.0),
-                  child: Center(child: CustomCircularProgressIndicator()),
                 ),
               // --- REMOVED: Error message text widget ---
             ],

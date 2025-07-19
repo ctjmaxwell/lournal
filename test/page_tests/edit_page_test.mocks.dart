@@ -35,6 +35,17 @@ class _FakeCollectionReference_0<T extends Object?> extends _i1.SmartFake
         );
 }
 
+class _FakeQuerySnapshot_1<T extends Object?> extends _i1.SmartFake
+    implements _i2.QuerySnapshot<T> {
+  _FakeQuerySnapshot_1(
+    Object parent,
+    Invocation parentInvocation,
+  ) : super(
+          parent,
+          parentInvocation,
+        );
+}
+
 /// A class which mocks [FirestoreService].
 ///
 /// See the documentation for Mockito's code generation for more information.
@@ -101,6 +112,40 @@ class MockFirestoreService extends _i1.Mock implements _i3.FirestoreService {
         ),
         returnValue: _i5.Stream<_i2.QuerySnapshot<Object?>>.empty(),
       ) as _i5.Stream<_i2.QuerySnapshot<Object?>>);
+
+  @override
+  _i5.Future<_i2.QuerySnapshot<Object?>> getNotesPaginated({
+    required int? limit,
+    _i2.DocumentSnapshot<Object?>? lastDocument,
+    Set<String>? types = const {},
+    Set<String>? languages = const {},
+  }) =>
+      (super.noSuchMethod(
+        Invocation.method(
+          #getNotesPaginated,
+          [],
+          {
+            #limit: limit,
+            #lastDocument: lastDocument,
+            #types: types,
+            #languages: languages,
+          },
+        ),
+        returnValue: _i5.Future<_i2.QuerySnapshot<Object?>>.value(
+            _FakeQuerySnapshot_1<Object?>(
+          this,
+          Invocation.method(
+            #getNotesPaginated,
+            [],
+            {
+              #limit: limit,
+              #lastDocument: lastDocument,
+              #types: types,
+              #languages: languages,
+            },
+          ),
+        )),
+      ) as _i5.Future<_i2.QuerySnapshot<Object?>>);
 
   @override
   _i5.Future<void> updateNote({

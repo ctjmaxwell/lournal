@@ -1,9 +1,12 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:lournal/components/note_settings.dart';
 import 'package:lournal/helper/perfomance_adjective.dart';
 import 'package:lournal/pages/create_page.dart';
+import 'package:lournal/providers/notes_provider.dart';
 import 'package:lournal/services/firestore.dart';
 import 'package:popover/popover.dart';
+import 'package:provider/provider.dart';
 
 class EditPage extends StatelessWidget {
   final String docID;
@@ -36,8 +39,8 @@ class EditPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     // Use the provided firestoreService, or create a new instance if it's null.
-    // This allows for dependency injection in tests while working in production.
-    final effectiveFirestoreService = firestoreService ?? FirestoreService();
+    // // This allows for dependency injection in tests while working in production.
+    // final effectiveFirestoreService = firestoreService ?? FirestoreService();
     final double progress = score / 100.0;
 
     return Scaffold(
@@ -67,10 +70,10 @@ class EditPage extends StatelessWidget {
                     context: context,
                     bodyBuilder: (context) => NoteSettings(
                       onDeleteTap: () {
-                        // Use the effective service instance.
-                        effectiveFirestoreService.deleteNote(docID);
-                        // Pop twice to close the popover and the edit page.
-                        Navigator.of(context).pop();
+                        // The NoteSettings widget pops the popover automatically.
+                        // Then, we delete the note via the provider (which updates the UI).
+                        context.read<NotesProvider>().deleteNote(docID);
+                        // Finally, we pop the EditPage to go back to the NotesPage.
                         Navigator.of(context).pop();
                       },
                       onEditTap: () {
@@ -110,8 +113,35 @@ class EditPage extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // The image has been removed from here.
-
+              // Place the image here, above the title
+              if (imageUrl != null && imageUrl!.isNotEmpty)
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 20.0), // Add padding below the image
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(12.0),
+                    child: CachedNetworkImage(
+                      imageUrl: imageUrl!,
+                      width: double.infinity,
+                      height: 250,
+                      fit: BoxFit.cover,
+                      memCacheHeight: 250,
+                      placeholder: (context, url) => Container(
+                        height: 250,
+                        color: Theme.of(context).colorScheme.secondary,
+                        child: const Center(
+                          child: SizedBox.shrink(),
+                        ),
+                      ),
+                      errorWidget: (context, url, error) => Container(
+                        height: 250,
+                        color: Theme.of(context).colorScheme.secondary,
+                        child: const Center(
+                          child: Icon(Icons.broken_image, color: Colors.grey),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
               Text(
                 title,
                 style: const TextStyle(
@@ -145,25 +175,7 @@ class EditPage extends StatelessWidget {
                   ],
                 ),
               ),
-
-              // The image is now placed here, between the two main containers.
-              // A vertical padding is used to create space around it.
-              if (imageUrl != null && imageUrl!.isNotEmpty)
-                Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 20.0),
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(12.0),
-                    child: Image.network(
-                      imageUrl!,
-                      width: double.infinity,
-                      height: 250,
-                      fit: BoxFit.cover,
-                    ),
-                  ),
-                )
-              else
-                // If there's no image, we still add space to separate the boxes.
-                const SizedBox(height: 20),
+              const SizedBox(height: 20),
 
               Container(
                 padding: const EdgeInsets.all(18),

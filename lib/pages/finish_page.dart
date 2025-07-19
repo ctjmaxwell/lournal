@@ -2,6 +2,8 @@ import 'package:country_flags/country_flags.dart';
 import 'package:flutter/material.dart';
 import 'package:lournal/helper/congrats_helper.dart';
 import 'package:lournal/helper/language_and_type_helper.dart';
+import 'package:lournal/providers/notes_provider.dart';
+import 'package:provider/provider.dart';
 
 class FinishPage extends StatelessWidget {
   final int wordCount;
@@ -131,6 +133,8 @@ class FinishPage extends StatelessWidget {
                         ),
                       ),
                       onPressed: () {
+                        // Refresh the notes list before popping the page.
+                        context.read<NotesProvider>().refreshNotes();
                         Navigator.pop(context);
                       },
                       child: const Text(

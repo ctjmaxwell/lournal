@@ -18,7 +18,7 @@ class NotesProvider with ChangeNotifier {
   // Special constructor for testing
   @visibleForTesting
   NotesProvider.testable(this._auth, this._firestoreService) {
-     _authSubscription = _auth.authStateChanges().listen(_onAuthStateChanged);
+    _authSubscription = _auth.authStateChanges().listen(_onAuthStateChanged);
   }
 
   late StreamSubscription _authSubscription;
@@ -54,6 +54,10 @@ class NotesProvider with ChangeNotifier {
       _hasMoreNotes = true;
       notifyListeners();
     } else {
+      // When a user logs in, reset filters and fetch their notes.
+      _selectedTypes = {};
+      _selectedLanguages = {};
+      _searchQuery = '';
       fetchInitialNotes();
     }
   }
@@ -61,15 +65,19 @@ class NotesProvider with ChangeNotifier {
   Future<void> fetchInitialNotes() async {
     _isLoading = true;
     _error = null;
+    _lastDocument = null;
+    _hasMoreNotes = true;
     notifyListeners();
 
     try {
-      final snapshot = await _firestoreService.getNotesPaginated(limit: _notesPerPage);
+      final snapshot = await _firestoreService.getNotesPaginated(
+        limit: _notesPerPage,
+        types: _selectedTypes,
+        languages: _selectedLanguages,
+      );
       _notes = snapshot.docs;
       if (_notes.isNotEmpty) {
         _lastDocument = snapshot.docs.last;
-      } else {
-        _lastDocument = null;
       }
       _hasMoreNotes = _notes.length == _notesPerPage;
     } catch (e) {
@@ -90,6 +98,8 @@ class NotesProvider with ChangeNotifier {
       final snapshot = await _firestoreService.getNotesPaginated(
         limit: _notesPerPage,
         lastDocument: _lastDocument,
+        types: _selectedTypes,
+        languages: _selectedLanguages,
       );
 
       if (snapshot.docs.isNotEmpty) {
@@ -105,24 +115,36 @@ class NotesProvider with ChangeNotifier {
     }
   }
 
-  List<DocumentSnapshot> _getFilteredNotes() {
-    if (_searchQuery.isEmpty && _selectedTypes.isEmpty && _selectedLanguages.isEmpty) {
-      return List<DocumentSnapshot>.from(_notes);
-    } else {
-       return _notes.where((doc) {
-        final data = doc.data() as Map<String, dynamic>;
-        final noteType = data['type'] as String? ?? '';
-        final noteLanguage = data['language'] as String? ?? '';
-        final title = (data['title'] as String? ?? '').toLowerCase();
-        final content = (data['content'] as String? ?? '').toLowerCase();
+  Future<void> refreshNotes() async {
+    // Re-fetches the first page of notes, respecting current filters.
+    await fetchInitialNotes();
+  }
 
-        final typeMatch = _selectedTypes.isEmpty || _selectedTypes.contains(noteType);
-        final langMatch = _selectedLanguages.isEmpty || _selectedLanguages.contains(noteLanguage);
-        final queryMatch = _searchQuery.isEmpty || title.contains(_searchQuery) || content.contains(_searchQuery);
-        
-        return typeMatch && langMatch && queryMatch;
+  List<DocumentSnapshot> _getFilteredNotes() {
+    // Start with the notes fetched from Firestore (which might already be server-filtered)
+    List<DocumentSnapshot> currentNotes = List<DocumentSnapshot>.from(_notes);
+
+    // Because Firestore can only 'whereIn' on one field, we apply the second filter client-side.
+    // If types were used in the server query, we only need to filter by languages here.
+    if (_selectedTypes.isNotEmpty && _selectedLanguages.isNotEmpty) {
+      currentNotes = currentNotes.where((doc) {
+        final data = doc.data() as Map<String, dynamic>;
+        final noteLanguage = data['language'] as String? ?? '';
+        return _selectedLanguages.contains(noteLanguage);
       }).toList();
     }
+
+    // Apply search query filtering on the client side.
+    if (_searchQuery.isNotEmpty) {
+      currentNotes = currentNotes.where((doc) {
+        final data = doc.data() as Map<String, dynamic>;
+        final title = (data['title'] as String? ?? '').toLowerCase();
+        final content = (data['content'] as String? ?? '').toLowerCase();
+        return title.contains(_searchQuery) || content.contains(_searchQuery);
+      }).toList();
+    }
+
+    return currentNotes;
   }
 
   void updateSearchQuery(String query) {
@@ -130,16 +152,32 @@ class NotesProvider with ChangeNotifier {
     notifyListeners();
   }
 
+  // This now triggers a full data refresh from Firestore.
   void updateFilters(Set<String> newSelectedTypes, Set<String> newSelectedLanguages) {
     _selectedTypes = newSelectedTypes;
     _selectedLanguages = newSelectedLanguages;
-    notifyListeners();
+    // Fetch notes from the beginning with the new filters.
+    fetchInitialNotes();
   }
-  
+
   Future<void> deleteNote(String docId) async {
-    await _firestoreService.deleteNote(docId);
-    _notes.removeWhere((doc) => doc.id == docId);
-    notifyListeners();
+    // Optimistically remove the note from the UI
+    final int index = _notes.indexWhere((doc) => doc.id == docId);
+    if (index != -1) {
+      final DocumentSnapshot deletedNote = _notes.removeAt(index);
+      notifyListeners();
+
+      try {
+        await _firestoreService.deleteNote(docId);
+      } catch (e) {
+        // If deletion fails, re-insert the note and notify listeners
+        _notes.insert(index, deletedNote);
+        _error = "Failed to delete note: $e";
+        notifyListeners();
+        // Optionally, you might want to show a snackbar or other error message to the user
+        // showCustomSnackBar(context, 'Failed to delete note', backgroundColor: Colors.red);
+      }
+    }
   }
 
   @override
