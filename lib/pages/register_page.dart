@@ -204,156 +204,157 @@ class _RegisterPageState extends State<RegisterPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      resizeToAvoidBottomInset: false,
       backgroundColor: Theme.of(context).colorScheme.primary,
       appBar: AppBar(
         backgroundColor: Theme.of(context).colorScheme.primary,
         foregroundColor: Theme.of(context).colorScheme.inversePrimary,
         elevation: 0,
       ),
-      body: Center(
-        child: Padding(
-          padding: const EdgeInsets.only(left: 24.0, right: 24.0, bottom: 24.0),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const Text(
-                'Sign Up',
-                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-              ),
-              const SizedBox(height: 2),
-              Text(
-                'Sync your notes across devices',
-                style: TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.grey.shade500,
+      body: SingleChildScrollView(
+        child: Center(
+          child: Padding(
+            padding: const EdgeInsets.all(24.0),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text(
+                  'Sign Up',
+                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                 ),
-              ),
-              const SizedBox(height: 25),
-              MyTextField(
-                hintText: "Username",
-                obscureText: false,
-                controller: usernameController,
-                hasError: _isUsernameInvalid,
-                focusNode: _usernameFocusNode,
-                textInputAction: TextInputAction.next,
-                onSubmitted: (_) {
-                  FocusScope.of(context).requestFocus(_emailFocusNode);
-                },
-              ),
-              const SizedBox(height: 10),
-              MyTextField(
-                hintText: "Email",
-                obscureText: false,
-                controller: emailController,
-                hasError: _isEmailInvalid,
-                focusNode: _emailFocusNode,
-                textInputAction: TextInputAction.next,
-                onSubmitted: (_) {
-                  FocusScope.of(context).requestFocus(_passwordFocusNode);
-                },
-              ),
-              const SizedBox(height: 10),
-              MyTextField(
-                hintText: "Password",
-                obscureText: true,
-                controller: passwordController,
-                hasError: _passwordInvalid,
-                focusNode: _passwordFocusNode,
-                textInputAction: TextInputAction.next,
-                onSubmitted: (_) {
-                  FocusScope.of(context).requestFocus(_confirmationFocusNode);
-                },
-              ),
-              const SizedBox(height: 10),
-              MyTextField(
-                hintText: "Confirm Password",
-                obscureText: true,
-                controller: confirmationController,
-                hasError: _passwordInvalid,
-                focusNode: _confirmationFocusNode,
-                textInputAction: TextInputAction.done,
-                onSubmitted: (_) => registerUser(),
-              ),
-              const SizedBox(height: 15),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                child: RichText(
-                  textAlign: TextAlign.center,
-                  text: TextSpan(
-                    style: TextStyle(
-                      color: Theme.of(context).colorScheme.inversePrimary,
-                      fontSize: 12,
-                    ),
-                    children: [
-                      const TextSpan(
-                          text:
-                              'By signing up, you agree to our '),
-                      TextSpan(
-                        text: 'Privacy Policy',
-                        style: TextStyle(
-                          color: Theme.of(context).colorScheme.tertiary,
-                          decoration: TextDecoration.underline,
-                        ),
-                        recognizer: TapGestureRecognizer()
-                          ..onTap = () {
-                            showPrivacyPolicyBottomSheet(context);
-                          },
-                      ),
-                      const TextSpan(text: ' and '),
-                      TextSpan(
-                        text: 'Terms and Conditions',
-                        style: TextStyle(
-                          color: Theme.of(context).colorScheme.tertiary,
-                          decoration: TextDecoration.underline,
-                        ),
-                        recognizer: TapGestureRecognizer()
-                          ..onTap = () {
-                            showTermsAndConditionsBottomSheet(context);
-                          },
-                      ),
-                    ],
+                const SizedBox(height: 2),
+                Text(
+                  'Sync your notes across devices',
+                  style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.grey.shade500,
                   ),
                 ),
-              ),
-              const SizedBox(height: 25),
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton(
-                  onPressed: registerUser,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Theme.of(context).colorScheme.tertiary,
-                    foregroundColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(
-                        vertical: 24, horizontal: 36),
-                    textStyle: const TextStyle(
-                        fontSize: 18, fontWeight: FontWeight.bold),
-                  ),
-                  child: const Text('Sign Up'),
+                const SizedBox(height: 25),
+                MyTextField(
+                  hintText: "Username",
+                  obscureText: false,
+                  controller: usernameController,
+                  hasError: _isUsernameInvalid,
+                  focusNode: _usernameFocusNode,
+                  textInputAction: TextInputAction.next,
+                  onSubmitted: (_) {
+                    FocusScope.of(context).requestFocus(_emailFocusNode);
+                  },
                 ),
-              ),
-              const SizedBox(height: 25),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const Text("Already have an account?"),
-                  GestureDetector(
-                    onTap: () {
-                      Navigator.pop(context);
-                    },
-                    child: Text(
-                      " Login here",
+                const SizedBox(height: 10),
+                MyTextField(
+                  hintText: "Email",
+                  obscureText: false,
+                  controller: emailController,
+                  hasError: _isEmailInvalid,
+                  focusNode: _emailFocusNode,
+                  textInputAction: TextInputAction.next,
+                  onSubmitted: (_) {
+                    FocusScope.of(context).requestFocus(_passwordFocusNode);
+                  },
+                ),
+                const SizedBox(height: 10),
+                MyTextField(
+                  hintText: "Password",
+                  obscureText: true,
+                  controller: passwordController,
+                  hasError: _passwordInvalid,
+                  focusNode: _passwordFocusNode,
+                  textInputAction: TextInputAction.next,
+                  onSubmitted: (_) {
+                    FocusScope.of(context).requestFocus(_confirmationFocusNode);
+                  },
+                ),
+                const SizedBox(height: 10),
+                MyTextField(
+                  hintText: "Confirm Password",
+                  obscureText: true,
+                  controller: confirmationController,
+                  hasError: _passwordInvalid,
+                  focusNode: _confirmationFocusNode,
+                  textInputAction: TextInputAction.done,
+                  onSubmitted: (_) => registerUser(),
+                ),
+                const SizedBox(height: 15),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                  child: RichText(
+                    textAlign: TextAlign.center,
+                    text: TextSpan(
                       style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        color: Theme.of(context).colorScheme.tertiary,
+                        color: Theme.of(context).colorScheme.inversePrimary,
+                        fontSize: 12,
                       ),
+                      children: [
+                        const TextSpan(
+                            text:
+                                'By signing up, you agree to our '),
+                        TextSpan(
+                          text: 'Privacy Policy',
+                          style: TextStyle(
+                            color: Theme.of(context).colorScheme.tertiary,
+                            decoration: TextDecoration.underline,
+                          ),
+                          recognizer: TapGestureRecognizer()
+                            ..onTap = () {
+                              showPrivacyPolicyBottomSheet(context);
+                            },
+                        ),
+                        const TextSpan(text: ' and '),
+                        TextSpan(
+                          text: 'Terms and Conditions',
+                          style: TextStyle(
+                            color: Theme.of(context).colorScheme.tertiary,
+                            decoration: TextDecoration.underline,
+                          ),
+                          recognizer: TapGestureRecognizer()
+                            ..onTap = () {
+                              showTermsAndConditionsBottomSheet(context);
+                            },
+                        ),
+                      ],
                     ),
                   ),
-                ],
-              )
-            ],
+                ),
+                const SizedBox(height: 25),
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton(
+                    onPressed: registerUser,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Theme.of(context).colorScheme.tertiary,
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(
+                          vertical: 24, horizontal: 36),
+                      textStyle: const TextStyle(
+                          fontSize: 18, fontWeight: FontWeight.bold),
+                    ),
+                    child: const Text('Sign Up'),
+                  ),
+                ),
+                const SizedBox(height: 25),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Text("Already have an account?"),
+                    GestureDetector(
+                      onTap: () {
+                        Navigator.pop(context);
+                      },
+                      child: Text(
+                        " Login here",
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          color: Theme.of(context).colorScheme.tertiary,
+                        ),
+                      ),
+                    ),
+                  ],
+                )
+              ],
+            ),
           ),
         ),
       ),

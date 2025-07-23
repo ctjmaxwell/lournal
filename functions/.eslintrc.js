@@ -30,5 +30,7 @@ module.exports = {
     "quotes": ["error", "double"],
     "import/no-unresolved": 0,
     "indent": ["error", 2],
+    // --- FIX: Removed spaces inside the curly braces ---
+    "max-len": ["error", {"code": 120, "ignoreStrings": true}],
   },
 };
