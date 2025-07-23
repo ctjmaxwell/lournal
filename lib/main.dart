@@ -1,10 +1,6 @@
 // import 'package:cloud_firestore/cloud_firestore.dart';
 // import 'package:cloud_functions/cloud_functions.dart';
 // import 'package:firebase_auth/firebase_auth.dart';
-// import 'package:flutter/foundation.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:cloud_functions/cloud_functions.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -24,13 +20,13 @@ void main() async {
 
   // // --- START TEMPORARY EMULATOR CONFIG ---
   // if (kDebugMode) { // <--- ADD THIS
-    try {
-      FirebaseFunctions.instance.useFunctionsEmulator('localhost', 5001);
-      FirebaseFirestore.instance.useFirestoreEmulator('localhost', 8080);
-      await FirebaseAuth.instance.useAuthEmulator('localhost', 9099);
-    } catch (e) {
-      print('Failed to connect to Firebase Emulators: $e');
-    }
+    // try {
+    //   FirebaseFunctions.instance.useFunctionsEmulator('localhost', 5001);
+    //   FirebaseFirestore.instance.useFirestoreEmulator('localhost', 8080);
+    //   await FirebaseAuth.instance.useAuthEmulator('localhost', 9099);
+    // } catch (e) {
+    //   print('Failed to connect to Firebase Emulators: $e');
+    // }
   //}
   // // --- END TEMPORARY EMULATOR CONFIG ---
 
