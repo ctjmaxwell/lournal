@@ -1,8 +1,12 @@
+import 'package:country_flags/country_flags.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:lournal/auth/auth.dart'; // Assuming this is your auth page
 import 'package:lournal/auth/google_auth.dart';
 import 'package:lournal/components/custom_circular_progress_indicator.dart';
+import 'package:lournal/helper/language_and_type_helper.dart';
+import 'package:lournal/pages/language_learn_page.dart';
+import 'package:lournal/pages/language_speak_page.dart';
 import 'package:lournal/services/firestore.dart'; // Your FirestoreService
 import 'package:lournal/components/custom_snackbar.dart'; // Your custom snackbar
 import 'package:lournal/components/my_textfield.dart'; // Import your custom text field
@@ -53,11 +57,27 @@ class _LoggedInProfileState extends State<_LoggedInProfile> {
   final FirestoreService _firestoreService = FirestoreService();
   final TextEditingController _reAuthPasswordController =
       TextEditingController();
-  
   final FocusNode _passwordFocusNode = FocusNode();
 
   bool _isLoading = false;
-  // --- REMOVED: Error message state variable is no longer needed ---
+  UserPreferences? _userPreferences;
+  bool _isPrefsLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadUserPreferences();
+  }
+
+  Future<void> _loadUserPreferences() async {
+    final prefs = await _firestoreService.getUserPreferences();
+    if (mounted) {
+      setState(() {
+        _userPreferences = prefs;
+        _isPrefsLoading = false;
+      });
+    }
+  }
 
   @override
   void dispose() {
@@ -350,6 +370,30 @@ class _LoggedInProfileState extends State<_LoggedInProfile> {
                   style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
               _userContainer(context, 'email', widget.user.email),
               const SizedBox(height: 16),
+              if (_isPrefsLoading)
+                const Center(child: CustomCircularProgressIndicator())
+              else if (_userPreferences != null) ...[
+                const Text('Speaking Language',
+                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+                const SizedBox(height: 16),
+                GestureDetector(
+                  onTap: () {
+                    Navigator.push(context, MaterialPageRoute(builder: (context) => const LanguageSpeakPage()));
+                  },
+                  child: _languageContainer(context, _userPreferences!.nativeLanguage),
+                ),
+                const SizedBox(height: 16),
+                const Text('Learning Language',
+                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+                const SizedBox(height: 16),
+                 GestureDetector(
+                  onTap: () {
+                    Navigator.push(context, MaterialPageRoute(builder: (context) => LanguageLearnPage(nativeLanguage: _userPreferences!.nativeLanguage,)));
+                  },
+                  child: _languageContainer(context, _userPreferences!.learningLanguage),
+                ),
+                const SizedBox(height: 16),
+              ],
               const Text('Account Settings',
                   style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
               const SizedBox(height: 16),
@@ -358,7 +402,6 @@ class _LoggedInProfileState extends State<_LoggedInProfile> {
                 const Padding(
                   padding: EdgeInsets.symmetric(vertical: 32.0),
                 ),
-              // --- REMOVED: Error message text widget ---
             ],
           ),
         ),
@@ -435,6 +478,35 @@ class _LoggedInProfileState extends State<_LoggedInProfile> {
       child: Text(
         value ?? 'No $label available',
         style: const TextStyle(fontSize: 16),
+      ),
+    );
+  }
+
+  Widget _languageContainer(BuildContext context, String language) {
+    final countryCode = getCountryCodeForLanguage(language);
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 16),
+      width: double.infinity,
+      decoration: BoxDecoration(
+        color: Theme.of(context).colorScheme.secondary,
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Row(
+        children: [
+          ClipRRect(
+            borderRadius: BorderRadius.circular(3),
+            child: CountryFlag.fromCountryCode(
+              countryCode,
+              width: 28,
+              height: 21,
+            ),
+          ),
+          const SizedBox(width: 16),
+          Text(
+            language,
+            style: const TextStyle(fontSize: 16),
+          ),
+        ],
       ),
     );
   }

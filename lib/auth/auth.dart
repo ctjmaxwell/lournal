@@ -78,7 +78,7 @@ class OnboardingGate extends StatelessWidget {
         }
         // Otherwise, the stream has confirmed onboarding is complete, so show the main app.
         else {
-          return const NotesPage();
+          return NotesPage(userPreferences: userPreferences!);
         }
       },
     );

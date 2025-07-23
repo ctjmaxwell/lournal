@@ -10,9 +10,12 @@ import 'package:lournal/components/note_tile.dart';
 import 'package:lournal/sheets/profile_bottomsheet.dart';
 import 'package:lournal/sheets/show_filter_bottomsheet.dart';
 import 'package:lournal/providers/notes_provider.dart';
+import 'package:lournal/services/firestore.dart';
 
 class NotesPage extends StatefulWidget {
-  const NotesPage({super.key});
+  final UserPreferences userPreferences;
+
+  const NotesPage({super.key, required this.userPreferences});
 
   @override
   State<NotesPage> createState() => _NotesPageState();
@@ -100,7 +103,7 @@ class _NotesPageState extends State<NotesPage> {
         foregroundColor: Colors.white,
         shape: const CircleBorder(),
         onPressed: () {
-          MyBottomBar.showMakerSheet(context, defaultLanguage: "Spanish");
+          MyBottomBar.showMakerSheet(context, defaultLanguage: widget.userPreferences.learningLanguage);
         },
         child: const Icon(Icons.add),
       ),
