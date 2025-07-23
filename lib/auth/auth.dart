@@ -1,12 +1,11 @@
-// auth.dart
-
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:lournal/components/custom_circular_progress_indicator.dart';
 import 'package:lournal/pages/language_speak_page.dart';
 import 'package:lournal/pages/notes_page.dart';
 import 'package:lournal/pages/start_page.dart';
-import 'package:lournal/services/firestore.dart';
+import 'package:lournal/providers/user_preferences_provider.dart';
+import 'package:provider/provider.dart';
 
 class AuthPage extends StatelessWidget {
   const AuthPage({super.key});
@@ -46,38 +45,25 @@ class OnboardingGate extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final FirestoreService firestoreService = FirestoreService();
-
-    // ✅ CHANGED: Use a StreamBuilder to listen for real-time updates
-    return StreamBuilder<UserPreferences?>(
-      // ✅ CHANGED: Use the stream method from your FirestoreService
-      stream: firestoreService.streamUserPreferences(),
-      builder: (context, snapshot) {
-        // Show loading indicator while waiting for the first stream event
-        if (snapshot.connectionState == ConnectionState.waiting) {
+    return Consumer<UserPreferencesProvider>(
+      builder: (context, prefsProvider, child) {
+        if (prefsProvider.isLoading) {
           return Scaffold(
             backgroundColor: Theme.of(context).colorScheme.primary,
           );
         }
 
-        if (snapshot.hasError) {
+        if (prefsProvider.hasError) {
           return Scaffold(
-            body: Center(child: Text('Error fetching user data: ${snapshot.error}')),
+            body: Center(child: Text('Error fetching user data: ${prefsProvider.error}')),
           );
         }
 
-        final userPreferences = snapshot.data;
+        final userPreferences = prefsProvider.userPreferences;
 
-        // ROUTING LOGIC (This remains the same)
-        // If the stream provides data where onboarding is not complete, show the onboarding page.
         if (userPreferences?.onboardingComplete != true) {
-          // You are correctly showing the LanguageSpeakPage you provided.
-          // Note: The LanguageSpeakPage now doesn't need to worry about navigation,
-          // it just pushes the next screen in the flow.
           return const LanguageSpeakPage();
-        }
-        // Otherwise, the stream has confirmed onboarding is complete, so show the main app.
-        else {
+        } else {
           return NotesPage(userPreferences: userPreferences!);
         }
       },

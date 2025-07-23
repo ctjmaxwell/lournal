@@ -4,6 +4,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:lournal/components/custom_circular_progress_indicator.dart';
 import 'package:lournal/helper/date_format_helper.dart';
+import 'package:lournal/helper/language_and_type_helper.dart';
 import 'package:provider/provider.dart';
 import 'package:lournal/components/my_bottom_bar.dart';
 import 'package:lournal/components/note_tile.dart';
@@ -46,17 +47,6 @@ class _NotesPageState extends State<NotesPage> {
     super.dispose();
   }
 
-  // Filter keys remain as constants
-  static const _typeKeys = [
-    'Diary', 'Gratitude', 'Dreams', 'Study/Work', 'Goals', 'Travel', 
-    'Creative Writing', 'Health & Fitness', 'Conversations',
-  ];
-  static const _languageKeys = [
-    'English', 'Spanish', 'Portuguese', 'French', 'German', 'Italian', 'Russian', 
-    'Chinese', 'Japanese', 'Korean', 'Dutch', 'Arabic', 'Hindi', 'Swahili', 'Swedish', 'Turkish',
-  ];
-
-
   void _onFilterTap(BuildContext context) async {
     // Use `context.read` here because we are not rebuilding based on this, just calling a method.
     final notesProvider = Provider.of<NotesProvider>(context, listen: false);
@@ -74,11 +64,11 @@ class _NotesPageState extends State<NotesPage> {
 
     if (result is Map<String, bool>) {
       final newSelectedTypes = result.entries
-          .where((e) => _typeKeys.contains(e.key) && e.value)
+          .where((e) => journalTypes.contains(e.key) && e.value)
           .map((e) => e.key)
           .toSet();
       final newSelectedLanguages = result.entries
-          .where((e) => _languageKeys.contains(e.key) && e.value)
+          .where((e) => supportedLanguages.contains(e.key) && e.value)
           .map((e) => e.key)
           .toSet();
       

@@ -7,9 +7,11 @@ import 'package:lournal/components/custom_circular_progress_indicator.dart';
 import 'package:lournal/helper/language_and_type_helper.dart';
 import 'package:lournal/pages/language_learn_page.dart';
 import 'package:lournal/pages/language_speak_page.dart';
+import 'package:lournal/providers/user_preferences_provider.dart';
 import 'package:lournal/services/firestore.dart'; // Your FirestoreService
 import 'package:lournal/components/custom_snackbar.dart'; // Your custom snackbar
-import 'package:lournal/components/my_textfield.dart'; // Import your custom text field
+import 'package:lournal/components/my_textfield.dart';
+import 'package:provider/provider.dart'; // Import your custom text field
 
 /// Shows a modal bottom sheet with the user's profile information and actions.
 Future<void> profileBottomSheet(BuildContext context) {
@@ -60,24 +62,6 @@ class _LoggedInProfileState extends State<_LoggedInProfile> {
   final FocusNode _passwordFocusNode = FocusNode();
 
   bool _isLoading = false;
-  UserPreferences? _userPreferences;
-  bool _isPrefsLoading = true;
-
-  @override
-  void initState() {
-    super.initState();
-    _loadUserPreferences();
-  }
-
-  Future<void> _loadUserPreferences() async {
-    final prefs = await _firestoreService.getUserPreferences();
-    if (mounted) {
-      setState(() {
-        _userPreferences = prefs;
-        _isPrefsLoading = false;
-      });
-    }
-  }
 
   @override
   void dispose() {
@@ -349,6 +333,9 @@ class _LoggedInProfileState extends State<_LoggedInProfile> {
 
   @override
   Widget build(BuildContext context) {
+    final prefsProvider = context.watch<UserPreferencesProvider>();
+    final userPreferences = prefsProvider.userPreferences;
+
     return Scaffold(
       backgroundColor: Theme.of(context).colorScheme.primary,
       body: SingleChildScrollView(
@@ -370,9 +357,9 @@ class _LoggedInProfileState extends State<_LoggedInProfile> {
                   style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
               _userContainer(context, 'email', widget.user.email),
               const SizedBox(height: 16),
-              if (_isPrefsLoading)
+              if (prefsProvider.isLoading)
                 const Center(child: CustomCircularProgressIndicator())
-              else if (_userPreferences != null) ...[
+              else if (userPreferences != null) ...[
                 const Text('Speaking Language',
                     style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
                 const SizedBox(height: 16),
@@ -380,7 +367,7 @@ class _LoggedInProfileState extends State<_LoggedInProfile> {
                   onTap: () {
                     Navigator.push(context, MaterialPageRoute(builder: (context) => const LanguageSpeakPage()));
                   },
-                  child: _languageContainer(context, _userPreferences!.nativeLanguage),
+                  child: _languageContainer(context, userPreferences.nativeLanguage),
                 ),
                 const SizedBox(height: 16),
                 const Text('Learning Language',
@@ -388,9 +375,9 @@ class _LoggedInProfileState extends State<_LoggedInProfile> {
                 const SizedBox(height: 16),
                  GestureDetector(
                   onTap: () {
-                    Navigator.push(context, MaterialPageRoute(builder: (context) => LanguageLearnPage(nativeLanguage: _userPreferences!.nativeLanguage,)));
+                    Navigator.push(context, MaterialPageRoute(builder: (context) => LanguageLearnPage(nativeLanguage: userPreferences.nativeLanguage,)));
                   },
-                  child: _languageContainer(context, _userPreferences!.learningLanguage),
+                  child: _languageContainer(context, userPreferences.learningLanguage),
                 ),
                 const SizedBox(height: 16),
               ],

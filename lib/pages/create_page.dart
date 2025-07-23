@@ -8,33 +8,7 @@ import 'package:lournal/components/custom_circular_progress_indicator.dart';
 import 'package:lournal/pages/finish_page.dart';
 import 'package:lournal/services/firestore.dart';
 import 'package:lournal/services/storage_service.dart';
-// import 'package:lournal/widgets/custom_snackbar.dart';
-
-// Assuming showCustomSnackBar is defined in an imported file.
-void showCustomSnackBar(
-  BuildContext context,
-  String message, {
-  Color? backgroundColor,
-}) {
-  ScaffoldMessenger.of(context).showSnackBar(
-    SnackBar(
-      content: Text(
-        message,
-        style: const TextStyle(
-          color: Colors.white,
-          fontWeight: FontWeight.w500,
-        ),
-      ),
-      backgroundColor: backgroundColor ?? Theme.of(context).colorScheme.tertiary,
-      behavior: SnackBarBehavior.floating,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12.0),
-      ),
-      margin: const EdgeInsets.all(10),
-      duration: const Duration(seconds: 3),
-    ),
-  );
-}
+import 'package:lournal/components/custom_snackbar.dart';
 
 
 class CreatePage extends StatefulWidget {

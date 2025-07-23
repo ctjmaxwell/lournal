@@ -8,7 +8,8 @@ import 'package:lournal/auth/auth.dart';
 import 'package:lournal/auth/google_auth.dart';
 import 'package:lournal/firebase_options.dart';
 import 'package:lournal/providers/cooldown_service.dart';
-import 'package:lournal/providers/notes_provider.dart'; // 1. Import your new provider
+import 'package:lournal/providers/notes_provider.dart';
+import 'package:lournal/providers/user_preferences_provider.dart';
 import 'package:lournal/theme/dark_mode.dart';
 import 'package:lournal/theme/light_mode.dart';
 import 'package:provider/provider.dart';
@@ -43,6 +44,7 @@ void main() async {
         // 3. List all of your providers here
         ChangeNotifierProvider(create: (context) => CooldownService()),
         ChangeNotifierProvider(create: (context) => NotesProvider()),
+        ChangeNotifierProvider(create: (context) => UserPreferencesProvider()),
       ],
       child: const MyApp(), // Your app is the child
     ),
