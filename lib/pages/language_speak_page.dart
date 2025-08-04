@@ -6,10 +6,12 @@ import 'package:lournal/pages/language_learn_page.dart';
 
 class LanguageSpeakPage extends StatefulWidget {
   final Set<String> initialSelection;
+  final bool isEditing;
 
   const LanguageSpeakPage({
     super.key,
     this.initialSelection = const {},
+    this.isEditing = false,
   });
 
   @override
@@ -43,6 +45,7 @@ class _LanguageSpeakPageState extends State<LanguageSpeakPage> {
         MaterialPageRoute(
           builder: (context) => LanguageLearnPage(
             nativeLanguage: _selectedLanguage!,
+            isEditing: widget.isEditing,
           ),
         ),
       );

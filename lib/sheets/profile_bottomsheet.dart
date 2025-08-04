@@ -365,7 +365,7 @@ class _LoggedInProfileState extends State<_LoggedInProfile> {
                 const SizedBox(height: 16),
                 GestureDetector(
                   onTap: () {
-                    Navigator.push(context, MaterialPageRoute(builder: (context) => const LanguageSpeakPage()));
+                    Navigator.push(context, MaterialPageRoute(builder: (context) => const LanguageSpeakPage(isEditing: true)));
                   },
                   child: _languageContainer(context, userPreferences.nativeLanguage),
                 ),
@@ -375,7 +375,7 @@ class _LoggedInProfileState extends State<_LoggedInProfile> {
                 const SizedBox(height: 16),
                  GestureDetector(
                   onTap: () {
-                    Navigator.push(context, MaterialPageRoute(builder: (context) => LanguageLearnPage(nativeLanguage: userPreferences.nativeLanguage,)));
+                    Navigator.push(context, MaterialPageRoute(builder: (context) => LanguageLearnPage(nativeLanguage: userPreferences.nativeLanguage, isEditing: true)));
                   },
                   child: _languageContainer(context, userPreferences.learningLanguage),
                 ),

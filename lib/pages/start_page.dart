@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'login_page.dart'; // Replace with your actual LoginPage import
+import 'package:lournal/l10n/app_localizations.dart';
+import 'package:lournal/pages/login_page.dart';
 
 class StartPage extends StatelessWidget {
   const StartPage({super.key});
@@ -50,24 +51,15 @@ class StartPage extends StatelessWidget {
                         ),
                       ),
                       const SizedBox(height: 20),
-                      const Text(
-                        "Where Language Learning Meets Journalling",
-                        style: TextStyle(
+                      Text(
+                        AppLocalizations.of(context)!.startPageSlogan,
+                        style: const TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.bold,
                         ),
                         textAlign: TextAlign.center,
                       ),
                       const SizedBox(height: 10),
-                      Text(
-                        "With AI Feedback To Improve Your Skills",
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: Colors.grey[500],
-                          fontWeight: FontWeight.bold,
-                        ),
-                        textAlign: TextAlign.center,
-                      ),
                     ],
                   ),
                 ),
@@ -82,7 +74,7 @@ class StartPage extends StatelessWidget {
                     padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 36),
                     textStyle: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                   ),
-                  child: const Text('Get Started'),
+                  child: Text(AppLocalizations.of(context)!.getStarted),
                 ),
               ),
             ],

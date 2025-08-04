@@ -8,10 +8,12 @@ import 'package:firebase_auth/firebase_auth.dart';
 
 class LanguageLearnPage extends StatefulWidget {
   final String nativeLanguage;
+  final bool isEditing;
 
   const LanguageLearnPage({
     super.key,
     required this.nativeLanguage,
+    this.isEditing = false,
   });
 
   @override
@@ -79,7 +81,12 @@ class _LanguageLearnPageState extends State<LanguageLearnPage> {
       );
 
       if (mounted) {
-        Navigator.of(context).popUntil((route) => route.isFirst);
+        if (widget.isEditing) {
+          int count = 0;
+          Navigator.of(context).popUntil((_) => count++ >= 2);
+        } else {
+          Navigator.of(context).popUntil((route) => route.isFirst);
+        }
       }
     } catch (e) {
       if (mounted) {

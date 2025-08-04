@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:lournal/services/firestore.dart';
 import 'package:provider/provider.dart';
 import 'package:lournal/pages/notes_page.dart';
 import 'package:lournal/providers/notes_provider.dart';
@@ -152,6 +153,7 @@ Future<DocumentSnapshot> createFakeDoc(FakeFirebaseFirestore firestore, String i
 void main() {
   late MockNotesProvider mockNotesProvider;
   late FakeFirebaseFirestore fakeFirestore;
+  final mockUserPreferences = UserPreferences(nativeLanguage: 'English', learningLanguage: 'Spanish');
 
   setUp(() {
     mockNotesProvider = MockNotesProvider();
@@ -164,7 +166,7 @@ void main() {
       mockNotesProvider.setLoading(true);
 
       await tester.pumpWidget(createTestableWidget(
-        child: const NotesPage(),
+        child: NotesPage(userPreferences: mockUserPreferences),
         provider: mockNotesProvider,
       ));
 
@@ -176,7 +178,7 @@ void main() {
       mockNotesProvider.setError('Failed to load');
 
       await tester.pumpWidget(createTestableWidget(
-        child: const NotesPage(),
+        child: NotesPage(userPreferences: mockUserPreferences),
         provider: mockNotesProvider,
       ));
       
@@ -190,7 +192,7 @@ void main() {
       mockNotesProvider.setNotes([]);
       
       await tester.pumpWidget(createTestableWidget(
-        child: const NotesPage(),
+        child: NotesPage(userPreferences: mockUserPreferences),
         provider: mockNotesProvider,
       ));
       await tester.pumpAndSettle();
@@ -208,7 +210,7 @@ void main() {
       mockNotesProvider.updateSearchQuery("nonexistent");
 
       await tester.pumpWidget(createTestableWidget(
-        child: const NotesPage(),
+        child: NotesPage(userPreferences: mockUserPreferences),
         provider: mockNotesProvider,
       ));
       await tester.pumpAndSettle();
@@ -224,7 +226,7 @@ void main() {
       mockNotesProvider.setNotes(notes);
 
       await tester.pumpWidget(createTestableWidget(
-        child: const NotesPage(),
+        child: NotesPage(userPreferences: mockUserPreferences),
         provider: mockNotesProvider,
       ));
       await tester.pumpAndSettle();
@@ -243,7 +245,7 @@ void main() {
       mockNotesProvider.setNotes(notes);
 
       await tester.pumpWidget(createTestableWidget(
-        child: const NotesPage(),
+        child: NotesPage(userPreferences: mockUserPreferences),
         provider: mockNotesProvider,
       ));
       await tester.pumpAndSettle();
@@ -274,7 +276,7 @@ void main() {
         mockNotesProvider.setNotes(notes);
 
         await tester.pumpWidget(createTestableWidget(
-          child: const NotesPage(),
+          child: NotesPage(userPreferences: mockUserPreferences),
           provider: mockNotesProvider,
         ));
         await tester.pumpAndSettle();
@@ -303,7 +305,7 @@ void main() {
       mockNotesProvider.setNotes(notes);
 
       await tester.pumpWidget(createTestableWidget(
-        child: const NotesPage(),
+        child: NotesPage(userPreferences: mockUserPreferences),
         provider: mockNotesProvider,
       ));
       await tester.pumpAndSettle();

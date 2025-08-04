@@ -11,6 +11,10 @@ import 'package:lournal/services/storage_service.dart';
 import 'package:lournal/components/custom_snackbar.dart';
 
 
+import 'package:lournal/providers/user_preferences_provider.dart';
+import 'package:provider/provider.dart';
+
+
 class CreatePage extends StatefulWidget {
   final String? docID; // Firestore document ID
   final String language;
@@ -130,6 +134,8 @@ class _CreatePageState extends State<CreatePage> {
         }
       }
 
+      final nativeLanguage = context.read<UserPreferencesProvider>().userPreferences?.nativeLanguage ?? 'English';
+
       // Use the _functions instance (which could be a mock)
       final HttpsCallable callable =
           _functions.httpsCallable('processNoteWithAI');
@@ -140,12 +146,14 @@ class _CreatePageState extends State<CreatePage> {
       log('Title: ${_titleController.text.trim()}');
       log('Content: ${_contentController.text.trim()}');
       log('Language: ${widget.language}');
+      log('Native Language: $nativeLanguage');
       log('------------------------------------');
 
       final result = await callable.call({
         'title': _titleController.text.trim(),
         'content': _contentController.text.trim(),
         'language': widget.language,
+        'nativeLanguage': nativeLanguage,
       });
 
       // --- LOGGING OUTPUTS (What you are getting back) ---

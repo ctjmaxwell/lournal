@@ -1,0 +1,25 @@
+
+{
+  "@@locale": "es",
+  "getStarted": "Empezar",
+  "login": "Iniciar sesión",
+  "welcomeBack": "Bienvenido de nuevo a Lournal",
+  "email": "Correo electrónico",
+  "password": "Contraseña",
+  "forgotPassword": "¿Olvidaste tu contraseña?",
+  "dontHaveAnAccount": "¿No tienes una cuenta?",
+  "registerHere": " Regístrate aquí",
+  "continueWithGoogle": "Continuar con Google",
+  "byContinuing": "Al continuar, aceptas nuestra ",
+  "privacyPolicy": "Política de privacidad",
+  "and": " y ",
+  "termsAndConditions": "Términos y Condiciones",
+  "startPageSlogan": "Donde el aprendizaje de idiomas se une al diario",
+  "signUp": "Regístrate",
+  "syncNotes": "Sincroniza tus notas en todos tus dispositivos",
+  "username": "Nombre de usuario",
+  "confirmPassword": "Confirmar contraseña",
+  "bySigningUp": "Al registrarte, aceptas nuestra ",
+  "alreadyHaveAnAccount": "¿Ya tienes una cuenta?",
+  "loginHere": " Inicia sesión aquí"
+}

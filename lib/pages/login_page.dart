@@ -7,13 +7,11 @@ import 'package:lournal/auth/google_auth.dart';
 import 'package:lournal/components/custom_circular_progress_indicator.dart';
 import 'package:lournal/components/custom_snackbar.dart';
 import 'package:lournal/components/my_textfield.dart';
+import 'package:lournal/l10n/app_localizations.dart';
 import 'package:lournal/pages/forgot_password.dart';
 import 'package:lournal/pages/register_page.dart';
 import 'package:lournal/sheets/privacy_policy_bottomsheet.dart';
 import 'package:lournal/sheets/terms_and_conditions_bottomsheet.dart';
-
-
-
 
 class LoginPage extends StatefulWidget {
   // Add this field to allow injecting a mock FirebaseAuth instance for testing.
@@ -244,6 +242,7 @@ class _LoginPageState extends State<LoginPage> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Scaffold(
       resizeToAvoidBottomInset: false,
       backgroundColor: Theme.of(context).colorScheme.primary,
@@ -259,13 +258,13 @@ class _LoginPageState extends State<LoginPage> {
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text(
-                'Log In',
-                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+              Text(
+                l10n.login,
+                style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 2),
               Text(
-                'Welcome back to Lournal',
+                l10n.welcomeBack,
                 style: TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.bold,
@@ -274,7 +273,7 @@ class _LoginPageState extends State<LoginPage> {
               ),
               const SizedBox(height: 25),
               MyTextField(
-                hintText: "Email",
+                hintText: l10n.email,
                 obscureText: false,
                 controller: emailController,
                 hasError: _isEmailInvalid,
@@ -286,7 +285,7 @@ class _LoginPageState extends State<LoginPage> {
               ),
               const SizedBox(height: 10),
               MyTextField(
-                hintText: "Password",
+                hintText: l10n.password,
                 obscureText: true,
                 controller: passwordController,
                 hasError: _passwordInvalid,
@@ -303,7 +302,7 @@ class _LoginPageState extends State<LoginPage> {
                       _navigateToAndClearFields(const ForgotPasswordPage());
                     },
                     child: Text(
-                      "Forgot password?",
+                      l10n.forgotPassword,
                       style: TextStyle(
                         fontWeight: FontWeight.bold,
                         color: Theme.of(context).colorScheme.tertiary,
@@ -325,21 +324,21 @@ class _LoginPageState extends State<LoginPage> {
                     textStyle: const TextStyle(
                         fontSize: 18, fontWeight: FontWeight.bold),
                   ),
-                  child: const Text('Log In'),
+                  child: Text(l10n.login),
                 ),
               ),
               const SizedBox(height: 25),
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const Text("Don't have an account?"),
+                  Text(l10n.dontHaveAnAccount),
                   GestureDetector(
                     onTap: () {
                       // This now correctly handles the navigation to the RegisterPage
                       _navigateToAndClearFields(const RegisterPage());
                     },
                     child: Text(
-                      " Register here",
+                      l10n.registerHere,
                       style: TextStyle(
                         fontWeight: FontWeight.bold,
                         color: Theme.of(context).colorScheme.tertiary,
@@ -393,9 +392,9 @@ class _LoginPageState extends State<LoginPage> {
                         width: 22.0,
                       ),
                       const SizedBox(width: 12),
-                      const Text(
-                        'Continue with Google',
-                        style: TextStyle(
+                      Text(
+                        l10n.continueWithGoogle,
+                        style: const TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.w600,
                         ),
@@ -416,11 +415,10 @@ class _LoginPageState extends State<LoginPage> {
                       fontSize: 12,
                     ),
                     children: [
-                      const TextSpan(
-                          text:
-                              'By continuing, you agree to our '),
                       TextSpan(
-                        text: 'Privacy Policy',
+                          text: l10n.byContinuing),
+                      TextSpan(
+                        text: l10n.privacyPolicy,
                         style: TextStyle(
                           color: Theme.of(context).colorScheme.tertiary,
                           decoration: TextDecoration.underline,
@@ -430,9 +428,9 @@ class _LoginPageState extends State<LoginPage> {
                             showPrivacyPolicyBottomSheet(context);
                           },
                       ),
-                      const TextSpan(text: ' and '),
+                      TextSpan(text: l10n.and),
                       TextSpan(
-                        text: 'Terms and Conditions',
+                        text: l10n.termsAndConditions,
                         style: TextStyle(
                           color: Theme.of(context).colorScheme.tertiary,
                           decoration: TextDecoration.underline,

@@ -1,0 +1,25 @@
+
+{
+  "@@locale": "en",
+  "getStarted": "Get Started",
+  "login": "Log In",
+  "welcomeBack": "Welcome back to Lournal",
+  "email": "Email",
+  "password": "Password",
+  "forgotPassword": "Forgot password?",
+  "dontHaveAnAccount": "Don't have an account?",
+  "registerHere": " Register here",
+  "continueWithGoogle": "Continue with Google",
+  "byContinuing": "By continuing, you agree to our ",
+  "privacyPolicy": "Privacy Policy",
+  "and": " and ",
+  "termsAndConditions": "Terms and Conditions",
+  "startPageSlogan": "Where Language Learning Meets Journalling",
+  "signUp": "Sign Up",
+  "syncNotes": "Sync your notes across devices",
+  "username": "Username",
+  "confirmPassword": "Confirm Password",
+  "bySigningUp": "By signing up, you agree to our ",
+  "alreadyHaveAnAccount": "Already have an account?",
+  "loginHere": " Login here"
+}
