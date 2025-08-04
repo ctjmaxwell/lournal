@@ -5,6 +5,7 @@ import 'package:lournal/helper/language_and_type_helper.dart';
 import 'package:lournal/helper/language_option.dart';
 import 'package:lournal/services/firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:lournal/helper/language_code_helper.dart';
 
 class LanguageLearnPage extends StatefulWidget {
   final String nativeLanguage;
@@ -76,7 +77,7 @@ class _LanguageLearnPageState extends State<LanguageLearnPage> {
       await _firestoreService.setUserPreferences(
         uid: user.uid,
         nativeLanguage: widget.nativeLanguage,
-        learningLanguage: _selectedLanguage!,
+        learningLanguage: getLanguageCode(_selectedLanguage!),
         onboardingComplete: true,
       );
 

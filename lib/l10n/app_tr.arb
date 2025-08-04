@@ -1,0 +1,33 @@
+{
+  "@@locale": "tr",
+  "getStarted": "Başla",
+  "login": "Giriş Yap",
+  "welcomeBack": "Lournal'a tekrar hoş geldiniz",
+  "email": "E-posta",
+  "password": "Şifre",
+  "forgotPassword": "Şifrenizi mi unuttunuz?",
+  "dontHaveAnAccount": "Hesabınız yok mu?",
+  "registerHere": " Buradan kaydolun",
+  "continueWithGoogle": "Google ile devam et",
+  "byContinuing": "Devam ederek, ",
+  "privacyPolicy": "Gizlilik Politikamızı",
+  "and": " ve ",
+  "termsAndConditions": "Şartlar ve Koşullarımızı",
+  "startPageSlogan": "Dil Öğrenimi Günlük Tutma ile Buluşuyor",
+  "signUp": "Kaydol",
+  "syncNotes": "Notlarınızı tüm cihazlarda senkronize edin",
+  "username": "Kullanıcı Adı",
+  "confirmPassword": "Şifreyi Onayla",
+  "bySigningUp": "Kaydolarak, ",
+  "alreadyHaveAnAccount": "Zaten bir hesabınız var mı?",
+  "loginHere": " Buradan giriş yapın",
+  "receiveEmailResetPassword": "Şifrenizi sıfırlamak için bir e-posta alın",
+  "resendIn": "{secondsRemaining} içinde tekrar gönder",
+  "@resendIn": {
+    "placeholders": {
+      "secondsRemaining": {}
+    }
+  },
+  "sendResetEmail": "Sıfırlama E-postası Gönder",
+  "rememberYourPassword": "Şifrenizi hatırlıyor musunuz?"
+}

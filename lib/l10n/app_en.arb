@@ -21,5 +21,14 @@
   "confirmPassword": "Confirm Password",
   "bySigningUp": "By signing up, you agree to our ",
   "alreadyHaveAnAccount": "Already have an account?",
-  "loginHere": " Login here"
+  "loginHere": " Login here",
+  "receiveEmailResetPassword": "Receive an email to reset your password",
+  "resendIn": "Resend in {secondsRemaining}",
+  "@resendIn": {
+    "placeholders": {
+      "secondsRemaining": {}
+    }
+  },
+  "sendResetEmail": "Send Reset Email",
+  "rememberYourPassword": "Remember your password?"
 }

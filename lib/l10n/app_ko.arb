@@ -1,0 +1,33 @@
+{
+  "@@locale": "ko",
+  "getStarted": "시작하기",
+  "login": "로그인",
+  "welcomeBack": "Lournal에 다시 오신 것을 환영합니다",
+  "email": "이메일",
+  "password": "비밀번호",
+  "forgotPassword": "비밀번호를 잊으셨나요?",
+  "dontHaveAnAccount": "계정이 없으신가요?",
+  "registerHere": " 여기에서 등록하세요",
+  "continueWithGoogle": "Google로 계속하기",
+  "byContinuing": "계속하면 당사의 ",
+  "privacyPolicy": "개인정보처리방침",
+  "and": " 및 ",
+  "termsAndConditions": "이용약관",
+  "startPageSlogan": "언어 학습과 저널링의 만남",
+  "signUp": "가입",
+  "syncNotes": "모든 기기에서 메모 동기화",
+  "username": "사용자 이름",
+  "confirmPassword": "비밀번호 확인",
+  "bySigningUp": "가입하면 당사의 ",
+  "alreadyHaveAnAccount": "이미 계정이 있으신가요?",
+  "loginHere": " 여기에서 로그인하세요",
+  "receiveEmailResetPassword": "비밀번호 재설정 이메일 받기",
+  "resendIn": "{secondsRemaining}초 후 재전송",
+  "@resendIn": {
+    "placeholders": {
+      "secondsRemaining": {}
+    }
+  },
+  "sendResetEmail": "재설정 이메일 보내기",
+  "rememberYourPassword": "비밀번호를 기억하시나요?"
+}

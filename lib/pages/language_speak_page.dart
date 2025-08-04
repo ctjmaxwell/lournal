@@ -3,6 +3,7 @@ import 'package:lournal/components/custom_snackbar.dart';
 import 'package:lournal/helper/language_and_type_helper.dart';
 import 'package:lournal/helper/language_option.dart';
 import 'package:lournal/pages/language_learn_page.dart';
+import 'package:lournal/helper/language_code_helper.dart';
 
 class LanguageSpeakPage extends StatefulWidget {
   final Set<String> initialSelection;
@@ -44,7 +45,7 @@ class _LanguageSpeakPageState extends State<LanguageSpeakPage> {
         context,
         MaterialPageRoute(
           builder: (context) => LanguageLearnPage(
-            nativeLanguage: _selectedLanguage!,
+            nativeLanguage: getLanguageCode(_selectedLanguage!),
             isEditing: widget.isEditing,
           ),
         ),

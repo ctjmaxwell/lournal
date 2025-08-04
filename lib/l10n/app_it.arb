@@ -1,0 +1,33 @@
+{
+  "@@locale": "it",
+  "getStarted": "Inizia",
+  "login": "Accedi",
+  "welcomeBack": "Bentornato su Lournal",
+  "email": "Email",
+  "password": "Password",
+  "forgotPassword": "Password dimenticata?",
+  "dontHaveAnAccount": "Non hai un account?",
+  "registerHere": " Registrati qui",
+  "continueWithGoogle": "Continua con Google",
+  "byContinuing": "Continuando, accetti la nostra ",
+  "privacyPolicy": "Informativa sulla privacy",
+  "and": " e i nostri ",
+  "termsAndConditions": "Termini e Condizioni",
+  "startPageSlogan": "Dove l'apprendimento delle lingue incontra il journaling",
+  "signUp": "Registrati",
+  "syncNotes": "Sincronizza le tue note su tutti i dispositivi",
+  "username": "Nome utente",
+  "confirmPassword": "Conferma password",
+  "bySigningUp": "Registrandoti, accetti la nostra ",
+  "alreadyHaveAnAccount": "Hai già un account?",
+  "loginHere": " Accedi qui",
+  "receiveEmailResetPassword": "Ricevi un'email per reimpostare la tua password",
+  "resendIn": "Reinvia tra {secondsRemaining}",
+  "@resendIn": {
+    "placeholders": {
+      "secondsRemaining": {}
+    }
+  },
+  "sendResetEmail": "Invia email di reimpostazione",
+  "rememberYourPassword": "Ricordi la tua password?"
+}

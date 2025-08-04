@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 import 'package:lournal/services/firestore.dart';
 
 class UserPreferencesProvider with ChangeNotifier {
@@ -19,6 +20,13 @@ class UserPreferencesProvider with ChangeNotifier {
   bool get isLoading => _isLoading;
   bool get hasError => _error != null;
   String? get error => _error;
+
+  Locale? get appLocale {
+    if (_userPreferences?.nativeLanguage != null && _userPreferences!.nativeLanguage.isNotEmpty) {
+      return Locale(_userPreferences!.nativeLanguage);
+    }
+    return null; // Or a default Locale like const Locale('en')
+  }
 
   // Default constructor for the app
   UserPreferencesProvider()

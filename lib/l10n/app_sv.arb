@@ -1,0 +1,33 @@
+{
+  "@@locale": "sv",
+  "getStarted": "Kom igång",
+  "login": "Logga in",
+  "welcomeBack": "Välkommen tillbaka till Lournal",
+  "email": "E-post",
+  "password": "Lösenord",
+  "forgotPassword": "Glömt lösenord?",
+  "dontHaveAnAccount": "Har du inget konto?",
+  "registerHere": " Registrera dig här",
+  "continueWithGoogle": "Fortsätt med Google",
+  "byContinuing": "Genom att fortsätta godkänner du våra ",
+  "privacyPolicy": "Integritetspolicy",
+  "and": " och ",
+  "termsAndConditions": "Allmänna villkor",
+  "startPageSlogan": "Där språkinlärning möter journalföring",
+  "signUp": "Registrera dig",
+  "syncNotes": "Synkronisera dina anteckningar på alla enheter",
+  "username": "Användarnamn",
+  "confirmPassword": "Bekräfta lösenord",
+  "bySigningUp": "Genom att registrera dig godkänner du våra ",
+  "alreadyHaveAnAccount": "Har du redan ett konto?",
+  "loginHere": " Logga in här",
+  "receiveEmailResetPassword": "Få ett e-postmeddelande för att återställa ditt lösenord",
+  "resendIn": "Skicka igen om {secondsRemaining}",
+  "@resendIn": {
+    "placeholders": {
+      "secondsRemaining": {}
+    }
+  },
+  "sendResetEmail": "Skicka återställnings-e-post",
+  "rememberYourPassword": "Kommer du ihåg ditt lösenord?"
+}

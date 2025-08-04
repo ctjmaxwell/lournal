@@ -1,0 +1,33 @@
+{
+  "@@locale": "ru",
+  "getStarted": "Начать",
+  "login": "Войти",
+  "welcomeBack": "С возвращением в Lournal",
+  "email": "Электронная почта",
+  "password": "Пароль",
+  "forgotPassword": "Забыли пароль?",
+  "dontHaveAnAccount": "Нет аккаунта?",
+  "registerHere": " Зарегистрироваться здесь",
+  "continueWithGoogle": "Продолжить с Google",
+  "byContinuing": "Продолжая, вы соглашаетесь с нашей ",
+  "privacyPolicy": "Политикой конфиденциальности",
+  "and": " и ",
+  "termsAndConditions": "Условиями использования",
+  "startPageSlogan": "Где изучение языков встречается с ведением дневника",
+  "signUp": "Зарегистрироваться",
+  "syncNotes": "Синхронизируйте свои заметки на всех устройствах",
+  "username": "Имя пользователя",
+  "confirmPassword": "Подтвердить пароль",
+  "bySigningUp": "Регистрируясь, вы соглашаетесь с нашей ",
+  "alreadyHaveAnAccount": "Уже есть аккаунт?",
+  "loginHere": " Войти здесь",
+  "receiveEmailResetPassword": "Получите электронное письмо для сброса пароля",
+  "resendIn": "Повторная отправка через {secondsRemaining}",
+  "@resendIn": {
+    "placeholders": {
+      "secondsRemaining": {}
+    }
+  },
+  "sendResetEmail": "Отправить письмо для сброса",
+  "rememberYourPassword": "Помните свой пароль?"
+}

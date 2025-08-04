@@ -1,0 +1,33 @@
+{
+  "@@locale": "sw",
+  "getStarted": "Anza",
+  "login": "Ingia",
+  "welcomeBack": "Karibu tena Lournal",
+  "email": "Barua pepe",
+  "password": "Nenosiri",
+  "forgotPassword": "Umesahau nenosiri?",
+  "dontHaveAnAccount": "Huna akaunti?",
+  "registerHere": " Jisajili hapa",
+  "continueWithGoogle": "Endelea na Google",
+  "byContinuing": "Kwa kuendelea, unakubali ",
+  "privacyPolicy": "Sera yetu ya Faragha",
+  "and": " na ",
+  "termsAndConditions": "Masharti na Vigezo",
+  "startPageSlogan": "Ambapo Kujifunza Lugha Kunakutana na Kuandika Jarida",
+  "signUp": "Jisajili",
+  "syncNotes": "Sawazisha madokezo yako kwenye vifaa vyote",
+  "username": "Jina la mtumiaji",
+  "confirmPassword": "Thibitisha Nenosiri",
+  "bySigningUp": "Kwa kujisajili, unakubali ",
+  "alreadyHaveAnAccount": "Tayari una akaunti?",
+  "loginHere": " Ingia hapa",
+  "receiveEmailResetPassword": "Pokea barua pepe ili kuweka upya nenosiri lako",
+  "resendIn": "Tuma tena baada ya {secondsRemaining}",
+  "@resendIn": {
+    "placeholders": {
+      "secondsRemaining": {}
+    }
+  },
+  "sendResetEmail": "Tuma Barua pepe ya Kuweka Upya",
+  "rememberYourPassword": "Unakumbuka nenosiri lako?"
+}

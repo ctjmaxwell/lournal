@@ -20,5 +20,14 @@
   "confirmPassword": "Passwort bestätigen",
   "bySigningUp": "Mit der Registrierung stimmen Sie unseren ",
   "alreadyHaveAnAccount": "Sie haben bereits ein Konto?",
-  "loginHere": " Hier anmelden"
+  "loginHere": " Hier anmelden",
+  "receiveEmailResetPassword": "Erhalten Sie eine E-Mail, um Ihr Passwort zurückzusetzen",
+  "resendIn": "Erneut senden in {secondsRemaining}",
+  "@resendIn": {
+    "placeholders": {
+      "secondsRemaining": {}
+    }
+  },
+  "sendResetEmail": "E-Mail zum Zurücksetzen senden",
+  "rememberYourPassword": "Passwort erinnert?"
 }

@@ -21,5 +21,14 @@
   "confirmPassword": "Confirmar contraseña",
   "bySigningUp": "Al registrarte, aceptas nuestra ",
   "alreadyHaveAnAccount": "¿Ya tienes una cuenta?",
-  "loginHere": " Inicia sesión aquí"
+  "loginHere": " Inicia sesión aquí",
+  "receiveEmailResetPassword": "Recibe un correo electrónico para restablecer tu contraseña",
+  "resendIn": "Reenviar en {secondsRemaining}",
+  "@resendIn": {
+    "placeholders": {
+      "secondsRemaining": {}
+    }
+  },
+  "sendResetEmail": "Enviar correo de restablecimiento",
+  "rememberYourPassword": "¿Recuerdas tu contraseña?"
 }

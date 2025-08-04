@@ -1,0 +1,33 @@
+{
+  "@@locale": "ar",
+  "getStarted": "البدء",
+  "login": "تسجيل الدخول",
+  "welcomeBack": "مرحبًا بك مرة أخرى في Lournal",
+  "email": "البريد الإلكتروني",
+  "password": "كلمة المرور",
+  "forgotPassword": "هل نسيت كلمة المرور؟",
+  "dontHaveAnAccount": "ليس لديك حساب؟",
+  "registerHere": " سجل هنا",
+  "continueWithGoogle": "المتابعة باستخدام جوجل",
+  "byContinuing": "باستمرارك، فإنك توافق على ",
+  "privacyPolicy": "سياسة الخصوصية",
+  "and": " و ",
+  "termsAndConditions": "الشروط والأحكام",
+  "startPageSlogan": "حيث يلتقي تعلم اللغة بالتدوين",
+  "signUp": "التسجيل",
+  "syncNotes": "مزامنة ملاحظاتك عبر الأجهزة",
+  "username": "اسم المستخدم",
+  "confirmPassword": "تأكيد كلمة المرور",
+  "bySigningUp": "بتسجيلك، فإنك توافق على ",
+  "alreadyHaveAnAccount": "هل لديك حساب بالفعل؟",
+  "loginHere": " سجل الدخول هنا",
+  "receiveEmailResetPassword": "تلقي رسالة بريد إلكتروني لإعادة تعيين كلمة المرور الخاصة بك",
+  "resendIn": "إعادة الإرسال في {secondsRemaining}",
+  "@resendIn": {
+    "placeholders": {
+      "secondsRemaining": {}
+    }
+  },
+  "sendResetEmail": "إرسال بريد إلكتروني لإعادة التعيين",
+  "rememberYourPassword": "هل تذكر كلمة المرور الخاصة بك؟"
+}

@@ -70,4 +70,19 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get loginHere => ' Login here';
+
+  @override
+  String get receiveEmailResetPassword =>
+      'Receive an email to reset your password';
+
+  @override
+  String resendIn(Object secondsRemaining) {
+    return 'Resend in $secondsRemaining';
+  }
+
+  @override
+  String get sendResetEmail => 'Send Reset Email';
+
+  @override
+  String get rememberYourPassword => 'Remember your password?';
 }

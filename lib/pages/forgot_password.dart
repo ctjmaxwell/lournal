@@ -6,6 +6,7 @@ import 'package:lournal/components/my_textfield.dart';
 import 'package:lournal/components/custom_snackbar.dart';
 import 'package:lournal/providers/cooldown_service.dart'; // Import the service
 import 'package:provider/provider.dart'; // Import provider
+import 'package:lournal/l10n/app_localizations.dart';
 
 class ForgotPasswordPage extends StatefulWidget {
   const ForgotPasswordPage({super.key});
@@ -99,6 +100,8 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
     final bool isOnCooldown = cooldownService.isPasswordResetOnCooldown;
     final int secondsRemaining = cooldownService.passwordResetSecondsRemaining;
 
+    final l10n = AppLocalizations.of(context)!;
+
     return Scaffold(
       resizeToAvoidBottomInset: false,
       backgroundColor: Theme.of(context).colorScheme.primary,
@@ -114,12 +117,12 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text('Forgot Password', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+              Text(l10n.forgotPassword, style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
               const SizedBox(height: 2),
-              Text('Receive an email to reset your password', style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Colors.grey.shade500)),
+              Text(l10n.receiveEmailResetPassword, style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Colors.grey.shade500)),
               const SizedBox(height: 25),
               MyTextField(
-                hintText: "Email",
+                hintText: l10n.email,
                 obscureText: false,
                 controller: emailController,
                 hasError: _emailHasError,
@@ -141,7 +144,8 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                   ),
                   child: Text(
                     // And to display the correct text
-                    isOnCooldown ? 'Resend in $secondsRemaining' : 'Send Reset Email',
+                    isOnCooldown ? l10n.resendIn(secondsRemaining) : l10n.sendResetEmail,
+                    textAlign: TextAlign.center,
                   ),
                 ),
               ),
@@ -149,10 +153,10 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const Text("Remember your password?"),
+                  Text(l10n.rememberYourPassword),
                   GestureDetector(
                     onTap: () { Navigator.pop(context); },
-                    child: Text(" Login", style: TextStyle(fontWeight: FontWeight.bold, color: Theme.of(context).colorScheme.tertiary)),
+                    child: Text(l10n.loginHere, style: TextStyle(fontWeight: FontWeight.bold, color: Theme.of(context).colorScheme.tertiary)),
                   ),
                 ],
               )

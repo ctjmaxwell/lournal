@@ -11,6 +11,7 @@ import 'package:lournal/theme/dark_mode.dart';
 import 'package:lournal/theme/light_mode.dart';
 import 'package:provider/provider.dart';
 import 'package:lournal/l10n/app_localizations.dart';
+import 'package:intl/intl.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -49,6 +50,15 @@ class MyApp extends StatelessWidget {
           
           localizationsDelegates: AppLocalizations.localizationsDelegates,
           supportedLocales: AppLocalizations.supportedLocales,
+          locale: prefsProvider.appLocale ?? WidgetsBinding.instance.window.locale,
+          // builder: (context, child) {
+          //   final currentLocale = prefsProvider.appLocale ?? WidgetsBinding.instance.window.locale;
+          //   final isRtl = Bidi.isRtlLanguage(currentLocale.languageCode);
+          //   return Directionality(
+          //     textDirection: isRtl ? TextDirection.rtl : TextDirection.ltr,
+          //     child: child!,
+          //   );
+          // },
         );
       },
     );

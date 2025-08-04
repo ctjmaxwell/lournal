@@ -1,0 +1,33 @@
+{
+  "@@locale": "hi",
+  "getStarted": "शुरू करें",
+  "login": "लॉग इन करें",
+  "welcomeBack": "Lournal में आपका स्वागत है",
+  "email": "ईमेल",
+  "password": "पासवर्ड",
+  "forgotPassword": "पासवर्ड भूल गए?",
+  "dontHaveAnAccount": "खाता नहीं है?",
+  "registerHere": " यहां रजिस्टर करें",
+  "continueWithGoogle": "Google के साथ जारी रखें",
+  "byContinuing": "जारी रखकर, आप हमारी ",
+  "privacyPolicy": "गोपनीयता नीति",
+  "and": " और ",
+  "termsAndConditions": "नियम और शर्तें",
+  "startPageSlogan": "जहां भाषा सीखना जर्नलिंग से मिलता है",
+  "signUp": "साइन अप करें",
+  "syncNotes": "अपने नोट्स को सभी डिवाइस पर सिंक करें",
+  "username": "उपयोगकर्ता नाम",
+  "confirmPassword": "पासवर्ड की पुष्टि करें",
+  "bySigningUp": "साइन अप करके, आप हमारी ",
+  "alreadyHaveAnAccount": "पहले से ही एक खाता है?",
+  "loginHere": " यहां लॉग इन करें",
+  "receiveEmailResetPassword": "अपना पासवर्ड रीसेट करने के लिए एक ईमेल प्राप्त करें",
+  "resendIn": "{secondsRemaining} में पुनः भेजें",
+  "@resendIn": {
+    "placeholders": {
+      "secondsRemaining": {}
+    }
+  },
+  "sendResetEmail": "रीसेट ईमेल भेजें",
+  "rememberYourPassword": "अपना पासवर्ड याद है?"
+}

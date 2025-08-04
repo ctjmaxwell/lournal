@@ -1,0 +1,33 @@
+{
+  "@@locale": "nl",
+  "getStarted": "Beginnen",
+  "login": "Inloggen",
+  "welcomeBack": "Welkom terug bij Lournal",
+  "email": "E-mail",
+  "password": "Wachtwoord",
+  "forgotPassword": "Wachtwoord vergeten?",
+  "dontHaveAnAccount": "Nog geen account?",
+  "registerHere": " Hier registreren",
+  "continueWithGoogle": "Doorgaan met Google",
+  "byContinuing": "Door verder te gaan, gaat u akkoord met onze ",
+  "privacyPolicy": "Privacybeleid",
+  "and": " en ",
+  "termsAndConditions": "Algemene voorwaarden",
+  "startPageSlogan": "Waar taal leren en journalen samenkomen",
+  "signUp": "Aanmelden",
+  "syncNotes": "Synchroniseer uw notities op al uw apparaten",
+  "username": "Gebruikersnaam",
+  "confirmPassword": "Wachtwoord bevestigen",
+  "bySigningUp": "Door u aan te melden, gaat u akkoord met onze ",
+  "alreadyHaveAnAccount": "Heeft u al een account?",
+  "loginHere": " Hier inloggen",
+  "receiveEmailResetPassword": "Ontvang een e-mail om uw wachtwoord opnieuw in te stellen",
+  "resendIn": "Opnieuw verzenden over {secondsRemaining}",
+  "@resendIn": {
+    "placeholders": {
+      "secondsRemaining": {}
+    }
+  },
+  "sendResetEmail": "Wachtwoordherstel-e-mail verzenden",
+  "rememberYourPassword": "Wachtwoord vergeten?"
+}

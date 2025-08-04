@@ -1,0 +1,33 @@
+{
+  "@@locale": "ja",
+  "getStarted": "始める",
+  "login": "ログイン",
+  "welcomeBack": "Lournalへようこそ",
+  "email": "メールアドレス",
+  "password": "パスワード",
+  "forgotPassword": "パスワードをお忘れですか？",
+  "dontHaveAnAccount": "アカウントをお持ちではありませんか？",
+  "registerHere": " ここで登録",
+  "continueWithGoogle": "Googleで続行",
+  "byContinuing": "続行することにより、お客様は当社の ",
+  "privacyPolicy": "プライバシーポリシー",
+  "and": " および ",
+  "termsAndConditions": "利用規約",
+  "startPageSlogan": "言語学習とジャーナリングの出会い",
+  "signUp": "登録",
+  "syncNotes": "すべてのデバイスでメモを同期する",
+  "username": "ユーザー名",
+  "confirmPassword": "パスワードを確認",
+  "bySigningUp": "登録することにより、お客様は当社の ",
+  "alreadyHaveAnAccount": "すでにアカウントをお持ちですか？",
+  "loginHere": " ここでログイン",
+  "receiveEmailResetPassword": "パスワードをリセットするためのメールを受け取る",
+  "resendIn": "{secondsRemaining}秒後に再送信",
+  "@resendIn": {
+    "placeholders": {
+      "secondsRemaining": {}
+    }
+  },
+  "sendResetEmail": "リセットメールを送信",
+  "rememberYourPassword": "パスワードを覚えていますか？"
+}
