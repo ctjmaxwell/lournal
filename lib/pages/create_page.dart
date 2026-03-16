@@ -115,7 +115,15 @@ class _CreatePageState extends State<CreatePage> {
     super.dispose();
   }
 
+  void _removeImage() {
+    setState(() {
+      _selectedImage = null;
+      _networkImageUrl = null;
+    });
+  }
+
   Future<void> _pickImage() async {
+    FocusScope.of(context).unfocus();
     final picker = ImagePicker();
     final pickedFile = await picker.pickImage(source: ImageSource.gallery);
 
@@ -296,27 +304,73 @@ class _CreatePageState extends State<CreatePage> {
                   if (_selectedImage != null)
                     Padding(
                       padding: const EdgeInsets.only(bottom: 16.0),
-                      child: ClipRRect(
-                        borderRadius: BorderRadius.circular(12.0),
-                        child: Image.file(
-                          _selectedImage!,
-                          width: double.infinity,
-                          height: 250,
-                          fit: BoxFit.cover,
-                        ),
+                      child: Stack(
+                        children: [
+                          ClipRRect(
+                            borderRadius: BorderRadius.circular(12.0),
+                            child: Image.file(
+                              _selectedImage!,
+                              width: double.infinity,
+                              height: 250,
+                              fit: BoxFit.cover,
+                            ),
+                          ),
+                          Positioned(
+                            top: 8,
+                            right: 8,
+                            child: GestureDetector(
+                              onTap: _removeImage,
+                              child: Container(
+                                padding: const EdgeInsets.all(4),
+                                decoration: BoxDecoration(
+                                  color: Colors.black.withOpacity(0.6),
+                                  shape: BoxShape.circle,
+                                ),
+                                child: const Icon(
+                                  Icons.close,
+                                  color: Colors.white,
+                                  size: 20,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
                     )
                   else if (_networkImageUrl != null)
                     Padding(
                       padding: const EdgeInsets.only(bottom: 16.0),
-                      child: ClipRRect(
-                        borderRadius: BorderRadius.circular(12.0),
-                        child: Image.network(
-                          _networkImageUrl!,
-                          width: double.infinity,
-                          height: 250,
-                          fit: BoxFit.cover,
-                        ),
+                      child: Stack(
+                        children: [
+                          ClipRRect(
+                            borderRadius: BorderRadius.circular(12.0),
+                            child: Image.network(
+                              _networkImageUrl!,
+                              width: double.infinity,
+                              height: 250,
+                              fit: BoxFit.cover,
+                            ),
+                          ),
+                          Positioned(
+                            top: 8,
+                            right: 8,
+                            child: GestureDetector(
+                              onTap: _removeImage,
+                              child: Container(
+                                padding: const EdgeInsets.all(4),
+                                decoration: BoxDecoration(
+                                  color: Colors.black.withOpacity(0.6),
+                                  shape: BoxShape.circle,
+                                ),
+                                child: const Icon(
+                                  Icons.close,
+                                  color: Colors.white,
+                                  size: 20,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
                     ),
                   TextField(
